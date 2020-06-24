@@ -137,10 +137,39 @@ void alarmActivationUpdate()
 		overTempDetector = OFF;
 	}
 	
-	if ( gasDetector || overTempDetector ) {
+    if( gasDetector) {
+        gasDetectorState = ON;
         alarmState = ON;
     }
-    alarmLed = alarmState;
+    if( overTempDetector ) {
+        overTempDetectorState = ON;
+        alarmState = ON;
+    }
+    if( alarmState ) { 
+        delay(10);
+        accumulatedTime = accumulatedTime + 10;
+	
+        if( gasDetectorState && overTempDetectorState ) {
+            if( accumulatedTime >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
+                accumulatedTime = 0;
+                alarmLed = !alarmLed;
+            }
+        } else if( gasDetectorState ) {
+            if( accumulatedTime >= BLINKING_TIME_GAS_ALARM ) {
+                accumulatedTime = 0;
+                alarmLed = !alarmLed;
+            }
+        } else if ( overTempDetectorState ) {
+            if( accumulatedTime >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
+                accumulatedTime = 0;
+                alarmLed = !alarmLed;
+            }
+        }
+    } else{
+        alarmLed = OFF;
+        gasDetectorState = OFF;
+        overTempDetectorState = OFF;
+    }
 }
 
 void alarmDeactivationUpdate()
