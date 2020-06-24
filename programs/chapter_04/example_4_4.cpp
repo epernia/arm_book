@@ -5,14 +5,14 @@
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS     4
-#define STRING_MAX_LENGTH 30
-#define BLINKING_TIME_GAS_ALARM               1000
-#define BLINKING_TIME_OVER_TEMP_ALARM          500
-#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-#define POTENTIOMETER_ALARM_LEVEL 0.5
-#define NUMBER_OF_AVG_SAMPLES 10
-#define OVER_TEMP_LEVEL 35
+#define NUMBER_OF_KEYS                            4
+#define STRING_MAX_LENGTH                        30
+#define BLINKING_TIME_GAS_ALARM                1000
+#define BLINKING_TIME_OVER_TEMP_ALARM           500
+#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM   100
+#define LM35_SAMPLE_TIME                        100
+#define NUMBER_OF_AVG_SAMPLES                    10
+#define OVER_TEMP_LEVEL                          50
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -43,7 +43,9 @@ int numberOfIncorrectCodes = 0;
 int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
-int accumulatedTime = 0;
+int accumulatedTimeAlarm = 0;
+int accumulatedTimeLm35 = 0;
+int lm35SampleIndex = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -57,8 +59,6 @@ bool gasDetectorState          = OFF;
 bool overTempDetectorState     = OFF;
 
 float potentiometerReading;
-
-int timeCounter = 0;
 float lm35ReadingsAverage = 0;
 float lm35ReadingsSum = 0;
 float lm35ReadingsArray[NUMBER_OF_AVG_SAMPLES];
@@ -121,21 +121,27 @@ void outputsInit()
 void alarmActivationUpdate()
 {
 	int i;
+
+    delay(10);
 	
-	lm35ReadingsSum = 0;
+	accumulatedTimeLm35 = accumulatedTimeLm35 + 10;
 	
-	for( i=0; i<NUMBER_OF_AVG_SAMPLES; i++ ) {
-		lm35ReadingsArray[i] = lm35.read();
-		delay( 100 );
+	if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
+		if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
+			lm35SampleIndex++;
+			lm35ReadingsArray[lm35SampleIndex] = lm35.read();
+		} else {
+			lm35ReadingsSum = 0;
+			for( i=0; i<NUMBER_OF_AVG_SAMPLES ; i++ ) {
+				lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
+			}
+			lm35SampleIndex = 0;
+			lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
+			lm35TempC = 
+			    analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );
+		}
+		accumulatedTimeLm35 = 0;
 	}
-	
-	for( i=0; i<NUMBER_OF_AVG_SAMPLES ; i++ ){
-		lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
-	}
-	
-	lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
-	
-	lm35TempC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );
 	
 	if ( lm35TempC > OVER_TEMP_LEVEL ) {
 		overTempDetector = ON;
@@ -152,22 +158,21 @@ void alarmActivationUpdate()
         alarmState = ON;
     }
     if( alarmState ) { 
-        delay(10);
-        accumulatedTime = accumulatedTime + 10;
+        accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
 	
         if( gasDetectorState && overTempDetectorState ) {
-            if( accumulatedTime >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
-                accumulatedTime = 0;
+            if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
+                accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
         } else if( gasDetectorState ) {
-            if( accumulatedTime >= BLINKING_TIME_GAS_ALARM ) {
-                accumulatedTime = 0;
+            if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_ALARM ) {
+                accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
         } else if ( overTempDetectorState ) {
-            if( accumulatedTime >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
-                accumulatedTime = 0;
+            if( accumulatedTimeAlarm >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
+                accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
         }

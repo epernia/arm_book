@@ -287,16 +287,21 @@ void uartTask()
         case 'c':
         case 'C':
             uartUsb.printf( "Temperature: %.2f °C\r\n", 
-				analogReadingScaledWithTheLM35Formula
-				( potentiometer.read() ) );
+				analogReadingScaledWithTheLM35Formula(
+				    potentiometer.read() 
+                ) 
+            );
             break;
 
         case 'f':
         case 'F':
             uartUsb.printf( "Temperature: %.2f °F\r\n", 
-				celsiusToFahrenheit 
-				( analogReadingScaledWithTheLM35Formula 
-				( potentiometer.read() ) ) );
+				celsiusToFahrenheit( 
+				    analogReadingScaledWithTheLM35Formula( 
+				        potentiometer.read() 
+                    ) 
+                ) 
+            );
             break;
 
         default:
