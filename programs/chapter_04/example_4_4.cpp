@@ -7,6 +7,9 @@
 
 #define NUMBER_OF_KEYS     4
 #define STRING_MAX_LENGTH 30
+#define BLINKING_TIME_GAS_ALARM               1000
+#define BLINKING_TIME_OVER_TEMP_ALARM          500
+#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
 #define POTENTIOMETER_ALARM_LEVEL 0.5
 #define NUMBER_OF_AVG_SAMPLES 10
 #define OVER_TEMP_LEVEL 35
@@ -40,6 +43,7 @@ int numberOfIncorrectCodes = 0;
 int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
+int accumulatedTime = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -49,6 +53,8 @@ bool gasLastTransmittedState   = OFF;
 bool tempLastTransmittedState  = OFF;
 bool ICLastTransmittedState    = OFF;
 bool SBLastTransmittedState    = OFF;
+bool gasDetectorState          = OFF;
+bool overTempDetectorState     = OFF;
 
 float potentiometerReading;
 
