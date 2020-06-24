@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+desktop.ini
+programs/chapter_04/old
