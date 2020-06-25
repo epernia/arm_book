@@ -463,5 +463,5 @@ void shiftLm35AvgReadingsArray()
     for( i=1; i<NUMBER_OF_AVG_SAMPLES; i++ ) {
         lm35AvgReadingsArray[i-1] = lm35AvgReadingsArray[i];
     }
-    lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 0;
+    lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 0.0;
 }

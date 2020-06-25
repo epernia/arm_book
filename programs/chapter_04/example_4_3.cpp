@@ -53,7 +53,7 @@ bool SBLastTransmittedState    = OFF;
 bool gasDetectorState          = OFF;
 bool overTempDetectorState     = OFF;
 
-float potentiometerReading;
+float potentiometerReading = 0.0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -86,7 +86,7 @@ int main()
         uartTask();
         bleTask();
     }
-}         
+}
 
 //=====[Implementations of public functions]===================================
 

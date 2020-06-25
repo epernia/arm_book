@@ -80,7 +80,7 @@ int main()
         uartTask();
         bleTask();
     }
-}         
+}
 
 //=====[Implementations of public functions]===================================
 
