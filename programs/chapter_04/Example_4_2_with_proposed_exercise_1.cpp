@@ -5,8 +5,11 @@
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS     4
-#define STRING_MAX_LENGTH 30
+#define NUMBER_OF_KEYS                            4
+#define STRING_MAX_LENGTH                        30
+#define BLINKING_TIME_GAS_ALARM               10000
+#define BLINKING_TIME_OVER_TEMP_ALARM          5000
+#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  1000
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -34,6 +37,7 @@ int numberOfIncorrectCodes = 0;
 int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
+int accumulatedTimeAlarm = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -43,6 +47,8 @@ bool gasLastTransmittedState   = OFF;
 bool tempLastTransmittedState  = OFF;
 bool ICLastTransmittedState    = OFF;
 bool SBLastTransmittedState    = OFF;
+bool gasDetectorState          = OFF;
+bool overTempDetectorState     = OFF;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -98,10 +104,39 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
-    if ( gasDetector || overTempDetector ) {
+    if( gasDetector) {
+        gasDetectorState = ON;
         alarmState = ON;
     }
-    alarmLed = alarmState;
+    if( overTempDetector ) {
+        overTempDetectorState = ON;
+        alarmState = ON;
+    }
+    if( alarmState ) { 
+        delay(10);
+        accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
+	
+        if( gasDetectorState && overTempDetectorState ) {
+            if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
+                accumulatedTimeAlarm = 0;
+                alarmLed = !alarmLed;
+            }
+        } else if( gasDetectorState ) {
+            if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_ALARM ) {
+                accumulatedTimeAlarm = 0;
+                alarmLed = !alarmLed;
+            }
+        } else if ( overTempDetectorState ) {
+            if( accumulatedTimeAlarm >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
+                accumulatedTimeAlarm = 0;
+                alarmLed = !alarmLed;
+            }
+        }
+    } else{
+        alarmLed = OFF;
+        gasDetectorState = OFF;
+        overTempDetectorState = OFF;
+    }
 }
 
 void alarmDeactivationUpdate()

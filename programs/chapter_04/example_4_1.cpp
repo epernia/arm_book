@@ -5,12 +5,11 @@
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS             4
-#define STRING_MAX_LENGTH         30
+#define NUMBER_OF_KEYS                           4
+#define STRING_MAX_LENGTH                       30
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -311,15 +310,7 @@ void bleTask()
         bleGetTheSmartphoneButtonsState( "C", 2 );
         bleGetTheSmartphoneButtonsState( "D", 3 );
 
-        if ( strcmp(bleReceivedString, "ENTER_PRESSED") == 0 ) {
-            uartUsb.printf("Button 'Enter' has been pressed ");
-            uartUsb.printf("in the smartphone application\r\n");
-        }
-
-        if ( strcmp(bleReceivedString, "ENTER_RELEASED") == 0 ) {
-            uartUsb.printf("Button 'Enter' has been released ");
-            uartUsb.printf("in the smartphone application\r\n");
-        }
+        bleGetTheSmartphoneButtonsState( "ENTER", -1 );
 
         while ( uartBle.readable() ) {
             uartBle.getc();
@@ -345,14 +336,28 @@ void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
 void bleGetTheSmartphoneButtonsState( char* buttonName, int index )
 {
     char str[30];
-    str[0] = 0;
 
+    str[0] = 0;
     strncat( str, buttonName, strlen(buttonName) );
     strncat( str, "_PRESSED", strlen("_PRESSED") );
 
     if ( strcmp(bleReceivedString, str) == 0 )  {
-        buttonsPressed[index] = 1;
         uartUsb.printf("Button '%s' has been pressed", buttonName );
+        uartUsb.printf("in the smartphone application\r\n\r\n");
+        if ( index >= 0 ) {
+            buttonsPressed[index] = 1;
+        }
+    }
+
+    str[0] = 0;
+    strncat( str, buttonName, strlen(buttonName) );
+    strncat( str, "_RELEASED", strlen("_RELEASED") );
+
+    if ( strcmp(bleReceivedString, str) == 0 )  {
+        if ( index >= 0 ) {
+            buttonsPressed[index] = 0;
+        }
+        uartUsb.printf("Button '%s' has been released", buttonName );
         uartUsb.printf("in the smartphone application\r\n\r\n");
     }
 }

@@ -5,8 +5,11 @@
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS     4
-#define STRING_MAX_LENGTH 30
+#define NUMBER_OF_KEYS                            4
+#define STRING_MAX_LENGTH                        30
+#define BLINKING_TIME_GAS_ALARM               10000
+#define BLINKING_TIME_OVER_TEMP_ALARM          5000
+#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  1000
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -43,6 +46,8 @@ bool gasLastTransmittedState   = OFF;
 bool tempLastTransmittedState  = OFF;
 bool ICLastTransmittedState    = OFF;
 bool SBLastTransmittedState    = OFF;
+bool gasDetectorState          = OFF;
+bool overTempDetectorState     = OFF;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -98,10 +103,28 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
-    if ( gasDetector || overTempDetector ) {
+    if( gasDetector) {
+        gasDetectorState = ON;
         alarmState = ON;
     }
-    alarmLed = alarmState;
+    if( overTempDetector ) {
+        overTempDetectorState = ON;
+        alarmState = ON;
+    }
+    if( alarmState ) {
+        alarmLed = !alarmLed;
+        if( gasDetectorState && overTempDetectorState ) {
+            delay( BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM );
+        } else if ( gasDetectorState ) {
+            delay( BLINKING_TIME_GAS_ALARM );
+        } else if ( overTempDetectorState ) {
+            delay( BLINKING_TIME_OVER_TEMP_ALARM );
+        }
+    } else{
+        alarmLed = OFF;
+        gasDetectorState = OFF;
+        overTempDetectorState = OFF;
+    }
 }
 
 void alarmDeactivationUpdate()

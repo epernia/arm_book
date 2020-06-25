@@ -5,14 +5,14 @@
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS                            4
-#define STRING_MAX_LENGTH                        30
-#define BLINKING_TIME_GAS_ALARM                1000
-#define BLINKING_TIME_OVER_TEMP_ALARM           500
-#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM   100
-#define LM35_SAMPLE_TIME                        100
-#define NUMBER_OF_AVG_SAMPLES                    10
-#define OVER_TEMP_LEVEL                          50
+#define NUMBER_OF_KEYS                           4
+#define STRING_MAX_LENGTH                       30
+#define BLINKING_TIME_GAS_ALARM               1000
+#define BLINKING_TIME_OVER_TEMP_ALARM          500
+#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
+#define LM35_SAMPLE_TIME                       100
+#define NUMBER_OF_AVG_SAMPLES                   10
+#define OVER_TEMP_LEVEL                         50
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -23,15 +23,15 @@ DigitalIn bButton(D5);
 DigitalIn cButton(D6);
 DigitalIn dButton(D7);
 
-AnalogIn potentiometer(A0);
-AnalogIn lm35(A1);
-
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
 Serial uartBle(D1, D0);
+
+AnalogIn potentiometer(A0);
+AnalogIn lm35(A1);
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -44,8 +44,8 @@ int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm = 0;
-int accumulatedTimeLm35 = 0;
-int lm35SampleIndex = 0;
+int accumulatedTimeLm35  = 0;
+int lm35SampleIndex      = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -58,11 +58,11 @@ bool SBLastTransmittedState    = OFF;
 bool gasDetectorState          = OFF;
 bool overTempDetectorState     = OFF;
 
-float potentiometerReading;
-float lm35ReadingsAverage = 0;
-float lm35ReadingsSum = 0;
+float potentiometerReading = 0.0;
+float lm35ReadingsAverage  = 0.0;
+float lm35ReadingsSum      = 0.0;
 float lm35ReadingsArray[NUMBER_OF_AVG_SAMPLES];
-float lm35TempC = 0.0;
+float lm35TempC            = 0.0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -120,35 +120,35 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
-	int i;
+    int i = 0;
 
     delay(10);
-	
-	accumulatedTimeLm35 = accumulatedTimeLm35 + 10;
-	
-	if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
-		if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
-			lm35SampleIndex++;
-			lm35ReadingsArray[lm35SampleIndex] = lm35.read();
-		} else {
-			lm35ReadingsSum = 0;
+
+    accumulatedTimeLm35 = accumulatedTimeLm35 + 10;
+
+    if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
+        if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
+            lm35ReadingsArray[lm35SampleIndex] = lm35.read();
+            lm35SampleIndex++;
+        } else {
+            lm35ReadingsSum = 0;
 			for( i=0; i<NUMBER_OF_AVG_SAMPLES ; i++ ) {
-				lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
-			}
-			lm35SampleIndex = 0;
-			lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
-			lm35TempC = 
-			    analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );
-		}
-		accumulatedTimeLm35 = 0;
-	}
-	
-	if ( lm35TempC > OVER_TEMP_LEVEL ) {
-		overTempDetector = ON;
-	} else {
-		overTempDetector = OFF;
-	}
-	
+                lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
+            }
+            lm35SampleIndex = 0;
+            lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
+            lm35TempC = 
+                analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );
+        }
+        accumulatedTimeLm35 = 0;
+    }
+
+    if ( lm35TempC > OVER_TEMP_LEVEL ) {
+        overTempDetector = ON;
+    } else {
+        overTempDetector = OFF;
+    }
+
     if( gasDetector) {
         gasDetectorState = ON;
         alarmState = ON;
@@ -229,7 +229,7 @@ void uartTask()
             break;
 
         case '3':
-			if ( overTempDetector ) {
+            if ( overTempDetector ) {
                 uartUsb.printf( "Temperature is above the maximum level\r\n");
             } else {
                 uartUsb.printf( "Temperature is below the maximum level\r\n");
@@ -304,21 +304,21 @@ void uartTask()
 
             uartUsb.printf( "New code generated\r\n\r\n" );
             break;
-			
-		case 'p':
-		case 'P':
-			potentiometerReading = potentiometer.read();
-			uartUsb.printf( "Potentiometer: %.2f\r\n", potentiometerReading );
-			break;
-			
-		case 'c':
+
+        case 'p':
+        case 'P':
+            potentiometerReading = potentiometer.read();
+            uartUsb.printf( "Potentiometer: %.2f\r\n", potentiometerReading );
+            break;
+
+        case 'c':
         case 'C':
-            uartUsb.printf( "Temperature: %.2f Â°C\r\n", lm35TempC );
+            uartUsb.printf( "Temperature: %.2f °C\r\n", lm35TempC );
             break;
 
         case 'f':
         case 'F':
-            uartUsb.printf( "Temperature: %.2f Â°F\r\n", 
+            uartUsb.printf( "Temperature: %.2f °F\r\n", 
 				celsiusToFahrenheit( lm35TempC ) );
             break;
 
@@ -340,7 +340,7 @@ void availableCommands()
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
 	uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
-	uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celcius\r\n\r\n" );
+	uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
 }
 
 bool areEqual()
@@ -429,7 +429,7 @@ void bleGetTheSmartphoneButtonsState( char* buttonName, int index )
     strncat( str, buttonName, strlen(buttonName) );
     strncat( str, "_RELEASED", strlen("_RELEASED") );
 
-	if ( strcmp(bleReceivedString, str) == 0 )  {
+    if ( strcmp(bleReceivedString, str) == 0 )  {
         if ( index >= 0 ) {
             buttonsPressed[index] = 0;
         }

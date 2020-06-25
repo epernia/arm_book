@@ -5,12 +5,12 @@
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS     4
-#define STRING_MAX_LENGTH 30
+#define NUMBER_OF_KEYS                           4
+#define STRING_MAX_LENGTH                       30
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-#define POTENTIOMETER_OVER_TEMP_LEVEL 50
+#define POTENTIOMETER_OVER_TEMP_LEVEL           50 // Now in °C
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -21,14 +21,14 @@ DigitalIn bButton(D5);
 DigitalIn cButton(D6);
 DigitalIn dButton(D7);
 
-AnalogIn potentiometer(A0);
-
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
 Serial uartBle(D1, D0);
+
+AnalogIn potentiometer(A0);
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -40,7 +40,7 @@ int numberOfIncorrectCodes = 0;
 int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
-int accumulatedTime = 0;
+int accumulatedTimeAlarm = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -113,14 +113,14 @@ void outputsInit()
 void alarmActivationUpdate()
 {
     potentiometerReadingScaled = 
-		analogReadingScaledWithTheLM35Formula( potentiometer.read() );
-    
+        analogReadingScaledWithTheLM35Formula( potentiometer.read() );
+ 
     if ( potentiometerReadingScaled > POTENTIOMETER_OVER_TEMP_LEVEL ) {
         overTempDetector = ON;
     } else {
         overTempDetector = OFF;
     }
-    
+
     if( gasDetector) {
         gasDetectorState = ON;
         alarmState = ON;
@@ -131,21 +131,21 @@ void alarmActivationUpdate()
     }
     if( alarmState ) { 
         delay(10);
-        accumulatedTime = accumulatedTime + 10;
+        accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
 	
         if( gasDetectorState && overTempDetectorState ) {
-            if( accumulatedTime >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
-                accumulatedTime = 0;
+            if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
+                accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
         } else if( gasDetectorState ) {
-            if( accumulatedTime >= BLINKING_TIME_GAS_ALARM ) {
-                accumulatedTime = 0;
+            if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_ALARM ) {
+                accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
         } else if ( overTempDetectorState ) {
-            if( accumulatedTime >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
-                accumulatedTime = 0;
+            if( accumulatedTimeAlarm >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
+                accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
         }
@@ -277,7 +277,7 @@ void uartTask()
 
             uartUsb.printf( "New code generated\r\n\r\n" );
             break;
-            
+
         case 'p':
         case 'P':
             potentiometerReading = potentiometer.read();
@@ -286,7 +286,7 @@ void uartTask()
 
         case 'c':
         case 'C':
-            uartUsb.printf( "Temperature: %.2f Â°C\r\n", 
+            uartUsb.printf( "Temperature: %.2f °C\r\n", 
 				analogReadingScaledWithTheLM35Formula(
 				    potentiometer.read() 
                 ) 
@@ -295,7 +295,7 @@ void uartTask()
 
         case 'f':
         case 'F':
-            uartUsb.printf( "Temperature: %.2f Â°F\r\n", 
+            uartUsb.printf( "Temperature: %.2f °F\r\n", 
 				celsiusToFahrenheit( 
 				    analogReadingScaledWithTheLM35Formula( 
 				        potentiometer.read() 
@@ -320,9 +320,9 @@ void availableCommands()
     uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
-    uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n\r\n" );
+    uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
 	uartUsb.printf( "Press 'f' or 'F' to get potentiometer reading in Fahrenheit\r\n" );
-	uartUsb.printf( "Press 'c' or 'C' to get potentiometer reading in Celcius\r\n\r\n" );
+	uartUsb.printf( "Press 'c' or 'C' to get potentiometer reading in Celsius\r\n\r\n" );
 }
 
 bool areEqual()
@@ -422,10 +422,10 @@ void bleGetTheSmartphoneButtonsState( char* buttonName, int index )
 
 float analogReadingScaledWithTheLM35Formula( float analogReading )
 {
-	return ( analogReading * 3.3 / 0.01 );
+    return ( analogReading * 3.3 / 0.01 );
 }
 
 float celsiusToFahrenheit( float tempInCelsiusDegrees )
 {
-	return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
+    return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
 }
