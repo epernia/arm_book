@@ -14,6 +14,16 @@
 #define NUMBER_OF_AVG_SAMPLES                   10
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
+#define DEBOUNCE_BTN_TIME_MS                    40
+
+//=====[Declaration of public data types]======================================
+
+typedef enum{
+   DEBOUNCE_BTN_UP,
+   DEBOUNCE_BTN_DOWN,
+   DEBOUNCE_BTN_FALLING,
+   DEBOUNCE_BTN_RISING
+} debounceBtnState_t;
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -47,6 +57,8 @@ int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm           = 0;
 int accumulatedTimeLm35            = 0;
 int lm35SampleIndex                = 0;
+int debounceBtnTimeCounter         = 0;
+int enterBtnReleasedEventCounter   = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -63,6 +75,8 @@ float potentiometerReading      = 0.0;
 float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
+
+debounceBtnState_t debounceEnterBtnState;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -88,6 +102,10 @@ float analogReadingScaledWithTheLM35Formula( float analogReading );
 
 void shiftLm35AvgReadingsArray();
 
+void debounceBtnInit( void );
+void debounceBtnUpdate( void );
+void enterBtnReleasedEvent( void );
+
 //=====[Main function, the program entry point after power on or reset]========
 
 int main()
@@ -111,6 +129,7 @@ void inputsInit()
     bButton.mode(PullDown);
     cButton.mode(PullDown);
     dButton.mode(PullDown);
+    debounceBtnInit();
 }
 
 void outputsInit()
@@ -196,22 +215,7 @@ void alarmActivationUpdate()
 void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
-        if ( aButton && bButton && cButton && dButton && !enterButton ) {
-            incorrectCodeLed = OFF;
-        }
-        if ( enterButton && !incorrectCodeLed && alarmState ) {
-            buttonsPressed[0] = aButton;
-            buttonsPressed[1] = bButton;
-            buttonsPressed[2] = cButton;
-            buttonsPressed[3] = dButton;
-            if ( areEqual() ) {
-                alarmState = OFF;
-                numberOfIncorrectCodes = 0;
-            } else {
-                incorrectCodeLed = ON;
-                numberOfIncorrectCodes++;
-            }
-        }
+        debounceBtnUpdate();
     } else {
         systemBlockedLed = ON;
     }
@@ -465,4 +469,87 @@ void shiftLm35AvgReadingsArray()
         lm35AvgReadingsArray[i-1] = lm35AvgReadingsArray[i];
     }
     lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 0.0;
+}
+
+void debounceBtnInit( void )
+{
+    if( enterButton ) { // Set initial state  
+        debounceEnterBtnState = DEBOUNCE_BTN_DOWN;        
+    } else {
+        debounceEnterBtnState = DEBOUNCE_BTN_UP;
+    }
+}
+
+void debounceBtnUpdate( void )
+{
+    static int debounceTimeCounter = 0;
+
+    switch( debounceEnterBtnState ){
+
+        case DEBOUNCE_BTN_UP:
+            if( enterButton ){
+                debounceEnterBtnState = DEBOUNCE_BTN_FALLING;
+                debounceTimeCounter = 0;
+            }
+        break;
+
+        case DEBOUNCE_BTN_FALLING:
+            if( debounceTimeCounter >= DEBOUNCE_BTN_TIME_MS ) {
+                if( enterButton ){
+                    debounceEnterBtnState = DEBOUNCE_BTN_DOWN;
+                } else{
+                    debounceEnterBtnState = DEBOUNCE_BTN_UP;
+                }
+            }
+            debounceTimeCounter = debounceTimeCounter + TIME_INCREMENT_MS;
+        break;
+
+        case DEBOUNCE_BTN_DOWN:
+            if( !enterButton ){
+                debounceEnterBtnState = DEBOUNCE_BTN_RISING;
+                debounceTimeCounter = 0;
+            }
+        break;
+
+        case DEBOUNCE_BTN_RISING:
+            if( debounceTimeCounter >= DEBOUNCE_BTN_TIME_MS ) {
+                if( !enterButton ){
+                    debounceEnterBtnState = DEBOUNCE_BTN_UP;
+                    enterBtnReleasedEvent();
+                } else{
+                    debounceEnterBtnState = DEBOUNCE_BTN_DOWN;
+                }
+            }
+            debounceTimeCounter = debounceTimeCounter + TIME_INCREMENT_MS;
+        break;
+
+        default:
+            debounceBtnInit();
+        break;
+    }
+}
+
+void enterBtnReleasedEvent( void )
+{
+    if( incorrectCodeLed ) {
+        enterBtnReleasedEventCounter++;
+        if( enterBtnReleasedEventCounter >= 2 ) {
+            incorrectCodeLed = OFF;
+            enterBtnReleasedEventCounter = 0;
+        }
+    } else {
+        if ( alarmState ) {
+            buttonsPressed[0] = aButton;
+            buttonsPressed[1] = bButton;
+            buttonsPressed[2] = cButton;
+            buttonsPressed[3] = dButton;
+            if ( areEqual() ) {
+                alarmState = OFF;
+                numberOfIncorrectCodes = 0;
+            } else {
+                incorrectCodeLed = ON;
+                numberOfIncorrectCodes++;
+            }
+        }
+    }
 }
