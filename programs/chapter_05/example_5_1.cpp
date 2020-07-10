@@ -14,16 +14,16 @@
 #define NUMBER_OF_AVG_SAMPLES                   10
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
-#define DEBOUNCE_BTN_TIME_MS                    40
+#define DEBOUNCE_BUTTON_TIME_MS                 40
 
 //=====[Declaration of public data types]======================================
 
 typedef enum{
-   DEBOUNCE_BTN_UP,
-   DEBOUNCE_BTN_DOWN,
-   DEBOUNCE_BTN_FALLING,
-   DEBOUNCE_BTN_RISING
-} debounceBtnState_t;
+   BUTTON_UP,
+   BUTTON_DOWN,
+   BUTTON_FALLING,
+   BUTTON_RISING
+} buttonState_t;
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -50,15 +50,15 @@ bool alarmState       = OFF;
 bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
-int numberOfIncorrectCodes         = 0;
-int buttonBeingCompared            = 0;
-int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
-int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
-int accumulatedTimeAlarm           = 0;
-int accumulatedTimeLm35            = 0;
-int lm35SampleIndex                = 0;
-int debounceBtnTimeCounter         = 0;
-int enterBtnReleasedEventCounter   = 0;
+int numberOfIncorrectCodes            = 0;
+int buttonBeingCompared               = 0;
+int codeSequence[NUMBER_OF_KEYS]      = { 1, 1, 0, 0 };
+int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
+int accumulatedTimeAlarm              = 0;
+int accumulatedTimeLm35               = 0;
+int lm35SampleIndex                   = 0;
+int accumulatedDebounceButtonTime        = 0;
+int numberOfenterButtonReleasedEvents = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -76,7 +76,7 @@ float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
 
-debounceBtnState_t debounceEnterBtnState;
+buttonState_t enterButtonState;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -102,9 +102,9 @@ float analogReadingScaledWithTheLM35Formula( float analogReading );
 
 void shiftLm35AvgReadingsArray();
 
-void debounceBtnInit( void );
-void debounceBtnUpdate( void );
-void enterBtnReleasedEvent( void );
+void debounceButtonInit();
+void debounceButtonUpdate();
+void enterButtonReleasedEvent();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -129,7 +129,7 @@ void inputsInit()
     bButton.mode(PullDown);
     cButton.mode(PullDown);
     dButton.mode(PullDown);
-    debounceBtnInit();
+    debounceButtonInit();
 }
 
 void outputsInit()
@@ -215,7 +215,7 @@ void alarmActivationUpdate()
 void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
-        debounceBtnUpdate();
+        debounceButtonUpdate();
     } else {
         systemBlockedLed = ON;
     }
@@ -471,71 +471,71 @@ void shiftLm35AvgReadingsArray()
     lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 0.0;
 }
 
-void debounceBtnInit( void )
+void debounceButtonInit()
 {
-    if( enterButton ) { // Set initial state  
-        debounceEnterBtnState = DEBOUNCE_BTN_DOWN;        
+    if( enterButton ) {
+        enterButtonState = BUTTON_DOWN;        
     } else {
-        debounceEnterBtnState = DEBOUNCE_BTN_UP;
+        enterButtonState = BUTTON_UP;
     }
 }
 
-void debounceBtnUpdate( void )
+void debounceButtonUpdate()
 {
-    static int debounceTimeCounter = 0;
+    switch( enterButtonState ){
 
-    switch( debounceEnterBtnState ){
-
-        case DEBOUNCE_BTN_UP:
+        case BUTTON_UP:
             if( enterButton ){
-                debounceEnterBtnState = DEBOUNCE_BTN_FALLING;
-                debounceTimeCounter = 0;
+                enterButtonState = BUTTON_FALLING;
+                accumulatedDebounceButtonTime = 0;
             }
         break;
 
-        case DEBOUNCE_BTN_FALLING:
-            if( debounceTimeCounter >= DEBOUNCE_BTN_TIME_MS ) {
+        case BUTTON_FALLING:
+            if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
                 if( enterButton ){
-                    debounceEnterBtnState = DEBOUNCE_BTN_DOWN;
+                    enterButtonState = BUTTON_DOWN;
                 } else{
-                    debounceEnterBtnState = DEBOUNCE_BTN_UP;
+                    enterButtonState = BUTTON_UP;
                 }
             }
-            debounceTimeCounter = debounceTimeCounter + TIME_INCREMENT_MS;
+            accumulatedDebounceButtonTime = accumulatedDebounceButtonTime + 
+                                         TIME_INCREMENT_MS;
         break;
 
-        case DEBOUNCE_BTN_DOWN:
+        case BUTTON_DOWN:
             if( !enterButton ){
-                debounceEnterBtnState = DEBOUNCE_BTN_RISING;
-                debounceTimeCounter = 0;
+                enterButtonState = BUTTON_RISING;
+                accumulatedDebounceButtonTime = 0;
             }
         break;
 
-        case DEBOUNCE_BTN_RISING:
-            if( debounceTimeCounter >= DEBOUNCE_BTN_TIME_MS ) {
+        case BUTTON_RISING:
+            if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
                 if( !enterButton ){
-                    debounceEnterBtnState = DEBOUNCE_BTN_UP;
-                    enterBtnReleasedEvent();
+                    enterButtonState = BUTTON_UP;
+                    enterButtonReleasedEvent();
                 } else{
-                    debounceEnterBtnState = DEBOUNCE_BTN_DOWN;
+                    enterButtonState = BUTTON_DOWN;
                 }
             }
-            debounceTimeCounter = debounceTimeCounter + TIME_INCREMENT_MS;
+            accumulatedDebounceButtonTime = accumulatedDebounceButtonTime + 
+                                         TIME_INCREMENT_MS;
         break;
 
         default:
-            debounceBtnInit();
+            debounceButtonInit();
         break;
     }
 }
 
-void enterBtnReleasedEvent( void )
+void enterButtonReleasedEvent()
 {
     if( incorrectCodeLed ) {
-        enterBtnReleasedEventCounter++;
-        if( enterBtnReleasedEventCounter >= 2 ) {
+        numberOfenterButtonReleasedEvents++;
+        if( numberOfenterButtonReleasedEvents >= 2 ) {
             incorrectCodeLed = OFF;
-            enterBtnReleasedEventCounter = 0;
+            numberOfenterButtonReleasedEvents = 0;
         }
     } else {
         if ( alarmState ) {

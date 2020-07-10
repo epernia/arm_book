@@ -19,11 +19,11 @@
 //=====[Declaration of public data types]======================================
 
 typedef enum{
-   DEBOUNCE_BTN_UP,
-   DEBOUNCE_BTN_DOWN,
-   DEBOUNCE_BTN_FALLING,
-   DEBOUNCE_BTN_RISING
-} debounceBtnState_t;
+   BTN_UP,
+   BTN_DOWN,
+   BTN_FALLING,
+   BTN_RISING
+} btnState_t;
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -50,15 +50,15 @@ bool alarmState       = OFF;
 bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
-int numberOfIncorrectCodes         = 0;
-int buttonBeingCompared            = 0;
-int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
-int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
-int accumulatedTimeAlarm           = 0;
-int accumulatedTimeLm35            = 0;
-int lm35SampleIndex                = 0;
-int debounceBtnTimeCounter         = 0;
-int enterBtnReleasedEventCounter   = 0;
+int numberOfIncorrectCodes            = 0;
+int buttonBeingCompared               = 0;
+int codeSequence[NUMBER_OF_KEYS]      = { 1, 1, 0, 0 };
+int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
+int accumulatedTimeAlarm              = 0;
+int accumulatedTimeLm35               = 0;
+int lm35SampleIndex                   = 0;
+int accumulatedDebounceBtnTime        = 0;
+int numberOfenterButtonReleasedEvents = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -76,7 +76,7 @@ float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
 
-debounceBtnState_t debounceEnterBtnState;
+btnState_t enterButtonState;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -102,9 +102,9 @@ float analogReadingScaledWithTheLM35Formula( float analogReading );
 
 void shiftLm35AvgReadingsArray();
 
-void debounceBtnInit( void );
-void debounceBtnUpdate( void );
-void enterBtnReleasedEvent( void );
+void debounceBtnInit();
+void debounceBtnUpdate();
+void enterButtonReleasedEvent();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -471,56 +471,56 @@ void shiftLm35AvgReadingsArray()
     lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 0.0;
 }
 
-void debounceBtnInit( void )
+void debounceBtnInit()
 {
-    if( enterButton ) { // Set initial state  
-        debounceEnterBtnState = DEBOUNCE_BTN_DOWN;        
+    if( enterButton ) {
+        enterButtonState = BTN_DOWN;        
     } else {
-        debounceEnterBtnState = DEBOUNCE_BTN_UP;
+        enterButtonState = BTN_UP;
     }
 }
 
-void debounceBtnUpdate( void )
+void debounceBtnUpdate()
 {
-    static int debounceTimeCounter = 0;
+    switch( enterButtonState ){
 
-    switch( debounceEnterBtnState ){
-
-        case DEBOUNCE_BTN_UP:
+        case BTN_UP:
             if( enterButton ){
-                debounceEnterBtnState = DEBOUNCE_BTN_FALLING;
-                debounceTimeCounter = 0;
+                enterButtonState = BTN_FALLING;
+                accumulatedDebounceBtnTime = 0;
             }
         break;
 
-        case DEBOUNCE_BTN_FALLING:
-            if( debounceTimeCounter >= DEBOUNCE_BTN_TIME_MS ) {
+        case BTN_FALLING:
+            if( accumulatedDebounceBtnTime >= DEBOUNCE_BTN_TIME_MS ) {
                 if( enterButton ){
-                    debounceEnterBtnState = DEBOUNCE_BTN_DOWN;
+                    enterButtonState = BTN_DOWN;
                 } else{
-                    debounceEnterBtnState = DEBOUNCE_BTN_UP;
+                    enterButtonState = BTN_UP;
                 }
             }
-            debounceTimeCounter = debounceTimeCounter + TIME_INCREMENT_MS;
+            accumulatedDebounceBtnTime = accumulatedDebounceBtnTime + 
+                                         TIME_INCREMENT_MS;
         break;
 
-        case DEBOUNCE_BTN_DOWN:
+        case BTN_DOWN:
             if( !enterButton ){
-                debounceEnterBtnState = DEBOUNCE_BTN_RISING;
-                debounceTimeCounter = 0;
+                enterButtonState = BTN_RISING;
+                accumulatedDebounceBtnTime = 0;
             }
         break;
 
-        case DEBOUNCE_BTN_RISING:
-            if( debounceTimeCounter >= DEBOUNCE_BTN_TIME_MS ) {
+        case BTN_RISING:
+            if( accumulatedDebounceBtnTime >= DEBOUNCE_BTN_TIME_MS ) {
                 if( !enterButton ){
-                    debounceEnterBtnState = DEBOUNCE_BTN_UP;
-                    enterBtnReleasedEvent();
+                    enterButtonState = BTN_UP;
+                    enterButtonReleasedEvent();
                 } else{
-                    debounceEnterBtnState = DEBOUNCE_BTN_DOWN;
+                    enterButtonState = BTN_DOWN;
                 }
             }
-            debounceTimeCounter = debounceTimeCounter + TIME_INCREMENT_MS;
+            accumulatedDebounceBtnTime = accumulatedDebounceBtnTime + 
+                                         TIME_INCREMENT_MS;
         break;
 
         default:
@@ -529,13 +529,13 @@ void debounceBtnUpdate( void )
     }
 }
 
-void enterBtnReleasedEvent( void )
+void enterButtonReleasedEvent()
 {
     if( incorrectCodeLed ) {
-        enterBtnReleasedEventCounter++;
-        if( enterBtnReleasedEventCounter >= 2 ) {
+        numberOfenterButtonReleasedEvents++;
+        if( numberOfenterButtonReleasedEvents >= 2 ) {
             incorrectCodeLed = OFF;
-            enterBtnReleasedEventCounter = 0;
+            numberOfenterButtonReleasedEvents = 0;
         }
     } else {
         if ( alarmState ) {

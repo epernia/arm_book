@@ -40,13 +40,13 @@ bool alarmState       = OFF;
 bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
-int numberOfIncorrectCodes         = 0;
-int buttonBeingCompared            = 0;
-int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
-int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
-int accumulatedTimeAlarm           = 0;
-int accumulatedTimeLm35            = 0;
-int lm35SampleIndex                = 0;
+int numberOfIncorrectCodes            = 0;
+int buttonBeingCompared               = 0;
+int codeSequence[NUMBER_OF_KEYS]      = { 1, 1, 0, 0 };
+int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
+int accumulatedTimeAlarm              = 0;
+int accumulatedTimeLm35               = 0;
+int lm35SampleIndex                   = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
