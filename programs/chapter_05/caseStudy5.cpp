@@ -5,15 +5,30 @@
 
 //=====[Defines]===============================================================
 
+#define CODE_DIGITS 3
 #define KEYPAD_AMOUNT_OF_ROWS   4
 #define KEYPAD_AMOUNT_OF_COLS   4
+#define START_HOUR 8
+#define END_HOUR 16
 
 //=====[Declaration of public data types]======================================
+
+typedef enum {
+    DOOR_CLOSED,
+    DOOR_UNLOCKED,
+    DOOR_OPEN
+} doorState_t;
 
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {D23, D22, D21, D20};
 DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {D19, D18, D17, D16};
+
+DigitalIn mainDoorHandle(BUTTON1);
+
+DigitalOut doorUnlockedLed(LED1);
+DigitalOut doorLockedLed(LED2);
+DigitalOut incorrectCodeLed(LED3);
 
 Serial uartUsb(USBTX, USBRX);
 
@@ -28,17 +43,20 @@ char keypadIndexToCharArray[] = {
 
 char buffer[32];
 
+doorState_t mainDoorState;
+
 struct tm t;
 
 time_t seconds;
 
-bool showKeypadInUart = false;
+int codeDigits[] = {'1','4','7'};
 
 //=====[Declarations (prototypes) of public functions]=========================
 
 void uartTask();
 void availableCommands();
-void keypadToUart();
+void mainDoorUpdate();
+void mainDoorInit();
 int keypadScan();
 void keypadInit();
 
@@ -46,9 +64,10 @@ void keypadInit();
 
 int main()
 {
+    mainDoorInit();
     keypadInit();
     while (true) {
-        keypadToUart();
+        mainDoorUpdate();
         uartTask();
     }
 }
@@ -63,21 +82,9 @@ void uartTask()
         char receivedChar = uartUsb.getc();
         switch (receivedChar) {
 
-        case 'k':
-        case 'K':
-            uartUsb.printf("\r\nButtons pressed at the matrix keypad\r\n");
-            showKeypadInUart = true;
-            break;
-
-        case 'q':
-        case 'Q':
-            uartUsb.printf("\r\nQuiting of command k\r\n");
-            showKeypadInUart = false;
-            break;
-
         case 's':
         case 'S':
-            uartUsb.printf("\r\nEnter the current year (YYYY): ");
+            uartUsb.printf("Enter the current year (YYYY): ");
             uartUsb.scanf("%d",&aux);
             t.tm_year = aux - 1900;
             uartUsb.printf("%d\r\n",aux);
@@ -130,29 +137,82 @@ void uartTask()
 void availableCommands()
 {
     uartUsb.printf( "Available commands:\r\n" );
-    uartUsb.printf( "Press 'k' or 'K' to show the buttons pressed at the " );
-    uartUsb.printf( "matrix keypad\r\n" );
-    uartUsb.printf( "Press 'q' or 'Q' to quit the k command\r\n" );
-    uartUsb.printf( "Press 's' or 'S' to set the time\r\n" );
+    uartUsb.printf( "Press 's' or 'S' to set the time\r\n\r\n" );
     uartUsb.printf( "Press 't' or 'T' to get the time\r\n\r\n" );
 }
 
-void keypadToUart()
+void mainDoorInit()
+{
+    doorUnlockedLed = OFF;
+    doorLockedLed = ON;
+    incorrectCodeLed = OFF;
+    mainDoorState = DOOR_CLOSED;
+}
+
+void mainDoorUpdate()
 {
     bool incorrectCode;
     int keyPressed;
     struct tm * timeinfo;
-    static int prevKeyPressed;
+    int prevKeyPressed;
     int i;
 
-    if ( showKeypadInUart ) {
-        keyPressed = keypadScan();
-        if ( ( keyPressed != 0 ) && ( keyPressed != prevKeyPressed ) ) {
-            uartUsb.printf("%c",keyPressed);
-            prevKeyPressed = keyPressed;
+    switch( mainDoorState ) {
+    case DOOR_CLOSED:
+        if ( keypadScan() == 'A' ) {
+            seconds = time(NULL);
+            timeinfo = localtime ( &seconds );
+            keyPressed = 'A';
+
+            if ( ( timeinfo->tm_hour >= START_HOUR ) &&
+                 ( timeinfo->tm_hour <= END_HOUR ) ) {
+                incorrectCode = false;
+                prevKeyPressed = 'A';
+
+                for ( i = 0; i < CODE_DIGITS; i++) {
+                    while ( ( keyPressed == 0 ) ||
+                            ( keyPressed == prevKeyPressed ) ) {
+
+                        keyPressed = keypadScan();
+                    }
+                    prevKeyPressed = keyPressed;
+                    if ( keyPressed != codeDigits[i] ) {
+                        incorrectCode = true;
+                    }
+                }
+
+                if ( incorrectCode ) {
+                    incorrectCodeLed = ON;
+                    delay (1000);
+                    incorrectCodeLed = OFF;
+                } else {
+                    mainDoorState = DOOR_UNLOCKED;
+                    doorLockedLed = OFF;
+                    doorUnlockedLed = ON;
+                }
+            }
         }
+        break;
+
+    case DOOR_UNLOCKED:
+        if ( mainDoorHandle ) {
+            doorUnlockedLed = OFF;
+            mainDoorState = DOOR_OPEN;
+        }
+        break;
+
+    case DOOR_OPEN:
+        if ( !mainDoorHandle ) {
+            doorLockedLed = ON;
+            mainDoorState = DOOR_CLOSED;
+        }
+        break;
+
+    default:
+        mainDoorInit();
+        break;
     }
-}
+}                                                                              
 
 void keypadInit()
 {
@@ -165,7 +225,7 @@ void keypadInit()
     for( pinIndex=0; pinIndex<KEYPAD_AMOUNT_OF_COLS; pinIndex++ ) {
         (keypadColPins[pinIndex]).mode(PullUp);
     }
-}
+}                                                                              
 
 int keypadScan()
 {
@@ -189,4 +249,4 @@ int keypadScan()
         }
     }
     return 0;
-}
+}                                                                              
