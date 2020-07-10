@@ -103,7 +103,7 @@ float analogReadingScaledWithTheLM35Formula( float analogReading );
 void shiftLm35AvgReadingsArray();
 
 void debounceButtonInit();
-void debounceButtonUpdate();
+bool debounceButtonUpdate();
 void enterButtonReleasedEvent();
 
 //=====[Main function, the program entry point after power on or reset]========
@@ -215,7 +215,30 @@ void alarmActivationUpdate()
 void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
-        debounceButtonUpdate();
+        bool enterButtonReleasedEvent = debounceButtonUpdate();
+        if( enterButtonReleasedEvent ) {
+            if( incorrectCodeLed ) {
+                numberOfenterButtonReleasedEvents++;
+                if( numberOfenterButtonReleasedEvents >= 2 ) {
+                    incorrectCodeLed = OFF;
+                    numberOfenterButtonReleasedEvents = 0;
+                }
+            } else {
+                if ( alarmState ) {
+                    buttonsPressed[0] = aButton;
+                    buttonsPressed[1] = bButton;
+                    buttonsPressed[2] = cButton;
+                    buttonsPressed[3] = dButton;
+                    if ( areEqual() ) {
+                        alarmState = OFF;
+                        numberOfIncorrectCodes = 0;
+                    } else {
+                        incorrectCodeLed = ON;
+                        numberOfIncorrectCodes++;
+                    }
+                }
+            }
+        }
     } else {
         systemBlockedLed = ON;
     }
@@ -480,8 +503,9 @@ void debounceButtonInit()
     }
 }
 
-void debounceButtonUpdate()
+bool debounceButtonUpdate()
 {
+    bool enterButtonReleasedEvent = false;
     switch( enterButtonState ){
 
         case BUTTON_UP:
@@ -500,7 +524,7 @@ void debounceButtonUpdate()
                 }
             }
             accumulatedDebounceButtonTime = accumulatedDebounceButtonTime + 
-                                         TIME_INCREMENT_MS;
+                                            TIME_INCREMENT_MS;
         break;
 
         case BUTTON_DOWN:
@@ -514,42 +538,18 @@ void debounceButtonUpdate()
             if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
                 if( !enterButton ){
                     enterButtonState = BUTTON_UP;
-                    enterButtonReleasedEvent();
+                    enterButtonReleasedEvent = true;
                 } else{
                     enterButtonState = BUTTON_DOWN;
                 }
             }
             accumulatedDebounceButtonTime = accumulatedDebounceButtonTime + 
-                                         TIME_INCREMENT_MS;
+                                            TIME_INCREMENT_MS;
         break;
 
         default:
             debounceButtonInit();
         break;
     }
-}
-
-void enterButtonReleasedEvent()
-{
-    if( incorrectCodeLed ) {
-        numberOfenterButtonReleasedEvents++;
-        if( numberOfenterButtonReleasedEvents >= 2 ) {
-            incorrectCodeLed = OFF;
-            numberOfenterButtonReleasedEvents = 0;
-        }
-    } else {
-        if ( alarmState ) {
-            buttonsPressed[0] = aButton;
-            buttonsPressed[1] = bButton;
-            buttonsPressed[2] = cButton;
-            buttonsPressed[3] = dButton;
-            if ( areEqual() ) {
-                alarmState = OFF;
-                numberOfIncorrectCodes = 0;
-            } else {
-                incorrectCodeLed = ON;
-                numberOfIncorrectCodes++;
-            }
-        }
-    }
+    return enterButtonReleasedEvent;
 }
