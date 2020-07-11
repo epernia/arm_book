@@ -615,16 +615,16 @@ char matrixKeypadScan()
     int c = 0;
     int i = 0;
 
-    for( r=0; r<KEYPAD_AMOUNT_OF_ROWS; r++ ) {
+    for( r=0; r<KEYPAD_AMOUNT_OF_ROWS; r++ ) { // Scan all Rows
    
-        for( i=0; i<KEYPAD_AMOUNT_OF_ROWS; i++ ) {
+        for( i=0; i<KEYPAD_AMOUNT_OF_ROWS; i++ ) { // Put all rows in ON state
             keypadRowPins[i] = ON;
         }
 
-        keypadRowPins[r] = OFF;
+        keypadRowPins[r] = OFF; // Put in of state the current scanning row
        
-        for( c=0; c<KEYPAD_AMOUNT_OF_COLS; c++ ) {                   
-            if( keypadColPins[c] == OFF ) {
+        for( c=0; c<KEYPAD_AMOUNT_OF_COLS; c++ ) { // Check if any column reads OFF state of current row                   
+            if( keypadColPins[c] == OFF ) { // Check current column reads OFF state (this will be key pressed)
                 return matrixKeypadIndexToCharArray[r*KEYPAD_AMOUNT_OF_ROWS + c];
             }
         }
@@ -665,7 +665,7 @@ char matrixKeypadUpdate()
         case MATRIX_KEYPAD_KEY_HOLD_PRESSED:
             keyDetected = matrixKeypadScan();
             if( keyDetected != matrixKeypadLastKeyPressed ) {             
-                if( keyDetected == '\0' ) {
+                if( keyDetected == '\0' ) { // Key Released
                     keyReleased = matrixKeypadLastKeyPressed;
                 }
                 matrixKeypadState = MATRIX_KEYPAD_SCANNING;   
