@@ -15,6 +15,8 @@
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
+#define KEYPAD_AMOUNT_OF_ROWS                    4
+#define KEYPAD_AMOUNT_OF_COLS                    4
 
 //=====[Declaration of public data types]======================================
 
@@ -24,6 +26,12 @@ typedef enum{
    BUTTON_FALLING,
    BUTTON_RISING
 } buttonState_t;
+
+typedef enum{
+    MATRIX_KEYPAD_SCANNING,
+    MATRIX_KEYPAD_DEBOUNCE,
+    MATRIX_KEYPAD_KEY_HOLD_PRESSED
+} matrixKeypadState_t;
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -44,6 +52,9 @@ Serial uartBle(D1, D0);
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
+DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {D23, D22, D21, D20};
+DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {D19, D18, D17, D16};
+
 //=====[Declaration and intitalization of public global variables]=============
 
 bool alarmState       = OFF;
@@ -57,8 +68,6 @@ int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
-int accumulatedDebounceButtonTime        = 0;
-int numberOfenterButtonReleasedEvents = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -76,7 +85,19 @@ float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
 
+int accumulatedDebounceButtonTime     = 0;
+int numberOfenterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
+
+int accumulatedDebounceMatrixKeypadTime = 0;
+char matrixKeypadLastKeyPressed  = '\0';
+char matrixKeypadIndexToCharArray[] = {
+    '1', '2', '3', 'A',
+    '4', '5', '6', 'B',
+    '7', '8', '9', 'C',
+    '*', '0', '#', 'D',
+};
+matrixKeypadState_t matrixKeypadState;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -103,8 +124,11 @@ float analogReadingScaledWithTheLM35Formula( float analogReading );
 void shiftLm35AvgReadingsArray();
 
 void debounceButtonInit();
-void debounceButtonUpdate();
-void enterButtonReleasedEvent();
+bool debounceButtonUpdate();
+
+void matrixKeypadInit();
+char matrixKeypadScan();
+char matrixKeypadUpdate();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -117,6 +141,7 @@ int main()
         alarmDeactivationUpdate();
         uartTask();
         bleTask();
+        delay(TIME_INCREMENT_MS);
     }
 }
 
@@ -130,6 +155,7 @@ void inputsInit()
     cButton.mode(PullDown);
     dButton.mode(PullDown);
     debounceButtonInit();
+    matrixKeypadInit();
 }
 
 void outputsInit()
@@ -142,9 +168,6 @@ void outputsInit()
 void alarmActivationUpdate()
 {
     int i = 0;
-
-    delay(TIME_INCREMENT_MS);
-
     accumulatedTimeLm35 = accumulatedTimeLm35 + TIME_INCREMENT_MS;
 
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
@@ -215,7 +238,53 @@ void alarmActivationUpdate()
 void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
-        debounceButtonUpdate();
+        bool enterButtonReleasedEvent = debounceButtonUpdate();
+        char keyReleased = matrixKeypadUpdate();        
+        if( keyReleased != '\0' && keyReleased != '#' ) {
+            switch (keyReleased) {
+                case 'A':
+                    buttonsPressed[0] = 1;
+                break;
+                case 'B':
+                    buttonsPressed[1] = 1;
+                break;
+                case 'C':
+                    buttonsPressed[2] = 1;
+                break;
+                case 'D':
+                    buttonsPressed[3] = 1;
+                break;
+            }
+        }
+        if( enterButtonReleasedEvent || keyReleased == '#' ) {
+            if( incorrectCodeLed ) {
+                numberOfenterButtonReleasedEvents++;
+                if( numberOfenterButtonReleasedEvents >= 2 ) {
+                    incorrectCodeLed = OFF;
+                    numberOfenterButtonReleasedEvents = 0;
+                    buttonsPressed[0] = 0;
+                    buttonsPressed[1] = 0;
+                    buttonsPressed[2] = 0;
+                    buttonsPressed[3] = 0;
+                }
+            } else {
+                if ( alarmState ) {
+                    if ( enterButtonReleasedEvent ) {
+                        buttonsPressed[0] = aButton;
+                        buttonsPressed[1] = bButton;
+                        buttonsPressed[2] = cButton;
+                        buttonsPressed[3] = dButton;
+                    }
+                    if ( areEqual() ) {
+                        alarmState = OFF;
+                        numberOfIncorrectCodes = 0;
+                    } else {
+                        incorrectCodeLed = ON;
+                        numberOfIncorrectCodes++;
+                    }
+                }
+            }
+        }
     } else {
         systemBlockedLed = ON;
     }
@@ -480,8 +549,9 @@ void debounceButtonInit()
     }
 }
 
-void debounceButtonUpdate()
+bool debounceButtonUpdate()
 {
+    bool enterButtonReleasedEvent = false;
     switch( enterButtonState ){
 
         case BUTTON_UP:
@@ -514,7 +584,7 @@ void debounceButtonUpdate()
             if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
                 if( !enterButton ){
                     enterButtonState = BUTTON_UP;
-                    enterButtonReleasedEvent();
+                    enterButtonReleasedEvent = true;
                 } else{
                     enterButtonState = BUTTON_DOWN;
                 }
@@ -527,29 +597,84 @@ void debounceButtonUpdate()
             debounceButtonInit();
         break;
     }
+    return enterButtonReleasedEvent;
 }
 
-void enterButtonReleasedEvent()
+void matrixKeypadInit()
 {
-    if( incorrectCodeLed ) {
-        numberOfenterButtonReleasedEvents++;
-        if( numberOfenterButtonReleasedEvents >= 2 ) {
-            incorrectCodeLed = OFF;
-            numberOfenterButtonReleasedEvents = 0;
+    matrixKeypadState = MATRIX_KEYPAD_SCANNING;
+    int pinIndex = 0;
+    for( pinIndex=0; pinIndex<KEYPAD_AMOUNT_OF_COLS; pinIndex++ ) {
+        (keypadColPins[pinIndex]).mode(PullUp);
+    }
+}
+
+char matrixKeypadScan()
+{
+    int r = 0;
+    int c = 0;
+    int i = 0;
+
+    for( r=0; r<KEYPAD_AMOUNT_OF_ROWS; r++ ) { // Scan all Rows
+   
+        for( i=0; i<KEYPAD_AMOUNT_OF_ROWS; i++ ) { // Put all rows in ON state
+            keypadRowPins[i] = ON;
         }
-    } else {
-        if ( alarmState ) {
-            buttonsPressed[0] = aButton;
-            buttonsPressed[1] = bButton;
-            buttonsPressed[2] = cButton;
-            buttonsPressed[3] = dButton;
-            if ( areEqual() ) {
-                alarmState = OFF;
-                numberOfIncorrectCodes = 0;
-            } else {
-                incorrectCodeLed = ON;
-                numberOfIncorrectCodes++;
+
+        keypadRowPins[r] = OFF; // Put in of state the current scanning row
+       
+        for( c=0; c<KEYPAD_AMOUNT_OF_COLS; c++ ) { // Check if any column reads OFF state of current row                   
+            if( keypadColPins[c] == OFF ) { // Check current column reads OFF state (this will be key pressed)
+                return matrixKeypadIndexToCharArray[r*KEYPAD_AMOUNT_OF_ROWS + c];
             }
         }
     }
+    return '\0';
+}
+
+char matrixKeypadUpdate()
+{
+    char keyDetected = '\0';
+    char keyReleased = '\0';
+
+    switch( matrixKeypadState ){
+
+        case MATRIX_KEYPAD_SCANNING:
+            keyDetected = matrixKeypadScan();
+            if( keyDetected != '\0' ) {
+                matrixKeypadLastKeyPressed = keyDetected;
+                accumulatedDebounceMatrixKeypadTime = 0;
+                matrixKeypadState = MATRIX_KEYPAD_DEBOUNCE;
+            }
+        break;
+
+        case MATRIX_KEYPAD_DEBOUNCE:
+            if( accumulatedDebounceMatrixKeypadTime >= 
+                DEBOUNCE_BUTTON_TIME_MS ) {
+                keyDetected = matrixKeypadScan();
+                if( keyDetected == matrixKeypadLastKeyPressed ) {
+                    matrixKeypadState = MATRIX_KEYPAD_KEY_HOLD_PRESSED;
+                } else{
+                    matrixKeypadState = MATRIX_KEYPAD_SCANNING;
+                }
+            }
+            accumulatedDebounceMatrixKeypadTime = 
+                accumulatedDebounceMatrixKeypadTime + TIME_INCREMENT_MS;
+        break;
+
+        case MATRIX_KEYPAD_KEY_HOLD_PRESSED:
+            keyDetected = matrixKeypadScan();
+            if( keyDetected != matrixKeypadLastKeyPressed ) {             
+                if( keyDetected == '\0' ) { // Key Released
+                    keyReleased = matrixKeypadLastKeyPressed;
+                }
+                matrixKeypadState = MATRIX_KEYPAD_SCANNING;   
+            }
+        break;
+
+        default:
+            matrixKeypadInit();
+        break;
+    }
+    return keyReleased;
 }

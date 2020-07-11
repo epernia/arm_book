@@ -57,8 +57,6 @@ int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
-int accumulatedDebounceButtonTime        = 0;
-int numberOfenterButtonReleasedEvents = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -76,6 +74,8 @@ float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
 
+int accumulatedDebounceButtonTime     = 0;
+int numberOfenterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
 
 //=====[Declarations (prototypes) of public functions]=========================
@@ -104,7 +104,6 @@ void shiftLm35AvgReadingsArray();
 
 void debounceButtonInit();
 bool debounceButtonUpdate();
-void enterButtonReleasedEvent();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -117,6 +116,7 @@ int main()
         alarmDeactivationUpdate();
         uartTask();
         bleTask();
+        delay(TIME_INCREMENT_MS);
     }
 }
 
@@ -142,9 +142,6 @@ void outputsInit()
 void alarmActivationUpdate()
 {
     int i = 0;
-
-    delay(TIME_INCREMENT_MS);
-
     accumulatedTimeLm35 = accumulatedTimeLm35 + TIME_INCREMENT_MS;
 
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
