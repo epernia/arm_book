@@ -58,7 +58,7 @@ int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
 int accumulatedDebounceButtonTime        = 0;
-int numberOfenterButtonReleasedEvents = 0;
+int numberOfEnterButtonReleasedEvents = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
@@ -532,10 +532,10 @@ void debounceButtonUpdate()
 void enterButtonReleasedEvent()
 {
     if( incorrectCodeLed ) {
-        numberOfenterButtonReleasedEvents++;
-        if( numberOfenterButtonReleasedEvents >= 2 ) {
+        numberOfEnterButtonReleasedEvents++;
+        if( numberOfEnterButtonReleasedEvents >= 2 ) {
             incorrectCodeLed = OFF;
-            numberOfenterButtonReleasedEvents = 0;
+            numberOfEnterButtonReleasedEvents = 0;
         }
     } else {
         if ( alarmState ) {

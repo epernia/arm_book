@@ -86,7 +86,7 @@ float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
 
 int accumulatedDebounceButtonTime     = 0;
-int numberOfenterButtonReleasedEvents = 0;
+int numberOfEnterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
 
 int accumulatedDebounceMatrixKeypadTime = 0;
@@ -258,10 +258,10 @@ void alarmDeactivationUpdate()
         }
         if( enterButtonReleasedEvent || keyReleased == '#' ) {
             if( incorrectCodeLed ) {
-                numberOfenterButtonReleasedEvents++;
-                if( numberOfenterButtonReleasedEvents >= 2 ) {
+                numberOfEnterButtonReleasedEvents++;
+                if( numberOfEnterButtonReleasedEvents >= 2 ) {
                     incorrectCodeLed = OFF;
-                    numberOfenterButtonReleasedEvents = 0;
+                    numberOfEnterButtonReleasedEvents = 0;
                     buttonsPressed[0] = 0;
                     buttonsPressed[1] = 0;
                     buttonsPressed[2] = 0;
