@@ -5,11 +5,13 @@
 
 //=====[Defines]===============================================================
 
-#define CODE_DIGITS 3
-#define KEYPAD_AMOUNT_OF_ROWS   4
-#define KEYPAD_AMOUNT_OF_COLS   4
-#define START_HOUR 8
-#define END_HOUR 16
+#define CODE_DIGITS                              3
+#define KEYPAD_NUMBER_OF_ROWS                    4
+#define KEYPAD_NUMBER_OF_COLS                    4
+#define TIME_INCREMENT_MS                       10
+#define DEBOUNCE_BUTTON_TIME_MS                 40
+#define START_HOUR                               8
+#define END_HOUR                                16
 
 //=====[Declaration of public data types]======================================
 
@@ -19,10 +21,16 @@ typedef enum {
     DOOR_OPEN
 } doorState_t;
 
+typedef enum {
+    MATRIX_KEYPAD_SCANNING,
+    MATRIX_KEYPAD_DEBOUNCE,
+    MATRIX_KEYPAD_KEY_HOLD_PRESSED
+} matrixKeypadState_t;
+
 //=====[Declaration and intitalization of public global objects]===============
 
-DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {D19, D18, D17, D16};
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 DigitalIn mainDoorHandle(BUTTON1);
 
@@ -34,12 +42,16 @@ Serial uartUsb(USBTX, USBRX);
 
 //=====[Declaration and intitalization of public global variables]=============
 
-char keypadIndexToCharArray[] = {
+int accumulatedDebounceMatrixKeypadTime = 0;
+
+char matrixKeypadLastkeyReleased = '\0';
+char matrixKeypadIndexToCharArray[] = {
     '1', '2', '3', 'A',
     '4', '5', '6', 'B',
     '7', '8', '9', 'C',
     '*', '0', '#', 'D',
 };
+matrixKeypadState_t matrixKeypadState;
 
 char buffer[32];
 
@@ -49,7 +61,7 @@ struct tm t;
 
 time_t seconds;
 
-int codeDigits[] = {'1','4','7'};
+char codeSequence[CODE_DIGITS] = {'1','4','7'};
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -57,15 +69,16 @@ void uartTask();
 void availableCommands();
 void mainDoorUpdate();
 void mainDoorInit();
-int keypadScan();
-void keypadInit();
+void matrixKeypadInit();
+char matrixKeypadScan();
+char matrixKeypadUpdate();
 
 //=====[Main function, the program entry point after power on or reset]========
 
 int main()
 {
     mainDoorInit();
-    keypadInit();
+    matrixKeypadInit();
     while (true) {
         mainDoorUpdate();
         uartTask();
@@ -152,31 +165,31 @@ void mainDoorInit()
 void mainDoorUpdate()
 {
     bool incorrectCode;
-    int keyPressed;
+    char keyReleased;
     struct tm * timeinfo;
-    int prevKeyPressed;
+    char prevkeyReleased;
     int i;
 
     switch( mainDoorState ) {
     case DOOR_CLOSED:
-        if ( keypadScan() == 'A' ) {
+        keyReleased = matrixKeypadUpdate();
+        if ( keyReleased == 'A' ) {
             seconds = time(NULL);
             timeinfo = localtime ( &seconds );
-            keyPressed = 'A';
 
             if ( ( timeinfo->tm_hour >= START_HOUR ) &&
                  ( timeinfo->tm_hour <= END_HOUR ) ) {
                 incorrectCode = false;
-                prevKeyPressed = 'A';
+                prevkeyReleased = 'A';
 
                 for ( i = 0; i < CODE_DIGITS; i++) {
-                    while ( ( keyPressed == 0 ) ||
-                            ( keyPressed == prevKeyPressed ) ) {
+                    while ( ( keyReleased == '\0' ) ||
+                            ( keyReleased == prevkeyReleased ) ) {
 
-                        keyPressed = keypadScan();
+                        keyReleased = matrixKeypadUpdate();
                     }
-                    prevKeyPressed = keyPressed;
-                    if ( keyPressed != codeDigits[i] ) {
+                    prevkeyReleased = keyReleased;
+                    if ( keyReleased != codeSequence[i] ) {
                         incorrectCode = true;
                     }
                 }
@@ -212,41 +225,83 @@ void mainDoorUpdate()
         mainDoorInit();
         break;
     }
-}                                                                              
+}
 
-void keypadInit()
+void matrixKeypadInit()
 {
+    matrixKeypadState = MATRIX_KEYPAD_SCANNING;
     int pinIndex = 0;
-
-    for( pinIndex=0; pinIndex<KEYPAD_AMOUNT_OF_ROWS; pinIndex++ ) {
-        keypadRowPins[pinIndex] = ON;
-    }
-
-    for( pinIndex=0; pinIndex<KEYPAD_AMOUNT_OF_COLS; pinIndex++ ) {
+    for( pinIndex=0; pinIndex<KEYPAD_NUMBER_OF_COLS; pinIndex++ ) {
         (keypadColPins[pinIndex]).mode(PullUp);
     }
-}                                                                              
+}
 
-int keypadScan()
+char matrixKeypadScan()
 {
     int r = 0;
     int c = 0;
     int i = 0;
 
-    for( r=0; r<KEYPAD_AMOUNT_OF_ROWS; r++ ) {
+    for( r=0; r<KEYPAD_NUMBER_OF_ROWS; r++ ) {
 
-        for( i=0; i<KEYPAD_AMOUNT_OF_ROWS; i++ ) {
+        for( i=0; i<KEYPAD_NUMBER_OF_ROWS; i++ ) {
             keypadRowPins[i] = ON;
         }
 
         keypadRowPins[r] = OFF;
 
-        for( c=0; c<KEYPAD_AMOUNT_OF_COLS; c++ ) {
-
+        for( c=0; c<KEYPAD_NUMBER_OF_COLS; c++ ) {
             if( keypadColPins[c] == OFF ) {
-                return keypadIndexToCharArray[r*KEYPAD_AMOUNT_OF_ROWS + c];
+                return matrixKeypadIndexToCharArray[r*KEYPAD_NUMBER_OF_ROWS + c];
             }
         }
     }
-    return 0;
-}                                                                              
+    return '\0';
+}
+
+char matrixKeypadUpdate()
+{
+    char keyDetected = '\0';
+    char keyReleased = '\0';
+
+    switch( matrixKeypadState ) {
+
+    case MATRIX_KEYPAD_SCANNING:
+        keyDetected = matrixKeypadScan();
+        if( keyDetected != '\0' ) {
+            matrixKeypadLastkeyReleased = keyDetected;
+            accumulatedDebounceMatrixKeypadTime = 0;
+            matrixKeypadState = MATRIX_KEYPAD_DEBOUNCE;
+        }
+        break;
+
+    case MATRIX_KEYPAD_DEBOUNCE:
+        if( accumulatedDebounceMatrixKeypadTime >=
+            DEBOUNCE_BUTTON_TIME_MS ) {
+            keyDetected = matrixKeypadScan();
+            if( keyDetected == matrixKeypadLastkeyReleased ) {
+                matrixKeypadState = MATRIX_KEYPAD_KEY_HOLD_PRESSED;
+            } else {
+                matrixKeypadState = MATRIX_KEYPAD_SCANNING;
+            }
+        }
+        accumulatedDebounceMatrixKeypadTime =
+            accumulatedDebounceMatrixKeypadTime + TIME_INCREMENT_MS;
+        break;
+
+    case MATRIX_KEYPAD_KEY_HOLD_PRESSED:
+        keyDetected = matrixKeypadScan();
+        if( keyDetected != matrixKeypadLastkeyReleased ) {
+            if( keyDetected == '\0' ) {
+                keyReleased = matrixKeypadLastkeyReleased;
+            }
+            matrixKeypadState = MATRIX_KEYPAD_SCANNING;
+        }
+        break;
+
+    default:
+        matrixKeypadInit();
+        break;
+    }
+    return keyReleased;
+}

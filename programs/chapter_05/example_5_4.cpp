@@ -537,7 +537,7 @@ void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
             eventsRAMIndex = 0;
         }
     }
-}
+}                                                                              
 
 void bleGetTheSmartphoneButtonsState( const char* buttonName, int index )
 {
