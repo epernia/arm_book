@@ -15,8 +15,8 @@
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
-#define KEYPAD_AMOUNT_OF_ROWS                    4
-#define KEYPAD_AMOUNT_OF_COLS                    4
+#define KEYPAD_NUMBER_OF_ROWS                    4
+#define KEYPAD_NUMBER_OF_COLS                    4
 
 //=====[Declaration of public data types]======================================
 
@@ -52,8 +52,8 @@ Serial uartBle(D1, D0);
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
-DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {D19, D18, D17, D16};
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -90,7 +90,7 @@ int numberOfenterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
 
 int accumulatedDebounceMatrixKeypadTime = 0;
-char matrixKeypadLastKeyPressed  = '\0';
+char matrixKeypadLastKeyPressed = '\0';
 char matrixKeypadIndexToCharArray[] = {
     '1', '2', '3', 'A',
     '4', '5', '6', 'B',
@@ -604,7 +604,7 @@ void matrixKeypadInit()
 {
     matrixKeypadState = MATRIX_KEYPAD_SCANNING;
     int pinIndex = 0;
-    for( pinIndex=0; pinIndex<KEYPAD_AMOUNT_OF_COLS; pinIndex++ ) {
+    for( pinIndex=0; pinIndex<KEYPAD_NUMBER_OF_COLS; pinIndex++ ) {
         (keypadColPins[pinIndex]).mode(PullUp);
     }
 }
@@ -615,17 +615,17 @@ char matrixKeypadScan()
     int c = 0;
     int i = 0;
 
-    for( r=0; r<KEYPAD_AMOUNT_OF_ROWS; r++ ) {
+    for( r=0; r<KEYPAD_NUMBER_OF_ROWS; r++ ) {
    
-        for( i=0; i<KEYPAD_AMOUNT_OF_ROWS; i++ ) {
+        for( i=0; i<KEYPAD_NUMBER_OF_ROWS; i++ ) {
             keypadRowPins[i] = ON;
         }
 
         keypadRowPins[r] = OFF;
        
-        for( c=0; c<KEYPAD_AMOUNT_OF_COLS; c++ ) {                   
+        for( c=0; c<KEYPAD_NUMBER_OF_COLS; c++ ) {                   
             if( keypadColPins[c] == OFF ) {
-                return matrixKeypadIndexToCharArray[r*KEYPAD_AMOUNT_OF_ROWS + c];
+                return matrixKeypadIndexToCharArray[r*KEYPAD_NUMBER_OF_ROWS + c];
             }
         }
     }

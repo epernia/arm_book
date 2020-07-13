@@ -1,3 +1,6 @@
+// Example 5-3 SIN MODIFICAR LA PARTE DE BLUETOOTH
+
+
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
@@ -15,8 +18,8 @@
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
-#define KEYPAD_AMOUNT_OF_ROWS                    4
-#define KEYPAD_AMOUNT_OF_COLS                    4
+#define KEYPAD_NUMBER_OF_ROWS                    4
+#define KEYPAD_NUMBER_OF_COLS                    4
 
 //=====[Declaration of public data types]======================================
 
@@ -52,8 +55,8 @@ Serial uartBle(D1, D0);
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
-DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {D19, D18, D17, D16};
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -63,14 +66,14 @@ bool overTempDetector = OFF;
 
 int numberOfIncorrectCodes            = 0;
 int buttonBeingCompared               = 0;
-int codeSequence[NUMBER_OF_KEYS]      = { 1, 1, 0, 0 };
-int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
+char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
+char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
 
 bool alarmLastTransmittedState = OFF;
 bool gasLastTransmittedState   = OFF;
@@ -90,7 +93,8 @@ int numberOfenterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
 
 int accumulatedDebounceMatrixKeypadTime = 0;
-char matrixKeypadLastKeyPressed  = '\0';
+int codeMatrixKeypadIndex = 0;
+char matrixKeypadLastKeyPressed = '\0';
 char matrixKeypadIndexToCharArray[] = {
     '1', '2', '3', 'A',
     '4', '5', '6', 'B',
@@ -238,46 +242,29 @@ void alarmActivationUpdate()
 void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
-        bool enterButtonReleasedEvent = debounceButtonUpdate();
         char keyReleased = matrixKeypadUpdate();        
         if( keyReleased != '\0' && keyReleased != '#' ) {
-            switch (keyReleased) {
-                case 'A':
-                    buttonsPressed[0] = 1;
-                break;
-                case 'B':
-                    buttonsPressed[1] = 1;
-                break;
-                case 'C':
-                    buttonsPressed[2] = 1;
-                break;
-                case 'D':
-                    buttonsPressed[3] = 1;
-                break;
+            buttonsPressed[codeMatrixKeypadIndex] = keyReleased;
+            if( codeMatrixKeypadIndex >= NUMBER_OF_KEYS ) {
+                codeMatrixKeypadIndex = 0;
+            } else {
+                codeMatrixKeypadIndex++;
             }
         }
-        if( enterButtonReleasedEvent || keyReleased == '#' ) {
+        if( keyReleased == '#' ) {
             if( incorrectCodeLed ) {
                 numberOfenterButtonReleasedEvents++;
                 if( numberOfenterButtonReleasedEvents >= 2 ) {
                     incorrectCodeLed = OFF;
                     numberOfenterButtonReleasedEvents = 0;
-                    buttonsPressed[0] = 0;
-                    buttonsPressed[1] = 0;
-                    buttonsPressed[2] = 0;
-                    buttonsPressed[3] = 0;
+                    codeMatrixKeypadIndex = 0;
                 }
             } else {
                 if ( alarmState ) {
-                    if ( enterButtonReleasedEvent ) {
-                        buttonsPressed[0] = aButton;
-                        buttonsPressed[1] = bButton;
-                        buttonsPressed[2] = cButton;
-                        buttonsPressed[3] = dButton;
-                    }
                     if ( areEqual() ) {
                         alarmState = OFF;
                         numberOfIncorrectCodes = 0;
+                        codeMatrixKeypadIndex = 0;
                     } else {
                         incorrectCodeLed = ON;
                         numberOfIncorrectCodes++;
@@ -320,72 +307,45 @@ void uartTask()
             break;
             
         case '4':
-            uartUsb.printf( "Please enter the code sequence.\r\n" );
-            uartUsb.printf( "First enter 'A', then 'B', then 'C', and " ); 
-            uartUsb.printf( "finally 'D' button\r\n" );
-            uartUsb.printf( "In each case type 1 for pressed or 0 for " );
-            uartUsb.printf( "not pressed\r\n" );
-            uartUsb.printf( "For example, for 'A' = pressed, " );
-            uartUsb.printf( "'B' = pressed, 'C' = not pressed, ");
-            uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
-            uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
+            uartUsb.printf( "Please enter the 4 digits numeric code " );
+            uartUsb.printf( "sequence to deactivate the alarm.\r\n" );
 
             incorrectCode = false;
 
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {
-
                 receivedChar = uartUsb.getc();
-
-                if ( receivedChar == '1' ) {
-                    if ( codeSequence[buttonBeingCompared] != 1 ) {
-                        incorrectCode = true;
-                    }
-                } else if ( receivedChar == '0' ) {
-                    if ( codeSequence[buttonBeingCompared] != 0 ) {
-                        incorrectCode = true;
-                    }
+                uartUsb.printf( "*" );
+                if ( codeSequence[buttonBeingCompared] == receivedChar ) {
+                    incorrectCode = true;
                 }
             }
 
             if ( incorrectCode == false ) {
-                uartUsb.printf( "The code is correct\r\n\r\n" );
+                uartUsb.printf( "\r\nThe code is correct\r\n\r\n" );
                 alarmState = OFF;
                 incorrectCodeLed = OFF;
                 numberOfIncorrectCodes = 0;
             } else {
-                uartUsb.printf( "The code is incorrect\r\n\r\n" );
+                uartUsb.printf( "\r\nThe code is incorrect\r\n\r\n" );
                 incorrectCodeLed = ON;
                 numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
             }                
             break;
 
         case '5':
-            uartUsb.printf( "Please enter new code sequence\r\n" );
-            uartUsb.printf( "First enter 'A', then 'B', then 'C', and " );
-            uartUsb.printf( "finally 'D' button\r\n" );
-            uartUsb.printf( "In each case type 1 for pressed or 0 for not " );
-            uartUsb.printf( "pressed\r\n" );
-            uartUsb.printf( "For example, for 'A' = pressed, 'B' = pressed," );
-            uartUsb.printf( " 'C' = not pressed," );
-            uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
-            uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
+            uartUsb.printf( "Please enter the 4 digits numeric new code " );
+            uartUsb.printf( "sequence.\r\n" );
 
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {
-
-                receivedChar = uartUsb.getc();
-
-                if ( receivedChar == '1' ) {
-                    codeSequence[buttonBeingCompared] = 1;
-                } else if ( receivedChar == '0' ) {
-                    codeSequence[buttonBeingCompared] = 0;
-                }
+                codeSequence[buttonBeingCompared] = uartUsb.getc();
+                uartUsb.printf( "*" );
             }
 
-            uartUsb.printf( "New code generated\r\n\r\n" );
+            uartUsb.printf( "\r\nNew code generated\r\n\r\n" );
             break;
 
         case 'p':
@@ -604,7 +564,7 @@ void matrixKeypadInit()
 {
     matrixKeypadState = MATRIX_KEYPAD_SCANNING;
     int pinIndex = 0;
-    for( pinIndex=0; pinIndex<KEYPAD_AMOUNT_OF_COLS; pinIndex++ ) {
+    for( pinIndex=0; pinIndex<KEYPAD_NUMBER_OF_COLS; pinIndex++ ) {
         (keypadColPins[pinIndex]).mode(PullUp);
     }
 }
@@ -615,17 +575,17 @@ char matrixKeypadScan()
     int c = 0;
     int i = 0;
 
-    for( r=0; r<KEYPAD_AMOUNT_OF_ROWS; r++ ) { // Scan all Rows
+    for( r=0; r<KEYPAD_NUMBER_OF_ROWS; r++ ) {
    
-        for( i=0; i<KEYPAD_AMOUNT_OF_ROWS; i++ ) { // Put all rows in ON state
+        for( i=0; i<KEYPAD_NUMBER_OF_ROWS; i++ ) {
             keypadRowPins[i] = ON;
         }
 
-        keypadRowPins[r] = OFF; // Put in of state the current scanning row
+        keypadRowPins[r] = OFF;
        
-        for( c=0; c<KEYPAD_AMOUNT_OF_COLS; c++ ) { // Check if any column reads OFF state of current row                   
-            if( keypadColPins[c] == OFF ) { // Check current column reads OFF state (this will be key pressed)
-                return matrixKeypadIndexToCharArray[r*KEYPAD_AMOUNT_OF_ROWS + c];
+        for( c=0; c<KEYPAD_NUMBER_OF_COLS; c++ ) {                   
+            if( keypadColPins[c] == OFF ) {
+                return matrixKeypadIndexToCharArray[r*KEYPAD_NUMBER_OF_ROWS + c];
             }
         }
     }
@@ -665,7 +625,7 @@ char matrixKeypadUpdate()
         case MATRIX_KEYPAD_KEY_HOLD_PRESSED:
             keyDetected = matrixKeypadScan();
             if( keyDetected != matrixKeypadLastKeyPressed ) {             
-                if( keyDetected == '\0' ) { // Key Released
+                if( keyDetected == '\0' ) {
                     keyReleased = matrixKeypadLastKeyPressed;
                 }
                 matrixKeypadState = MATRIX_KEYPAD_SCANNING;   
