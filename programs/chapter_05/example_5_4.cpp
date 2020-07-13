@@ -114,11 +114,9 @@ struct tm t;
 struct systemEvent {
     time_t seconds;
     char type[MAX_EVENT_CHARACTERS];
-};
+} eventsRAM[MAX_RAM_EVENTS];
 
 time_t seconds;
-
-struct systemEvent eventsRAM[MAX_RAM_EVENTS];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
