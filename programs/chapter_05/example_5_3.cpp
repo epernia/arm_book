@@ -317,7 +317,7 @@ void uartTask()
                   buttonBeingCompared++) {
                 receivedChar = uartUsb.getc();
                 uartUsb.printf( "*" );
-                if ( codeSequence[buttonBeingCompared] == receivedChar ) {
+                if ( codeSequence[buttonBeingCompared] != receivedChar ) {
                     incorrectCode = true;
                 }
             }
