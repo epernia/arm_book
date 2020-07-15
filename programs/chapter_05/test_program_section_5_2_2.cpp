@@ -28,7 +28,7 @@ char keypadIndexToCharArray[] = {
 
 char buffer[32];
 
-struct tm t;
+struct tm RTCTime;
 
 time_t seconds;
 
@@ -79,37 +79,37 @@ void uartTask()
         case 'S':
             uartUsb.printf("\r\nEnter the current year (YYYY): ");
             uartUsb.scanf("%d",&aux);
-            t.tm_year = aux - 1900;
+            RTCTime.tm_year = aux - 1900;
             uartUsb.printf("%d\r\n",aux);
 
             uartUsb.printf("Enter the current month (1-12): ");
             uartUsb.scanf("%d",&aux);
-            t.tm_mon = aux - 1;
+            RTCTime.tm_mon = aux - 1;
             uartUsb.printf("%d\r\n",aux);
 
             uartUsb.printf("Enter the current day (1-31): ");
-            uartUsb.scanf("%d",&t.tm_mday);
-            uartUsb.printf("%d\r\n",t.tm_mday);
+            uartUsb.scanf("%d",&RTCTime.tm_mday);
+            uartUsb.printf("%d\r\n",RTCTime.tm_mday);
 
             uartUsb.printf("Enter the current hour (0-24): ");
-            uartUsb.scanf("%d",&t.tm_hour);
-            uartUsb.printf("%d\r\n",t.tm_hour);
+            uartUsb.scanf("%d",&RTCTime.tm_hour);
+            uartUsb.printf("%d\r\n",RTCTime.tm_hour);
 
             uartUsb.printf("Enter the current minutes (0-59): ");
-            uartUsb.scanf("%d",&t.tm_min);
-            uartUsb.printf("%d\r\n",t.tm_min);
+            uartUsb.scanf("%d",&RTCTime.tm_min);
+            uartUsb.printf("%d\r\n",RTCTime.tm_min);
 
             uartUsb.printf("Enter the current seconds (0-59): ");
-            uartUsb.scanf("%d",&t.tm_sec);
-            uartUsb.printf("%d\r\n",t.tm_sec);
+            uartUsb.scanf("%d",&RTCTime.tm_sec);
+            uartUsb.printf("%d\r\n",RTCTime.tm_sec);
 
             while ( uartUsb.readable() ) {
                 uartUsb.getc();
             }
 
-            t.tm_isdst = -1;
+            RTCTime.tm_isdst = -1;
 
-            set_time( mktime( &t ) );
+            set_time( mktime( &RTCTime ) );
             break;
 
         case 't':

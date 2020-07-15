@@ -20,8 +20,8 @@
 #define DEBOUNCE_BUTTON_TIME_MS                 40
 #define KEYPAD_NUMBER_OF_ROWS                    4
 #define KEYPAD_NUMBER_OF_COLS                    4
-#define MAX_RAM_EVENTS                         100
-#define MAX_EVENT_CHARACTERS                    15
+#define MAX_NUMBER_OF_EVENTS                         100
+#define MAX_NUMBER_OF_CHARACTERS                    15
 
 //=====[Declaration of public data types]======================================
 
@@ -52,7 +52,6 @@ DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
-Serial uartBle(D1, D0);
 
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
@@ -71,19 +70,18 @@ int buttonBeingCompared               = 0;
 int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
-int eventsRAMIndex                    = 0;
+int eventsIndex                    = 0;
 
 char receivedChar = '\0';
-char bleReceivedString[STRING_MAX_LENGTH];
 char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
 char buffer[32];
 
-bool alarmLastTransmittedState = OFF;
-bool gasLastTransmittedState   = OFF;
-bool tempLastTransmittedState  = OFF;
-bool ICLastTransmittedState    = OFF;
-bool SBLastTransmittedState    = OFF;
+bool alarmLastState = OFF;
+bool gasLastState   = OFF;
+bool tempLastState  = OFF;
+bool ICLastState    = OFF;
+bool SBLastState    = OFF;
 bool gasDetectorState          = OFF;
 bool overTempDetectorState     = OFF;
 
@@ -107,14 +105,13 @@ char matrixKeypadIndexToCharArray[] = {
 };
 matrixKeypadState_t matrixKeypadState;
 
-int aux;
-int i;
-struct tm t;
+struct tm RTCTime;
+time_t timeAux;
 
 struct systemEvent {
     time_t seconds;
-    char type[MAX_EVENT_CHARACTERS];
-} eventsRAM[MAX_RAM_EVENTS];
+    char type[MAX_NUMBER_OF_CHARACTERS];
+} arrayOfStoredEvents[MAX_NUMBER_OF_EVENTS];
 
 time_t seconds;
 
@@ -129,13 +126,11 @@ void alarmDeactivationUpdate();
 void uartTask();
 void availableCommands();
 bool areEqual();
-void bleTask();
+void checkStateChangeTask();
 
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
+void checkStateChange( bool lastState,
         bool currentState,
         const char* elementName );
-
-void bleGetTheSmartphoneButtonsState( const char* buttonName, int index );
 
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
@@ -159,7 +154,7 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
-        bleTask();
+        checkStateChangeTask();
         delay(TIME_INCREMENT_MS);
     }
 }
@@ -382,55 +377,54 @@ void uartTask()
 
         case 's':
         case 'S':
+            int RTCTimeAux;
             uartUsb.printf("Enter the current year (YYYY): ");
-            uartUsb.scanf("%d",&aux);
-            t.tm_year = aux - 1900;
-            uartUsb.printf("%d\r\n",aux);
+            uartUsb.scanf("%d",&RTCTimeAux);
+            RTCTime.tm_year = RTCTimeAux - 1900;
+            uartUsb.printf("%d\r\n",RTCTimeAux);
 
             uartUsb.printf("Enter the current month (1-12): ");
-            uartUsb.scanf("%d",&aux);
-            t.tm_mon = aux - 1;
-            uartUsb.printf("%d\r\n",aux);
+            uartUsb.scanf("%d",&RTCTimeAux);
+            RTCTime.tm_mon = RTCTimeAux - 1;
+            uartUsb.printf("%d\r\n",RTCTimeAux);
 
             uartUsb.printf("Enter the current day (1-31): ");
-            uartUsb.scanf("%d",&t.tm_mday);
-            uartUsb.printf("%d\r\n",t.tm_mday);
+            uartUsb.scanf("%d",&RTCTime.tm_mday);
+            uartUsb.printf("%d\r\n",RTCTime.tm_mday);
 
             uartUsb.printf("Enter the current hour (0-24): ");
-            uartUsb.scanf("%d",&t.tm_hour);
-            uartUsb.printf("%d\r\n",t.tm_hour);
+            uartUsb.scanf("%d",&RTCTime.tm_hour);
+            uartUsb.printf("%d\r\n",RTCTime.tm_hour);
 
             uartUsb.printf("Enter the current minutes (0-59): ");
-            uartUsb.scanf("%d",&t.tm_min);
-            uartUsb.printf("%d\r\n",t.tm_min);
+            uartUsb.scanf("%d",&RTCTime.tm_min);
+            uartUsb.printf("%d\r\n",RTCTime.tm_min);
 
             uartUsb.printf("Enter the current seconds (0-59): ");
-            uartUsb.scanf("%d",&t.tm_sec);
-            uartUsb.printf("%d\r\n",t.tm_sec);
+            uartUsb.scanf("%d",&RTCTime.tm_sec);
+            uartUsb.printf("%d\r\n",RTCTime.tm_sec);
 
             while ( uartUsb.readable() ) {
                 uartUsb.getc();
             }
 
-            t.tm_isdst = -1;
+            RTCTime.tm_isdst = -1;
 
-            set_time( mktime( &t ) );
+            set_time( mktime( &RTCTime ) );
             break;
 
         case 't':
         case 'T':
-            seconds = time(NULL);
-            uartUsb.printf("Date and Time = %s", ctime(&seconds));
-            strftime(buffer, 32, "%I:%M:%S %p\n", localtime(&seconds));
-            uartUsb.printf("Time as a custom formatted string = %s", buffer);
+            timeAux = time(NULL);
+            uartUsb.printf("Date and Time = %s", ctime(&timeAux));
             break;
 
         case 'e':
         case 'E':
-            for (i = 0; i < eventsRAMIndex; i++) {
-                seconds = eventsRAM[i].seconds;
-                uartUsb.printf("Event = %s\r\n", eventsRAM[i].type);
-                uartUsb.printf("Date and Time = %s\r\n", ctime(&seconds));
+            for (int i = 0; i < eventsIndex; i++) {
+                uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].type);
+                uartUsb.printf("Date and Time = %s\r\n", 
+                               ctime(&arrayOfStoredEvents[i].seconds));
                 uartUsb.printf("\r\n");
             }
             break;
@@ -472,101 +466,49 @@ bool areEqual()
     return true;
 }
 
-void bleTask()
+void checkStateChangeTask()
 {
-    bleSendElementStateToTheSmartphone( alarmLastTransmittedState,
-                                        alarmState, "ALARM" );
-    alarmLastTransmittedState = alarmState;
+    checkStateChange( alarmLastState,alarmState, "ALARM" );
+    alarmLastState = alarmState;
 
-    bleSendElementStateToTheSmartphone( gasLastTransmittedState,
-                                        gasDetector, "GAS_DET" );
-    gasLastTransmittedState = gasDetector;
+    checkStateChange( gasLastState,gasDetector, "GAS_DET" );
+    gasLastState = gasDetector;
 
-    bleSendElementStateToTheSmartphone( tempLastTransmittedState,
-                                        overTempDetector, "OVER_TEMP" );
-    tempLastTransmittedState = overTempDetector;
+    checkStateChange( tempLastState,overTempDetector, "OVER_TEMP" );
+    tempLastState = overTempDetector;
 
-    bleSendElementStateToTheSmartphone( ICLastTransmittedState,
-                                        incorrectCodeLed, "LED_IC" );
-    ICLastTransmittedState = incorrectCodeLed;
+    checkStateChange( ICLastState,incorrectCodeLed, "LED_IC" );
+    ICLastState = incorrectCodeLed;
 
-    bleSendElementStateToTheSmartphone( SBLastTransmittedState,
-                                        systemBlockedLed, "LED_SB" );
-    SBLastTransmittedState = systemBlockedLed;
+    checkStateChange( SBLastState,systemBlockedLed, "LED_SB" );
+    SBLastState = systemBlockedLed;
+}                                                                              
 
-    if( uartBle.readable() ) {
-        uartBle.scanf("%s", bleReceivedString);
-
-        bleGetTheSmartphoneButtonsState( "A", 0 );
-        bleGetTheSmartphoneButtonsState( "B", 1 );
-        bleGetTheSmartphoneButtonsState( "C", 2 );
-        bleGetTheSmartphoneButtonsState( "D", 3 );
-
-        bleGetTheSmartphoneButtonsState( "ENTER", -1 );
-
-        while ( uartBle.readable() ) {
-            uartBle.getc();
-        }
-    }
-
-}
-
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
+void checkStateChange( bool lastState,
         bool currentState,
         const char* elementName )
 {
-    char eventString[MAX_EVENT_CHARACTERS];
+    char eventString[MAX_NUMBER_OF_CHARACTERS];
 
-    if ( lastTransmittedState != currentState ) {
+    if ( lastState != currentState ) {
         eventString[0] = 0;
-        strncat( eventString, elementName, strlen(elementName) );
+        strncat( eventString, elementName, strlen( elementName ) );
         if ( currentState ) {
             strncat( eventString, "_ON", strlen("_ON") );
         } else {
             strncat( eventString, "_OFF", strlen("_OFF") );
         }
-        uartBle.printf("%s",eventString);
-        uartBle.printf("\r\n");
 
-        eventsRAM[eventsRAMIndex].seconds = time(NULL);
-        strcpy(eventsRAM[eventsRAMIndex].type,eventString);
+        arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
+        strcpy( arrayOfStoredEvents[eventsIndex].type,eventString );
 
-        if ( eventsRAMIndex < MAX_RAM_EVENTS ) {
-            eventsRAMIndex++;
+        if ( eventsIndex < MAX_NUMBER_OF_EVENTS ) {
+            eventsIndex++;
         } else {
-            eventsRAMIndex = 0;
+            eventsIndex = 0;
         }
     }
 }                                                                              
-
-void bleGetTheSmartphoneButtonsState( const char* buttonName, int index )
-{
-    char str[30];
-
-    str[0] = 0;
-    strncat( str, buttonName, strlen(buttonName) );
-    strncat( str, "_PRESSED", strlen("_PRESSED") );
-
-    if ( strcmp(bleReceivedString, str) == 0 )  {
-        uartUsb.printf("Button '%s' has been pressed", buttonName );
-        uartUsb.printf("in the smartphone application\r\n\r\n");
-        if ( index >= 0 ) {
-            buttonsPressed[index] = 1;
-        }
-    }
-
-    str[0] = 0;
-    strncat( str, buttonName, strlen(buttonName) );
-    strncat( str, "_RELEASED", strlen("_RELEASED") );
-
-    if ( strcmp(bleReceivedString, str) == 0 )  {
-        if ( index >= 0 ) {
-            buttonsPressed[index] = 0;
-        }
-        uartUsb.printf("Button '%s' has been released", buttonName );
-        uartUsb.printf("in the smartphone application\r\n\r\n");
-    }
-}
 
 float analogReadingScaledWithTheLM35Formula( float analogReading )
 {
