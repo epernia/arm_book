@@ -18,11 +18,11 @@
 
 //=====[Declaration of public data types]======================================
 
-typedef enum{
-   BUTTON_UP,
-   BUTTON_DOWN,
-   BUTTON_FALLING,
-   BUTTON_RISING
+typedef enum {
+    BUTTON_UP,
+    BUTTON_DOWN,
+    BUTTON_FALLING,
+    BUTTON_RISING
 } buttonState_t;
 
 //=====[Declaration and intitalization of public global objects]===============
@@ -147,22 +147,22 @@ void alarmActivationUpdate()
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
         if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
             lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / NUMBER_OF_AVG_SAMPLES;
-            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage + 
+            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage +
                                         lm35AvgReadingsArray[lm35SampleIndex];
             lm35SampleIndex++;
         } else {
-            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage - 
+            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage -
                                         lm35AvgReadingsArray[0];
 
             shiftLm35AvgReadingsArray();
 
-            lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 
+            lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] =
                 lm35.read() / NUMBER_OF_AVG_SAMPLES;
 
-            lm35ReadingsMovingAverage =             
+            lm35ReadingsMovingAverage =
                 lm35ReadingsMovingAverage +
                 lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1];
-                
+
             lm35TempC = analogReadingScaledWithTheLM35Formula(
                             lm35ReadingsMovingAverage );
         }
@@ -183,9 +183,9 @@ void alarmActivationUpdate()
         overTempDetectorState = ON;
         alarmState = ON;
     }
-    if( alarmState ) { 
+    if( alarmState ) {
         accumulatedTimeAlarm = accumulatedTimeAlarm + TIME_INCREMENT_MS;
-	
+
         if( gasDetectorState && overTempDetectorState ) {
             if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
                 accumulatedTimeAlarm = 0;
@@ -202,7 +202,7 @@ void alarmActivationUpdate()
                 alarmLed = !alarmLed;
             }
         }
-    } else{
+    } else {
         alarmLed = OFF;
         gasDetectorState = OFF;
         overTempDetectorState = OFF;
@@ -269,7 +269,7 @@ void uartTask()
                 uartUsb.printf( "Temperature is below the maximum level\r\n");
             }
             break;
-            
+
         case '4':
             uartUsb.printf( "Please enter the code sequence.\r\n" );
             uartUsb.printf( "First enter 'A', then 'B', then 'C', and " ); 
@@ -283,8 +283,8 @@ void uartTask()
 
             incorrectCode = false;
 
-            for ( buttonBeingCompared = 0; 
-                  buttonBeingCompared < NUMBER_OF_KEYS; 
+            for ( buttonBeingCompared = 0;
+                  buttonBeingCompared < NUMBER_OF_KEYS;
                   buttonBeingCompared++) {
 
                 receivedChar = uartUsb.getc();
@@ -309,7 +309,7 @@ void uartTask()
                 uartUsb.printf( "The code is incorrect\r\n\r\n" );
                 incorrectCodeLed = ON;
                 numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
-            }                
+            }
             break;
 
         case '5':
@@ -323,8 +323,8 @@ void uartTask()
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
 
-            for ( buttonBeingCompared = 0; 
-                  buttonBeingCompared < NUMBER_OF_KEYS; 
+            for ( buttonBeingCompared = 0;
+                  buttonBeingCompared < NUMBER_OF_KEYS;
                   buttonBeingCompared++) {
 
                 receivedChar = uartUsb.getc();
@@ -352,8 +352,8 @@ void uartTask()
 
         case 'f':
         case 'F':
-            uartUsb.printf( "Temperature: %.2f °F\r\n", 
-				celsiusToFahrenheit( lm35TempC ) );
+            uartUsb.printf( "Temperature: %.2f °F\r\n",
+                            celsiusToFahrenheit( lm35TempC ) );
             break;
 
         default:
@@ -373,7 +373,7 @@ void availableCommands()
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
-	uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
+    uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
 	uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
 }
 
@@ -494,7 +494,7 @@ void shiftLm35AvgReadingsArray()
 void debounceButtonInit()
 {
     if( enterButton ) {
-        enterButtonState = BUTTON_DOWN;        
+        enterButtonState = BUTTON_DOWN;
     } else {
         enterButtonState = BUTTON_UP;
     }
@@ -503,49 +503,49 @@ void debounceButtonInit()
 bool debounceButtonUpdate()
 {
     bool enterButtonReleasedEvent = false;
-    switch( enterButtonState ){
+    switch( enterButtonState ) {
 
-        case BUTTON_UP:
-            if( enterButton ){
-                enterButtonState = BUTTON_FALLING;
-                accumulatedDebounceButtonTime = 0;
-            }
+    case BUTTON_UP:
+        if( enterButton ) {
+            enterButtonState = BUTTON_FALLING;
+            accumulatedDebounceButtonTime = 0;
+        }
         break;
 
-        case BUTTON_FALLING:
-            if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
-                if( enterButton ){
-                    enterButtonState = BUTTON_DOWN;
-                } else{
-                    enterButtonState = BUTTON_UP;
-                }
+    case BUTTON_FALLING:
+        if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
+            if( enterButton ) {
+                enterButtonState = BUTTON_DOWN;
+            } else {
+                enterButtonState = BUTTON_UP;
             }
-            accumulatedDebounceButtonTime = accumulatedDebounceButtonTime + 
-                                            TIME_INCREMENT_MS;
+        }
+        accumulatedDebounceButtonTime = accumulatedDebounceButtonTime +
+                                        TIME_INCREMENT_MS;
         break;
 
-        case BUTTON_DOWN:
-            if( !enterButton ){
-                enterButtonState = BUTTON_RISING;
-                accumulatedDebounceButtonTime = 0;
-            }
+    case BUTTON_DOWN:
+        if( !enterButton ) {
+            enterButtonState = BUTTON_RISING;
+            accumulatedDebounceButtonTime = 0;
+        }
         break;
 
-        case BUTTON_RISING:
-            if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
-                if( !enterButton ){
-                    enterButtonState = BUTTON_UP;
-                    enterButtonReleasedEvent = true;
-                } else{
-                    enterButtonState = BUTTON_DOWN;
-                }
+    case BUTTON_RISING:
+        if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
+            if( !enterButton ) {
+                enterButtonState = BUTTON_UP;
+                enterButtonReleasedEvent = true;
+            } else {
+                enterButtonState = BUTTON_DOWN;
             }
-            accumulatedDebounceButtonTime = accumulatedDebounceButtonTime + 
-                                            TIME_INCREMENT_MS;
+        }
+        accumulatedDebounceButtonTime = accumulatedDebounceButtonTime +
+                                        TIME_INCREMENT_MS;
         break;
 
-        default:
-            debounceButtonInit();
+    default:
+        debounceButtonInit();
         break;
     }
     return enterButtonReleasedEvent;

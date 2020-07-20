@@ -1,6 +1,3 @@
-// Example 5-3 SIN MODIFICAR LA PARTE DE BLUETOOTH
-
-
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
@@ -20,8 +17,8 @@
 #define DEBOUNCE_BUTTON_TIME_MS                 40
 #define KEYPAD_NUMBER_OF_ROWS                    4
 #define KEYPAD_NUMBER_OF_COLS                    4
-#define MAX_NUMBER_OF_EVENTS                         100
-#define MAX_NUMBER_OF_CHARACTERS                    15
+#define MAX_NUMBER_OF_EVENTS                   100
+#define MAX_NUMBER_OF_CHARACTERS                15
 
 //=====[Declaration of public data types]======================================
 
@@ -70,7 +67,7 @@ int buttonBeingCompared               = 0;
 int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
-int eventsIndex                    = 0;
+int eventsIndex                       = 0;
 
 char receivedChar = '\0';
 char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
