@@ -32,7 +32,7 @@ typedef enum {
 DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
 DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
-DigitalIn mainDoorHandle(BUTTON1);
+DigitalIn doorHandle(BUTTON1);
 
 DigitalOut doorUnlockedLed(LED1);
 DigitalOut doorLockedLed(LED2);
@@ -53,9 +53,7 @@ char matrixKeypadIndexToCharArray[] = {
 };
 matrixKeypadState_t matrixKeypadState;
 
-char buffer[32];
-
-doorState_t mainDoorState;
+doorState_t doorState;
 
 struct tm RTCTime;
 
@@ -67,8 +65,8 @@ char codeSequence[CODE_DIGITS] = {'1','4','7'};
 
 void uartTask();
 void availableCommands();
-void mainDoorUpdate();
-void mainDoorInit();
+void doorInit();
+void doorUpdate();
 void matrixKeypadInit();
 char matrixKeypadScan();
 char matrixKeypadUpdate();
@@ -77,10 +75,10 @@ char matrixKeypadUpdate();
 
 int main()
 {
-    mainDoorInit();
+    doorInit();
     matrixKeypadInit();
     while (true) {
-        mainDoorUpdate();
+        doorUpdate();
         uartTask();
     }
 }
@@ -136,8 +134,6 @@ void uartTask()
         case 'T':
             seconds = time(NULL);
             uartUsb.printf("Date and Time = %s", ctime(&seconds));
-            strftime(buffer, 32, "%I:%M:%S %p\n", localtime(&seconds));
-            uartUsb.printf("Time as a custom formatted string = %s", buffer);
             break;
 
         default:
@@ -145,7 +141,7 @@ void uartTask()
             break;
         }
     }
-}
+}                                                                              
 
 void availableCommands()
 {
@@ -154,31 +150,31 @@ void availableCommands()
     uartUsb.printf( "Press 't' or 'T' to get the time\r\n\r\n" );
 }
 
-void mainDoorInit()
+void doorInit()
 {
     doorUnlockedLed = OFF;
     doorLockedLed = ON;
     incorrectCodeLed = OFF;
-    mainDoorState = DOOR_CLOSED;
-}
+    doorState = DOOR_CLOSED;
+}                                                                              
 
-void mainDoorUpdate()
+void doorUpdate()
 {
     bool incorrectCode;
     char keyReleased;
-    struct tm * timeinfo;
+    struct tm * currentTime;
     char prevkeyReleased;
     int i;
 
-    switch( mainDoorState ) {
+    switch( doorState ) {
     case DOOR_CLOSED:
         keyReleased = matrixKeypadUpdate();
         if ( keyReleased == 'A' ) {
             seconds = time(NULL);
-            timeinfo = localtime ( &seconds );
+            currentTime = localtime ( &seconds );
 
-            if ( ( timeinfo->tm_hour >= START_HOUR ) &&
-                 ( timeinfo->tm_hour <= END_HOUR ) ) {
+            if ( ( currentTime->tm_hour >= START_HOUR ) &&
+                 ( currentTime->tm_hour <= END_HOUR ) ) {
                 incorrectCode = false;
                 prevkeyReleased = 'A';
 
@@ -199,7 +195,7 @@ void mainDoorUpdate()
                     delay (1000);
                     incorrectCodeLed = OFF;
                 } else {
-                    mainDoorState = DOOR_UNLOCKED;
+                    doorState = DOOR_UNLOCKED;
                     doorLockedLed = OFF;
                     doorUnlockedLed = ON;
                 }
@@ -208,24 +204,24 @@ void mainDoorUpdate()
         break;
 
     case DOOR_UNLOCKED:
-        if ( mainDoorHandle ) {
+        if ( doorHandle ) {
             doorUnlockedLed = OFF;
-            mainDoorState = DOOR_OPEN;
+            doorState = DOOR_OPEN;
         }
         break;
 
     case DOOR_OPEN:
-        if ( !mainDoorHandle ) {
+        if ( !doorHandle ) {
             doorLockedLed = ON;
-            mainDoorState = DOOR_CLOSED;
+            doorState = DOOR_CLOSED;
         }
         break;
 
     default:
-        mainDoorInit();
+        doorInit();
         break;
     }
-}
+}                                                                              
 
 void matrixKeypadInit()
 {
@@ -234,7 +230,7 @@ void matrixKeypadInit()
     for( pinIndex=0; pinIndex<KEYPAD_NUMBER_OF_COLS; pinIndex++ ) {
         (keypadColPins[pinIndex]).mode(PullUp);
     }
-}
+}                                                                              
 
 char matrixKeypadScan()
 {
@@ -257,7 +253,7 @@ char matrixKeypadScan()
         }
     }
     return '\0';
-}
+}                                                        
 
 char matrixKeypadUpdate()
 {
@@ -304,4 +300,4 @@ char matrixKeypadUpdate()
         break;
     }
     return keyReleased;
-}
+}                                                                              
