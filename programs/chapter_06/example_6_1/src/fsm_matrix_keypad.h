@@ -2,11 +2,11 @@
 
 #include "mbed.h"
 #include "arm_book_lib.h"
+#include <shared.h>
 
 //=====[Defines]===============================================================
 
 #define TIME_INCREMENT_MS                       10
-#define DEBOUNCE_BUTTON_TIME_MS                 40
 #define KEYPAD_NUMBER_OF_ROWS                    4
 #define KEYPAD_NUMBER_OF_COLS                    4
 

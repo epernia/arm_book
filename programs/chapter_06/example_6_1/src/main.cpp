@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 #include <fsm_matrix_keypad.h>
+#include <fsm_debounce_button.h>
 
 //=====[Defines]===============================================================
 
@@ -14,18 +15,10 @@
 #define LM35_SAMPLE_TIME                       100
 #define NUMBER_OF_AVG_SAMPLES                   10
 #define OVER_TEMP_LEVEL                         50
-#define DEBOUNCE_BUTTON_TIME_MS                 40
 #define MAX_NUMBER_OF_EVENTS                   100
 #define MAX_NUMBER_OF_CHARACTERS                15
 
 //=====[Declaration of public data types]======================================
-
-typedef enum {
-    BUTTON_UP,
-    BUTTON_DOWN,
-    BUTTON_FALLING,
-    BUTTON_RISING
-} buttonState_t;
 
 typedef struct systemEvent {
     time_t seconds;
@@ -34,7 +27,6 @@ typedef struct systemEvent {
 
 //=====[Declaration and intitalization of public global objects]===============
 
-DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
 DigitalIn aButton(D4);
 DigitalIn bButton(D5);
@@ -82,10 +74,6 @@ float potentiometerReading      = 0.0;
 float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
-
-int accumulatedDebounceButtonTime     = 0;
-int numberOfEnterButtonReleasedEvents = 0;
-buttonState_t enterButtonState;
 
 struct tm RTCTime;
 time_t timeAux;
