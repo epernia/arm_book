@@ -129,22 +129,22 @@ void alarmActivationUpdate()
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
         if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
             lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / NUMBER_OF_AVG_SAMPLES;
-            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage + 
+            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage +
                                         lm35AvgReadingsArray[lm35SampleIndex];
             lm35SampleIndex++;
         } else {
-            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage - 
+            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage -
                                         lm35AvgReadingsArray[0];
 
             shiftLm35AvgReadingsArray();
 
-            lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 
+            lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] =
                 lm35.read() / NUMBER_OF_AVG_SAMPLES;
 
-            lm35ReadingsMovingAverage =             
+            lm35ReadingsMovingAverage =
                 lm35ReadingsMovingAverage +
                 lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1];
-                
+
             lm35TempC = analogReadingScaledWithTheLM35Formula(
                             lm35ReadingsMovingAverage );
         }
@@ -165,9 +165,9 @@ void alarmActivationUpdate()
         overTempDetectorState = ON;
         alarmState = ON;
     }
-    if( alarmState ) { 
+    if( alarmState ) {
         accumulatedTimeAlarm = accumulatedTimeAlarm + TIME_INCREMENT_MS;
-	
+
         if( gasDetectorState && overTempDetectorState ) {
             if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
                 accumulatedTimeAlarm = 0;
@@ -184,7 +184,7 @@ void alarmActivationUpdate()
                 alarmLed = !alarmLed;
             }
         }
-    } else{
+    } else {
         alarmLed = OFF;
         gasDetectorState = OFF;
         overTempDetectorState = OFF;
@@ -243,7 +243,7 @@ void uartTask()
                 uartUsb.printf( "Temperature is below the maximum level\r\n");
             }
             break;
-            
+
         case '4':
             uartUsb.printf( "Please enter the code sequence.\r\n" );
             uartUsb.printf( "First enter 'A', then 'B', then 'C', and " ); 
@@ -257,8 +257,8 @@ void uartTask()
 
             incorrectCode = false;
 
-            for ( buttonBeingCompared = 0; 
-                  buttonBeingCompared < NUMBER_OF_KEYS; 
+            for ( buttonBeingCompared = 0;
+                  buttonBeingCompared < NUMBER_OF_KEYS;
                   buttonBeingCompared++) {
 
                 receivedChar = uartUsb.getc();
@@ -283,7 +283,7 @@ void uartTask()
                 uartUsb.printf( "The code is incorrect\r\n\r\n" );
                 incorrectCodeLed = ON;
                 numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
-            }                
+            }
             break;
 
         case '5':
@@ -297,8 +297,8 @@ void uartTask()
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
 
-            for ( buttonBeingCompared = 0; 
-                  buttonBeingCompared < NUMBER_OF_KEYS; 
+            for ( buttonBeingCompared = 0;
+                  buttonBeingCompared < NUMBER_OF_KEYS;
                   buttonBeingCompared++) {
 
                 receivedChar = uartUsb.getc();
@@ -326,8 +326,8 @@ void uartTask()
 
         case 'f':
         case 'F':
-            uartUsb.printf( "Temperature: %.2f °F\r\n", 
-				celsiusToFahrenheit( lm35TempC ) );
+            uartUsb.printf( "Temperature: %.2f °F\r\n",
+                            celsiusToFahrenheit( lm35TempC ) );
             break;
 
         default:
@@ -347,7 +347,7 @@ void availableCommands()
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
-	uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
+    uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
 	uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
 }
 

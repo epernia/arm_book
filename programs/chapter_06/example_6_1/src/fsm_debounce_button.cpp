@@ -2,23 +2,11 @@
 
 #include "mbed.h"
 #include "arm_book_lib.h"
+#include "fsm_debounce_button.h"
 
 //=====[Defines]===============================================================
 
-#define NUMBER_OF_KEYS                           4
-#define STRING_MAX_LENGTH                       30
-#define BLINKING_TIME_GAS_ALARM               1000
-#define BLINKING_TIME_OVER_TEMP_ALARM          500
-#define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-#define LM35_SAMPLE_TIME                       100
-#define NUMBER_OF_AVG_SAMPLES                   10
-#define OVER_TEMP_LEVEL                         50
-#define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
-#define KEYPAD_NUMBER_OF_ROWS                    4
-#define KEYPAD_NUMBER_OF_COLS                    4
-#define MAX_NUMBER_OF_EVENTS                   100
-#define MAX_NUMBER_OF_CHARACTERS                15
 
 //=====[Declaration of public data types]======================================
 
@@ -29,37 +17,9 @@ typedef enum {
     BUTTON_RISING
 } buttonState_t;
 
-typedef enum {
-    MATRIX_KEYPAD_SCANNING,
-    MATRIX_KEYPAD_DEBOUNCE,
-    MATRIX_KEYPAD_KEY_HOLD_PRESSED
-} matrixKeypadState_t;
-
-typedef struct systemEvent {
-    time_t seconds;
-    char typeOfEvent[MAX_NUMBER_OF_CHARACTERS];
-} systemEvent_t;
-
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
-DigitalIn gasDetector(D2);
-DigitalIn aButton(D4);
-DigitalIn bButton(D5);
-DigitalIn cButton(D6);
-DigitalIn dButton(D7);
-
-DigitalOut alarmLed(LED1);
-DigitalOut incorrectCodeLed(LED3);
-DigitalOut systemBlockedLed(LED2);
-
-Serial uartUsb(USBTX, USBRX);
-
-AnalogIn potentiometer(A0);
-AnalogIn lm35(A1);
-
-DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -68,7 +28,7 @@ bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
 int numberOfIncorrectCodes            = 0;
-int keyBeingCompared                  = 0;
+int buttonBeingCompared               = 0;
 int accumulatedTimeAlarm              = 0;
 int accumulatedTimeLm35               = 0;
 int lm35SampleIndex                   = 0;
@@ -97,7 +57,7 @@ int numberOfEnterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
 
 int accumulatedDebounceMatrixKeypadTime = 0;
-int matrixKeypadCodeIndex = 0;
+int codeMatrixKeypadIndex = 0;
 char matrixKeypadLastKeyPressed = '\0';
 char matrixKeypadIndexToCharArray[] = {
     '1', '2', '3', 'A',
@@ -110,7 +70,10 @@ matrixKeypadState_t matrixKeypadState;
 struct tm RTCTime;
 time_t timeAux;
 
-systemEvent_t arrayOfStoredEvents[MAX_NUMBER_OF_EVENTS];
+struct systemEvent {
+    time_t seconds;
+    char type[MAX_NUMBER_OF_CHARACTERS];
+} arrayOfStoredEvents[MAX_NUMBER_OF_EVENTS];
 
 time_t seconds;
 
@@ -253,11 +216,11 @@ void alarmDeactivationUpdate()
     if ( numberOfIncorrectCodes < 5 ) {
         char keyReleased = matrixKeypadUpdate();
         if( keyReleased != '\0' && keyReleased != '#' ) {
-            buttonsPressed[matrixKeypadCodeIndex] = keyReleased;
-            if( matrixKeypadCodeIndex >= NUMBER_OF_KEYS ) {
-                matrixKeypadCodeIndex = 0;
+            buttonsPressed[codeMatrixKeypadIndex] = keyReleased;
+            if( codeMatrixKeypadIndex >= NUMBER_OF_KEYS ) {
+                codeMatrixKeypadIndex = 0;
             } else {
-                matrixKeypadCodeIndex++;
+                codeMatrixKeypadIndex++;
             }
         }
         if( keyReleased == '#' ) {
@@ -266,14 +229,14 @@ void alarmDeactivationUpdate()
                 if( numberOfEnterButtonReleasedEvents >= 2 ) {
                     incorrectCodeLed = OFF;
                     numberOfEnterButtonReleasedEvents = 0;
-                    matrixKeypadCodeIndex = 0;
+                    codeMatrixKeypadIndex = 0;
                 }
             } else {
                 if ( alarmState ) {
                     if ( areEqual() ) {
                         alarmState = OFF;
                         numberOfIncorrectCodes = 0;
-                        matrixKeypadCodeIndex = 0;
+                        codeMatrixKeypadIndex = 0;
                     } else {
                         incorrectCodeLed = ON;
                         numberOfIncorrectCodes++;
@@ -284,7 +247,7 @@ void alarmDeactivationUpdate()
     } else {
         systemBlockedLed = ON;
     }
-}                                                                              
+}
 
 void uartTask()
 {
@@ -316,17 +279,17 @@ void uartTask()
             break;
 
         case '4':
-            uartUsb.printf( "Please enter the new four digits numeric code " );
-            uartUsb.printf( "to deactivate the alarm.\r\n" );
+            uartUsb.printf( "Please enter the 4 digits numeric code " );
+            uartUsb.printf( "sequence to deactivate the alarm.\r\n" );
 
             incorrectCode = false;
 
-            for ( keyBeingCompared = 0;
-                  keyBeingCompared < NUMBER_OF_KEYS;
-                  keyBeingCompared++) {
+            for ( buttonBeingCompared = 0;
+                  buttonBeingCompared < NUMBER_OF_KEYS;
+                  buttonBeingCompared++) {
                 receivedChar = uartUsb.getc();
                 uartUsb.printf( "*" );
-                if ( codeSequence[keyBeingCompared] != receivedChar ) {
+                if ( codeSequence[buttonBeingCompared] != receivedChar ) {
                     incorrectCode = true;
                 }
             }
@@ -344,16 +307,17 @@ void uartTask()
             break;
 
         case '5':
-            uartUsb.printf( "Please enter the new four digits numeric code" );
+            uartUsb.printf( "Please enter the 4 digits numeric new code " );
+            uartUsb.printf( "sequence.\r\n" );
 
-            for ( keyBeingCompared = 0;
-                  keyBeingCompared < NUMBER_OF_KEYS;
-                  keyBeingCompared++) {
-                codeSequence[keyBeingCompared] = uartUsb.getc();
+            for ( buttonBeingCompared = 0;
+                  buttonBeingCompared < NUMBER_OF_KEYS;
+                  buttonBeingCompared++) {
+                codeSequence[buttonBeingCompared] = uartUsb.getc();
                 uartUsb.printf( "*" );
             }
 
-            uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
+            uartUsb.printf( "\r\nNew code generated\r\n\r\n" );
             break;
 
         case 'p':
@@ -420,7 +384,7 @@ void uartTask()
         case 'e':
         case 'E':
             for (int i = 0; i < eventsIndex; i++) {
-                uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].typeOfEvent);
+                uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].type);
                 uartUsb.printf("Date and Time = %s\r\n", 
                                ctime(&arrayOfStoredEvents[i].seconds));
                 uartUsb.printf("\r\n");
@@ -486,19 +450,19 @@ void checkStateChange( bool lastState,
         bool currentState,
         const char* elementName )
 {
-    char typeOfEventAux[MAX_NUMBER_OF_CHARACTERS];
+    char eventString[MAX_NUMBER_OF_CHARACTERS];
 
     if ( lastState != currentState ) {
-        typeOfEventAux[0] = 0;
-        strncat( typeOfEventAux, elementName, strlen( elementName ) );
+        eventString[0] = 0;
+        strncat( eventString, elementName, strlen( elementName ) );
         if ( currentState ) {
-            strncat( typeOfEventAux, "_ON", strlen("_ON") );
+            strncat( eventString, "_ON", strlen("_ON") );
         } else {
-            strncat( typeOfEventAux, "_OFF", strlen("_OFF") );
+            strncat( eventString, "_OFF", strlen("_OFF") );
         }
 
         arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
-        strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent,typeOfEventAux );
+        strcpy( arrayOfStoredEvents[eventsIndex].type,eventString );
 
         if ( eventsIndex < MAX_NUMBER_OF_EVENTS ) {
             eventsIndex++;
