@@ -1,31 +1,3 @@
-CAMBIOS POSIBLES:
------------------
-
-Ch1 - Los nuevos codes (todo GPIO)
-
-Ch2 - Todo UART sencillo
-
-Ch3 - Sigue Uart reemplazando a BLE funciones y modularizacion en funciones.
-String.
-
-Ch4 - Todo GPIOs y manejo de tiempos
-- Blinky con la alarma (ver agregado de buzzer)
-- Blinky no bloqueante con la alarma
-- Debounce de un botón (el enter del code)
-- Keypad
-
-Ch5 - Todo analógico
-- Potentiometer
-- LM35 Con Filtro promedio de Batch de muestras
-- LM35 Con Filtro promedio móvil
-- Gas sensor con umbral (ver tiempo de preheat no bloqueante)
-
-Ch6 - Modularización, refactor y RTC.
-
-Ch? - BLE lo que sobra del CH3
-
-
-
 //-----------------------------------------------------------------------------
 // NUEVO PROGRAMA DE PRUEBA DE HARDWARE DE CHAPTER 1
 //-----------------------------------------------------------------------------
@@ -104,8 +76,8 @@ Panel:
 //-----------------------------------------------------------------------------
 
 // Example 1-1 propuesto :
-//     Reemplazar "gasDetector" por "cancelButton", de esta forma cuando
-//     toquen cancelButton se apague la alarma y al soltarlo se prenda.
+//     Reemplazar "gasDetector" por "alarmOffButton", de esta forma cuando
+//     toquen alarmOffButton se apague la alarma y al soltarlo se prenda.
 
 // Ventajas:
 //     Nos evita explicar el pull-down en el primer ejemplo.
@@ -236,11 +208,6 @@ int main()
 // Se debe explicar: 
 //     AND lógica (&&), concepto de variable y tipo de datos (bool)
 //-----------------------------------------------------------------------------
-
-
-/*
-24/07/2020 OJO QUE ACA HAY UN SALTO GRANDE DEL EJERCICIO ANTERIORE A ESTE, SE PODRIA AGRAGAR UN EXAMPLE INTERMEDIO QUE NO TENGA LO DE PROVIDE Y ALLOW.
-*/
 
 #include "mbed.h"
 #include "arm_book_lib.h"
