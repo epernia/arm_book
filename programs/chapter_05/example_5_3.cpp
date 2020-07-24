@@ -335,19 +335,6 @@ void uartTask()
             break;
 
         case '5':
-            uartUsb.printf( "Please enter the new four digits numeric code" );
-
-            for ( keyBeingCompared = 0;
-                  keyBeingCompared < NUMBER_OF_KEYS;
-                  keyBeingCompared++) {
-                codeSequence[keyBeingCompared] = uartUsb.getc();
-                uartUsb.printf( "*" );
-            }
-
-            uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
-            break;
-
-        case '5':
             uartUsb.printf( "Please enter the four digits numeric new code " );
             uartUsb.printf( "sequence.\r\n" );
 
