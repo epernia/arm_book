@@ -1,8 +1,9 @@
-//=====[Libraries]=============================================================
-
 #include <fsm_debounce_button.h>
 
-//=====[Implementations of public functions]===================================
+int accumulatedDebounceButtonTime     = 0;
+buttonState_t enterButtonState;
+
+DigitalIn enterButton(BUTTON1);
 
 void debounceButtonInit()
 {

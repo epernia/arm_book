@@ -1,6 +1,19 @@
-#include <fsm_matrix_keypad.h>
+#include "fsm_matrix_keypad.h"
 
 //=====[Implementations of public functions]===================================
+
+int accumulatedDebounceMatrixKeypadTime = 0;
+char matrixKeypadLastKeyPressed = '\0';
+char matrixKeypadIndexToCharArray[] = {
+    '1', '2', '3', 'A',
+    '4', '5', '6', 'B',
+    '7', '8', '9', 'C',
+    '*', '0', '#', 'D',
+};
+matrixKeypadState_t matrixKeypadState;
+
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 void matrixKeypadInit()
 {

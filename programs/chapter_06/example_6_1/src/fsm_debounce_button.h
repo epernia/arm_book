@@ -1,3 +1,6 @@
+#ifndef __BUTTON_H__
+#define __BUTTON_H__
+
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
@@ -17,15 +20,11 @@ typedef enum {
 
 //=====[Declaration and intitalization of public global objects]===============
 
-DigitalIn enterButton(BUTTON1);
-
 //=====[Declaration and intitalization of public global variables]=============
-
-int accumulatedDebounceButtonTime     = 0;
-int numberOfEnterButtonReleasedEvents = 0;
-buttonState_t enterButtonState;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
 void debounceButtonInit();
 bool debounceButtonUpdate();
+
+#endif
