@@ -91,9 +91,9 @@ void availableCommands();
 bool areEqual();
 void bleTask();
 
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState, 
-                                         bool currentState, 
-                                         const char* elementName );
+void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
+        bool currentState,
+        const char* elementName );
 
 void bleGetTheSmartphoneButtonsState( const char* buttonName, int index );
 
@@ -272,7 +272,7 @@ void uartTask()
 
         case '4':
             uartUsb.printf( "Please enter the code sequence.\r\n" );
-            uartUsb.printf( "First enter 'A', then 'B', then 'C', and " ); 
+            uartUsb.printf( "First enter 'A', then 'B', then 'C', and " );
             uartUsb.printf( "finally 'D' button\r\n" );
             uartUsb.printf( "In each case type 1 for pressed or 0 for " );
             uartUsb.printf( "not pressed\r\n" );
@@ -374,7 +374,7 @@ void availableCommands()
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
-	uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
+    uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
 }
 
 bool areEqual()
@@ -392,23 +392,23 @@ bool areEqual()
 
 void bleTask()
 {
-    bleSendElementStateToTheSmartphone( alarmLastTransmittedState, 
+    bleSendElementStateToTheSmartphone( alarmLastTransmittedState,
                                         alarmState, "ALARM" );
     alarmLastTransmittedState = alarmState;
 
-    bleSendElementStateToTheSmartphone( gasLastTransmittedState, 
+    bleSendElementStateToTheSmartphone( gasLastTransmittedState,
                                         gasDetector, "GAS_DET" );
     gasLastTransmittedState = gasDetector;
 
-    bleSendElementStateToTheSmartphone( tempLastTransmittedState, 
+    bleSendElementStateToTheSmartphone( tempLastTransmittedState,
                                         overTempDetector, "OVER_TEMP" );
     tempLastTransmittedState = overTempDetector;
 
-    bleSendElementStateToTheSmartphone( ICLastTransmittedState, 
+    bleSendElementStateToTheSmartphone( ICLastTransmittedState,
                                         incorrectCodeLed, "LED_IC" );
     ICLastTransmittedState = incorrectCodeLed;
 
-    bleSendElementStateToTheSmartphone( SBLastTransmittedState, 
+    bleSendElementStateToTheSmartphone( SBLastTransmittedState,
                                         systemBlockedLed, "LED_SB" );
     SBLastTransmittedState = systemBlockedLed;
 
@@ -425,13 +425,13 @@ void bleTask()
         while ( uartBle.readable() ) {
             uartBle.getc();
         }
-    } 
-    
+    }
+
 }
 
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState, 
-                                         bool currentState, 
-                                         const char* elementName )
+void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
+        bool currentState,
+        const char* elementName )
 {
     if ( lastTransmittedState != currentState ) {
         uartBle.printf("%s", elementName);
