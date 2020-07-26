@@ -1,35 +1,46 @@
-/*=====[Module Name]===========================================================
- * Copyright YYYY Author Compelte Name <author@mail.com>
- * All rights reserved.
- * License: license text or at least name and link 
-         (example: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause>)
- *
- * Version: 0.0.0
- * Creation Date: YYYY/MM/DD
- */
- 
-/*=====[Inclusion of own header]=============================================*/
+//=====[Libraries]=============================================================
 
 #include <moduleName.h>
 
-/*=====[Inclusions of private function dependencies]=========================*/
+//=====[Declaration of private data types]=====================================
 
-/*=====[Definition macros of private constants]==============================*/
 
-/*=====[Private function-like macros]========================================*/
 
-/*=====[Definitions of private data types]===================================*/
+//=====[Declaration of private constants]======================================
 
-/*=====[Definitions of external public global variables]=====================*/
 
-/*=====[Definitions of public global variables]==============================*/
 
-/*=====[Definitions of private global variables]=============================*/
+//=====[Declaration of external public global objects]=========================
 
-/*=====[Prototypes (declarations) of private functions]======================*/
 
-/*=====[Implementations of public functions]=================================*/
 
-/*=====[Implementations of private functions]================================*/
+//=====[Declaration and intitalization of public global objects]===============
 
-/*=====[Implementations of interrupt functions]==============================*/
+
+
+//=====[Declaration and intitalization of private global objects]==============
+
+
+
+//=====[Declaration of external public global variables]=======================
+
+
+
+//=====[Declaration and intitalization of public global variables]=============
+
+
+
+//=====[Declaration and intitalization of private global variables]============
+
+
+
+//=====[Declarations (prototypes) of private functions]========================
+
+
+
+//=====[Implementations of public functions]===================================
+
+
+
+//=====[Implementations of private functions]==================================
+

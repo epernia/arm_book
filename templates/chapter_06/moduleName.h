@@ -1,30 +1,25 @@
-/*=====[Module Name]===========================================================
- * Copyright YYYY Author Compelte Name <author@mail.com>
- * All rights reserved.
- * License: license text or at least name and link 
-         (example: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause>)
- *
- * Version: 0.0.0
- * Creation Date: YYYY/MM/DD
- */
-
-/*=====[Avoid multiple inclusion - begin]====================================*/
+//=====[#include guards - begin]===============================================
 
 #ifndef _MODULE_NAME_H_
 #define _MODULE_NAME_H_
 
-/*=====[Inclusions of public function dependencies]==========================*/
+//=====[Libraries]=============================================================
 
-/*=====[Definition macros of public constants]===============================*/
+#include "mbed.h"
+#include "arm_book_lib.h"
 
-/*=====[Public function-like macros]=========================================*/
+//=====[Declaration of public data types]======================================
 
-/*=====[Definitions of public data types]====================================*/
 
-/*=====[Prototypes (declarations) of public functions]=======================*/
 
-/*=====[Prototypes (declarations) of interrupt functions]====================*/
+//=====[Declaration of public constants]=======================================
 
-/*=====[Avoid multiple inclusion - end]======================================*/
 
-#endif /* _MODULE_NAME_H_ */
+
+//=====[Declarations (prototypes) of public functions]=========================
+
+
+
+//=====[#include guards - end]=================================================
+
+#endif // _MODULE_NAME_H_
