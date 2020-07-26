@@ -5,11 +5,12 @@ typedef struct systemEvent {
     char typeOfEvent[MAX_NUMBER_OF_CHARACTERS];
 } systemEvent_t;
 
-extern bool alarmLastState;
-extern bool gasLastState;
-extern bool tempLastState;
-extern bool ICLastState;
-extern bool SBLastState;
+bool alarmLastState = OFF;
+bool gasLastState   = OFF;
+bool tempLastState  = OFF;
+bool ICLastState    = OFF;
+bool SBLastState    = OFF;
+
 extern bool gasDetectorState;
 extern bool overTempDetectorState;
 

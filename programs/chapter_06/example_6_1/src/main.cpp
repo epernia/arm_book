@@ -85,13 +85,6 @@ float analogReadingScaledWithTheLM35Formula( float analogReading );
 
 void shiftLm35AvgReadingsArray();
 
-void debounceButtonInit();
-bool debounceButtonUpdate();
-
-void matrixKeypadInit();
-char matrixKeypadScan();
-char matrixKeypadUpdate();
-
 //=====[Main function, the program entry point after power on or reset]========
 
 int main()

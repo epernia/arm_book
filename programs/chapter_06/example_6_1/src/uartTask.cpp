@@ -14,7 +14,7 @@ extern bool incorrectCode;
 int keyBeingCompared;
 extern char codeSequence[NUMBER_OF_KEYS];
 extern DigitalOut incorrectCodeLed;
-extern struct tm RTCTime;
+struct tm RTCTime;
 extern int numberOfIncorrectCodes;
 time_t timeAux;
 extern float lm35TempC;
