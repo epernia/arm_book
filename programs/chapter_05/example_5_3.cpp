@@ -8,7 +8,6 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
-#define STRING_MAX_LENGTH                       30
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
@@ -63,24 +62,23 @@ bool alarmState       = OFF;
 bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
-int numberOfIncorrectCodes            = 0;
-int keyBeingCompared                  = 0;
-int accumulatedTimeAlarm              = 0;
-int accumulatedTimeLm35               = 0;
-int lm35SampleIndex                   = 0;
+int numberOfIncorrectCodes = 0;
+int keyBeingCompared       = 0;
+int accumulatedTimeAlarm   = 0;
+int accumulatedTimeLm35    = 0;
+int lm35SampleIndex        = 0;
 
 char receivedChar = '\0';
-char bleReceivedString[STRING_MAX_LENGTH];
 char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
 
-bool alarmLastTransmittedState = OFF;
-bool gasLastTransmittedState   = OFF;
-bool tempLastTransmittedState  = OFF;
-bool ICLastTransmittedState    = OFF;
-bool SBLastTransmittedState    = OFF;
-bool gasDetectorState          = OFF;
-bool overTempDetectorState     = OFF;
+bool alarmLastState        = OFF;
+bool gasLastState          = OFF;
+bool tempLastState         = OFF;
+bool ICLastState           = OFF;
+bool SBLastState           = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
 
 float potentiometerReading      = 0.0;
 float lm35ReadingsMovingAverage = 0.0;
@@ -112,18 +110,16 @@ void alarmDeactivationUpdate();
 
 void uartTask();
 void availableCommands();
-bool areEqual();
-void bleTask();
 
+bool areEqual();
+
+void bleTask();
 void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
         bool currentState,
         const char* elementName );
 
-void bleGetTheSmartphoneButtonsState( const char* buttonName, int index );
-
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
-
 void shiftLm35AvgReadingsArray();
 
 void debounceButtonInit();
@@ -334,8 +330,7 @@ void uartTask()
             break;
 
         case '5':
-            uartUsb.printf( "Please enter the four digits numeric new code " );
-            uartUsb.printf( "sequence.\r\n" );
+            uartUsb.printf( "Please enter the new four digits numeric code" );
 
             for ( keyBeingCompared = 0;
                   keyBeingCompared < NUMBER_OF_KEYS;
@@ -344,7 +339,7 @@ void uartTask()
                 uartUsb.printf( "*" );
             }
 
-            uartUsb.printf( "\r\nNew code generated\r\n\r\n" );
+            uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
             break;
 
         case 'p':
@@ -382,7 +377,8 @@ void availableCommands()
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
-    uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
+    uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
+    uartUsb.printf( "\r\n" );
 }
 
 bool areEqual()
@@ -400,25 +396,25 @@ bool areEqual()
 
 void bleTask()
 {
-    bleSendElementStateToTheSmartphone( alarmLastTransmittedState,
+    bleSendElementStateToTheSmartphone( alarmLastState,
                                         alarmState, "ALARM" );
-    alarmLastTransmittedState = alarmState;
+    alarmLastState = alarmState;
 
-    bleSendElementStateToTheSmartphone( gasLastTransmittedState,
+    bleSendElementStateToTheSmartphone( gasLastState,
                                         gasDetector, "GAS_DET" );
-    gasLastTransmittedState = gasDetector;
+    gasLastState = gasDetector;
 
-    bleSendElementStateToTheSmartphone( tempLastTransmittedState,
+    bleSendElementStateToTheSmartphone( tempLastState,
                                         overTempDetector, "OVER_TEMP" );
-    tempLastTransmittedState = overTempDetector;
+    tempLastState = overTempDetector;
 
-    bleSendElementStateToTheSmartphone( ICLastTransmittedState,
+    bleSendElementStateToTheSmartphone( ICLastState,
                                         incorrectCodeLed, "LED_IC" );
-    ICLastTransmittedState = incorrectCodeLed;
+    ICLastState = incorrectCodeLed;
 
-    bleSendElementStateToTheSmartphone( SBLastTransmittedState,
+    bleSendElementStateToTheSmartphone( SBLastState,
                                         systemBlockedLed, "LED_SB" );
-    SBLastTransmittedState = systemBlockedLed;
+    SBLastState = systemBlockedLed;
 }
 
 void bleSendElementStateToTheSmartphone( bool lastTransmittedState,

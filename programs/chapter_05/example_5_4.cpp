@@ -6,7 +6,6 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
-#define STRING_MAX_LENGTH                       30
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
@@ -17,8 +16,8 @@
 #define DEBOUNCE_BUTTON_TIME_MS                 40
 #define KEYPAD_NUMBER_OF_ROWS                    4
 #define KEYPAD_NUMBER_OF_COLS                    4
-#define MAX_NUMBER_OF_EVENTS                   100
-#define MAX_NUMBER_OF_CHARACTERS                15
+#define EVENT_MAX_STORAGE                      100
+#define EVENT_NAME_MAX_LENGTH                   15
 
 //=====[Declaration of public data types]======================================
 
@@ -37,7 +36,7 @@ typedef enum {
 
 typedef struct systemEvent {
     time_t seconds;
-    char typeOfEvent[MAX_NUMBER_OF_CHARACTERS];
+    char typeOfEvent[EVENT_NAME_MAX_LENGTH];
 } systemEvent_t;
 
 //=====[Declaration and intitalization of public global objects]===============
@@ -54,6 +53,7 @@ DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
+Serial uartBle(D1, D0);
 
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
@@ -67,25 +67,23 @@ bool alarmState       = OFF;
 bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
-int numberOfIncorrectCodes            = 0;
-int keyBeingCompared                  = 0;
-int accumulatedTimeAlarm              = 0;
-int accumulatedTimeLm35               = 0;
-int lm35SampleIndex                   = 0;
-int eventsIndex                       = 0;
+int numberOfIncorrectCodes = 0;
+int keyBeingCompared       = 0;
+int accumulatedTimeAlarm   = 0;
+int accumulatedTimeLm35    = 0;
+int lm35SampleIndex        = 0;
 
 char receivedChar = '\0';
 char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
-char buffer[32];
 
-bool alarmLastState = OFF;
-bool gasLastState   = OFF;
-bool tempLastState  = OFF;
-bool ICLastState    = OFF;
-bool SBLastState    = OFF;
-bool gasDetectorState          = OFF;
-bool overTempDetectorState     = OFF;
+bool alarmLastState        = OFF;
+bool gasLastState          = OFF;
+bool tempLastState         = OFF;
+bool ICLastState           = OFF;
+bool SBLastState           = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
 
 float potentiometerReading      = 0.0;
 float lm35ReadingsMovingAverage = 0.0;
@@ -107,12 +105,8 @@ char matrixKeypadIndexToCharArray[] = {
 };
 matrixKeypadState_t matrixKeypadState;
 
-struct tm RTCTime;
-time_t timeAux;
-
-systemEvent_t arrayOfStoredEvents[MAX_NUMBER_OF_EVENTS];
-
-time_t seconds;
+int eventsIndex            = 0;
+systemEvent_t arrayOfStoredEvents[EVENT_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -124,16 +118,21 @@ void alarmDeactivationUpdate();
 
 void uartTask();
 void availableCommands();
-bool areEqual();
-void checkStateChangeTask();
 
-void checkStateChange( bool lastState,
+bool areEqual();
+
+void bleTask();
+void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
         bool currentState,
         const char* elementName );
 
+void systemEventsUpdate();
+void systemElementStateUpdate( bool lastState,
+                               bool currentState,
+                               const char* elementName );
+
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
-
 void shiftLm35AvgReadingsArray();
 
 void debounceButtonInit();
@@ -153,7 +152,8 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
-        checkStateChangeTask();
+        bleTask();
+        systemEventsUpdate();
         delay(TIME_INCREMENT_MS);
     }
 }
@@ -284,7 +284,7 @@ void alarmDeactivationUpdate()
     } else {
         systemBlockedLed = ON;
     }
-}                                                                              
+}
 
 void uartTask()
 {
@@ -375,53 +375,55 @@ void uartTask()
 
         case 's':
         case 'S':
-            int RTCTimeAux;
+            struct tm rtcTime;
+            int uartReceivedYear = 0;
             uartUsb.printf("Enter the current year (YYYY): ");
-            uartUsb.scanf("%d",&RTCTimeAux);
-            RTCTime.tm_year = RTCTimeAux - 1900;
-            uartUsb.printf("%d\r\n",RTCTimeAux);
+            uartUsb.scanf("%d",&uartReceivedYear);
+            rtcTime.tm_year = uartReceivedYear - 1900;
+            uartUsb.printf("%d\r\n",uartReceivedYear);
 
+            int uartReceivedMonth = 0;
             uartUsb.printf("Enter the current month (1-12): ");
-            uartUsb.scanf("%d",&RTCTimeAux);
-            RTCTime.tm_mon = RTCTimeAux - 1;
-            uartUsb.printf("%d\r\n",RTCTimeAux);
+            uartUsb.scanf("%d",&uartReceivedMonth);
+            rtcTime.tm_mon = uartReceivedMonth - 1;
+            uartUsb.printf("%d\r\n",uartReceivedMonth);
 
             uartUsb.printf("Enter the current day (1-31): ");
-            uartUsb.scanf("%d",&RTCTime.tm_mday);
-            uartUsb.printf("%d\r\n",RTCTime.tm_mday);
+            uartUsb.scanf("%d",&rtcTime.tm_mday);
+            uartUsb.printf("%d\r\n",rtcTime.tm_mday);
 
             uartUsb.printf("Enter the current hour (0-24): ");
-            uartUsb.scanf("%d",&RTCTime.tm_hour);
-            uartUsb.printf("%d\r\n",RTCTime.tm_hour);
+            uartUsb.scanf("%d",&rtcTime.tm_hour);
+            uartUsb.printf("%d\r\n",rtcTime.tm_hour);
 
             uartUsb.printf("Enter the current minutes (0-59): ");
-            uartUsb.scanf("%d",&RTCTime.tm_min);
-            uartUsb.printf("%d\r\n",RTCTime.tm_min);
+            uartUsb.scanf("%d",&rtcTime.tm_min);
+            uartUsb.printf("%d\r\n",rtcTime.tm_min);
 
             uartUsb.printf("Enter the current seconds (0-59): ");
-            uartUsb.scanf("%d",&RTCTime.tm_sec);
-            uartUsb.printf("%d\r\n",RTCTime.tm_sec);
+            uartUsb.scanf("%d",&rtcTime.tm_sec);
+            uartUsb.printf("%d\r\n",rtcTime.tm_sec);
 
             while ( uartUsb.readable() ) {
                 uartUsb.getc();
             }
 
-            RTCTime.tm_isdst = -1;
+            rtcTime.tm_isdst = -1;
 
-            set_time( mktime( &RTCTime ) );
+            set_time( mktime( &rtcTime ) );
             break;
 
         case 't':
         case 'T':
-            timeAux = time(NULL);
-            uartUsb.printf("Date and Time = %s", ctime(&timeAux));
+            time_t epochSeconds = time(NULL);
+            uartUsb.printf("Date and Time = %s", ctime(&epochSeconds));
             break;
 
         case 'e':
         case 'E':
             for (int i = 0; i < eventsIndex; i++) {
                 uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].typeOfEvent);
-                uartUsb.printf("Date and Time = %s\r\n", 
+                uartUsb.printf("Date and Time = %s\r\n",
                                ctime(&arrayOfStoredEvents[i].seconds));
                 uartUsb.printf("\r\n");
             }
@@ -446,9 +448,10 @@ void availableCommands()
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
     uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
-    uartUsb.printf( "Press 's' or 'S' to set the time\r\n" );
-    uartUsb.printf( "Press 't' or 'T' to get the time\r\n" );
-    uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n\r\n" );
+    uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
+    uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
+    uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
+    uartUsb.printf( "\r\n" );
 }
 
 bool areEqual()
@@ -464,49 +467,54 @@ bool areEqual()
     return true;
 }
 
-void checkStateChangeTask()
+void systemEventsUpdate()
 {
-    checkStateChange( alarmLastState,alarmState, "ALARM" );
+    systemElementStateUpdate( alarmLastState,alarmState, "ALARM" );
     alarmLastState = alarmState;
 
-    checkStateChange( gasLastState,gasDetector, "GAS_DET" );
+    systemElementStateUpdate( gasLastState,gasDetector, "GAS_DET" );
     gasLastState = gasDetector;
 
-    checkStateChange( tempLastState,overTempDetector, "OVER_TEMP" );
+    systemElementStateUpdate( tempLastState,overTempDetector, "OVER_TEMP" );
     tempLastState = overTempDetector;
 
-    checkStateChange( ICLastState,incorrectCodeLed, "LED_IC" );
+    systemElementStateUpdate( ICLastState,incorrectCodeLed, "LED_IC" );
     ICLastState = incorrectCodeLed;
 
-    checkStateChange( SBLastState,systemBlockedLed, "LED_SB" );
+    systemElementStateUpdate( SBLastState,systemBlockedLed, "LED_SB" );
     SBLastState = systemBlockedLed;
-}                                                                              
+}
 
-void checkStateChange( bool lastState,
-        bool currentState,
-        const char* elementName )
+void systemElementStateUpdate( bool lastState,
+                               bool currentState,
+                               const char* elementName )
 {
-    char typeOfEventAux[MAX_NUMBER_OF_CHARACTERS];
-
     if ( lastState != currentState ) {
-        typeOfEventAux[0] = 0;
-        strncat( typeOfEventAux, elementName, strlen( elementName ) );
+        
+        char eventAndStateStr[EVENT_NAME_MAX_LENGTH];
+        eventAndStateStr[0] = 0;
+        strncat( eventAndStateStr, elementName, strlen(elementName) );
         if ( currentState ) {
-            strncat( typeOfEventAux, "_ON", strlen("_ON") );
+            strncat( eventAndStateStr, "_ON", strlen("_ON") );
         } else {
-            strncat( typeOfEventAux, "_OFF", strlen("_OFF") );
+            strncat( eventAndStateStr, "_OFF", strlen("_OFF") );
         }
 
         arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
-        strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent,typeOfEventAux );
-
-        if ( eventsIndex < MAX_NUMBER_OF_EVENTS ) {
+        strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent,eventAndStateStr );
+        if ( eventsIndex < EVENT_MAX_STORAGE ) {
             eventsIndex++;
         } else {
             eventsIndex = 0;
         }
+
+        uartUsb.printf(eventAndStateStr);
+        uartUsb.printf("\r\n");
+
+        uartBle.printf(eventAndStateStr);
+        uartBle.printf("\r\n");
     }
-}                                                                              
+}
 
 float analogReadingScaledWithTheLM35Formula( float analogReading )
 {
