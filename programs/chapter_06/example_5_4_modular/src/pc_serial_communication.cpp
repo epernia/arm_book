@@ -33,13 +33,14 @@ Serial uartUsb(USBTX, USBRX);
 //=====[Declaration and intitalization of private global variables]============
 
 
+
 //=====[Declarations (prototypes) of private functions]========================
 
-
+static void availableCommands();
 
 //=====[Implementations of public functions]===================================
 
-void uartTask()
+void pcSerialCommunicationUpdate()
 {
     if( uartUsb.readable() ) {
         char receivedChar = uartUsb.getc();
@@ -162,9 +163,7 @@ void uartTask()
 
         case 't':
         case 'T':
-            time_t epochSeconds;
-            epochSeconds = time(NULL);
-            uartUsb.printf("Date and Time = %s", ctime(&epochSeconds));
+            uartUsb.printf("Date and Time = %s", dateAndTimeGet());
             break;
 
         case 'e':
@@ -185,7 +184,9 @@ void uartTask()
     }
 }
 
-void availableCommands()
+//=====[Implementations of private functions]==================================
+
+static void availableCommands()
 {
     uartUsb.printf( "Available commands:\r\n" );
     uartUsb.printf( "Press '1' to get the alarm state\r\n" );
@@ -200,6 +201,3 @@ void availableCommands()
     uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
     uartUsb.printf( "\r\n" );
 }
-
-//=====[Implementations of private functions]==================================
-

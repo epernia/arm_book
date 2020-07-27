@@ -92,7 +92,7 @@ int alarmUpdate()
 {
     alarmActivationUpdate();
     alarmDeactivationUpdate();
-    uartTask();
+    pcSerialCommunicationUpdate();
     eventLogUpdate();
     delay(TIME_INCREMENT_MS);
 }

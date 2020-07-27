@@ -18,8 +18,7 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void uartTask();
-void availableCommands();
+void pcSerialCommunicationUpdate();
 
 //=====[#include guards - end]=================================================
 
