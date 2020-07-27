@@ -376,13 +376,13 @@ void uartTask()
         case 's':
         case 'S':
             struct tm rtcTime;
-            int uartReceivedYear = 0;
+            int uartReceivedYear;
             uartUsb.printf("Enter the current year (YYYY): ");
             uartUsb.scanf("%d",&uartReceivedYear);
             rtcTime.tm_year = uartReceivedYear - 1900;
             uartUsb.printf("%d\r\n",uartReceivedYear);
 
-            int uartReceivedMonth = 0;
+            int uartReceivedMonth;
             uartUsb.printf("Enter the current month (1-12): ");
             uartUsb.scanf("%d",&uartReceivedMonth);
             rtcTime.tm_mon = uartReceivedMonth - 1;
@@ -415,7 +415,8 @@ void uartTask()
 
         case 't':
         case 'T':
-            time_t epochSeconds = time(NULL);
+            time_t epochSeconds;
+            epochSeconds = time(NULL);
             uartUsb.printf("Date and Time = %s", ctime(&epochSeconds));
             break;
 
@@ -508,10 +509,10 @@ void systemElementStateUpdate( bool lastState,
             eventsIndex = 0;
         }
 
-        uartUsb.printf(eventAndStateStr);
+        uartUsb.printf("%s",eventAndStateStr);
         uartUsb.printf("\r\n");
 
-        uartBle.printf(eventAndStateStr);
+        uartBle.printf("%s",eventAndStateStr);
         uartBle.printf("\r\n");
     }
 }
