@@ -61,24 +61,24 @@ bool alarmState       = OFF;
 bool incorrectCode    = false;
 bool overTempDetector = OFF;
 
-int numberOfIncorrectCodes            = 0;
-int buttonBeingCompared               = 0;
-int codeSequence[NUMBER_OF_KEYS]      = { 1, 1, 0, 0 };
-int buttonsPressed[NUMBER_OF_KEYS]    = { 0, 0, 0, 0 };
-int accumulatedTimeAlarm              = 0;
-int accumulatedTimeLm35               = 0;
-int lm35SampleIndex                   = 0;
+int numberOfIncorrectCodes = 0;
+int buttonBeingCompared    = 0;
+int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
+int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
+int accumulatedTimeAlarm   = 0;
+int accumulatedTimeLm35    = 0;
+int lm35SampleIndex        = 0;
 
 char receivedChar = '\0';
 char bleReceivedString[STRING_MAX_LENGTH];
 
-bool alarmLastTransmittedState = OFF;
-bool gasLastTransmittedState   = OFF;
-bool tempLastTransmittedState  = OFF;
-bool ICLastTransmittedState    = OFF;
-bool SBLastTransmittedState    = OFF;
-bool gasDetectorState          = OFF;
-bool overTempDetectorState     = OFF;
+bool alarmLastState        = OFF;
+bool gasLastState          = OFF;
+bool tempLastState         = OFF;
+bool ICLastState           = OFF;
+bool SBLastState           = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
 
 float potentiometerReading      = 0.0;
 float lm35ReadingsMovingAverage = 0.0;
