@@ -22,13 +22,6 @@
 //=====[Declaration of public data types]======================================
 
 typedef enum {
-    BUTTON_UP,
-    BUTTON_DOWN,
-    BUTTON_FALLING,
-    BUTTON_RISING
-} buttonState_t;
-
-typedef enum {
     MATRIX_KEYPAD_SCANNING,
     MATRIX_KEYPAD_DEBOUNCE,
     MATRIX_KEYPAD_KEY_HOLD_PRESSED
@@ -85,7 +78,6 @@ float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;
 
-int accumulatedDebounceButtonTime     = 0;
 int numberOfEnterButtonReleasedEvents = 0;
 buttonState_t enterButtonState;
 
@@ -125,9 +117,6 @@ float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
 void shiftLm35AvgReadingsArray();
 
-void debounceButtonInit();
-bool debounceButtonUpdate();
-
 void matrixKeypadInit();
 char matrixKeypadScan();
 char matrixKeypadUpdate();
@@ -138,7 +127,6 @@ int main()
 {
     inputsInit();
     outputsInit();
-    debounceButtonInit();
     matrixKeypadInit();
     while (true) {
         alarmActivationUpdate();
@@ -165,7 +153,6 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
-    int i = 0;
     accumulatedTimeLm35 = accumulatedTimeLm35 + TIME_INCREMENT_MS;
 
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
@@ -341,12 +328,6 @@ void uartTask()
             uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
             break;
 
-        case 'p':
-        case 'P':
-            potentiometerReading = potentiometer.read();
-            uartUsb.printf( "Potentiometer: %.2f\r\n", potentiometerReading );
-            break;
-
         case 'c':
         case 'C':
             uartUsb.printf( "Temperature: %.2f °C\r\n", lm35TempC );
@@ -431,7 +412,6 @@ void availableCommands()
     uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
-    uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
     uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
     uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
@@ -519,66 +499,6 @@ void shiftLm35AvgReadingsArray()
         lm35AvgReadingsArray[i-1] = lm35AvgReadingsArray[i];
     }
     lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] = 0.0;
-}
-
-void debounceButtonInit()
-{
-    if( enterButton ) {
-        enterButtonState = BUTTON_DOWN;
-    } else {
-        enterButtonState = BUTTON_UP;
-    }
-}
-
-bool debounceButtonUpdate()
-{
-    bool enterButtonReleasedEvent = false;
-    switch( enterButtonState ) {
-
-    case BUTTON_UP:
-        if( enterButton ) {
-            enterButtonState = BUTTON_FALLING;
-            accumulatedDebounceButtonTime = 0;
-        }
-        break;
-
-    case BUTTON_FALLING:
-        if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
-            if( enterButton ) {
-                enterButtonState = BUTTON_DOWN;
-            } else {
-                enterButtonState = BUTTON_UP;
-            }
-        }
-        accumulatedDebounceButtonTime = accumulatedDebounceButtonTime +
-                                        TIME_INCREMENT_MS;
-        break;
-
-    case BUTTON_DOWN:
-        if( !enterButton ) {
-            enterButtonState = BUTTON_RISING;
-            accumulatedDebounceButtonTime = 0;
-        }
-        break;
-
-    case BUTTON_RISING:
-        if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
-            if( !enterButton ) {
-                enterButtonState = BUTTON_UP;
-                enterButtonReleasedEvent = true;
-            } else {
-                enterButtonState = BUTTON_DOWN;
-            }
-        }
-        accumulatedDebounceButtonTime = accumulatedDebounceButtonTime +
-                                        TIME_INCREMENT_MS;
-        break;
-
-    default:
-        debounceButtonInit();
-        break;
-    }
-    return enterButtonReleasedEvent;
 }
 
 void matrixKeypadInit()

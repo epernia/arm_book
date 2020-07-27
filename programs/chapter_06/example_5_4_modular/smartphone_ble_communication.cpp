@@ -20,7 +20,7 @@
 
 //=====[Declaration and intitalization of private global objects]==============
 
-
+Serial uartBle(D1, D0);
 
 //=====[Declaration of external public global variables]=======================
 

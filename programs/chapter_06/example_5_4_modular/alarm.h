@@ -18,7 +18,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-
+void alarmInit();
+void alarmActivationUpdate();
+void alarmDeactivationUpdate();
 
 //=====[#include guards - end]=================================================
 

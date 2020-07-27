@@ -194,7 +194,6 @@ void availableCommands()
     uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
-    uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
     uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
     uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
