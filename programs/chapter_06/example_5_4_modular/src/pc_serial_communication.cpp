@@ -163,7 +163,7 @@ void pcSerialCommunicationUpdate()
 
         case 't':
         case 'T':
-            uartUsb.printf("Date and Time = %s", dateAndTimeGet());
+            uartUsb.printf("Date and Time = %s", dateAndTimeStringGet());
             break;
 
         case 'e':

@@ -256,14 +256,35 @@ void alarmDeactivationUpdate()
     }
 }
 
-char* dateAndTimeGet();
+char* dateAndTimeStringGet();
 
-char* dateAndTimeGet()
+char* dateAndTimeStringGet()
 {
     time_t epochSeconds;
     epochSeconds = time(NULL);
     return ctime(&epochSeconds);    
 }
+
+void dateAndTimeIndividualIntsSet( int year, int month, int day, 
+                                   int hour, int minute, int second );
+
+void dateAndTimeIndividualIntsSet( int year, int month, int day, 
+                                   int hour, int minute, int second )
+{
+    struct tm rtcTime;
+
+    rtcTime.tm_year = year - 1900;
+    rtcTime.tm_mon  = month - 1;
+    rtcTime.tm_mday = day;
+    rtcTime.tm_hour = hour;
+    rtcTime.tm_min  = minute;
+    rtcTime.tm_sec  = second;
+
+    rtcTime.tm_isdst = -1;
+
+    set_time( mktime( &rtcTime ) );
+}
+
 
 void uartTask()
 {
@@ -348,47 +369,48 @@ void uartTask()
 
         case 's':
         case 'S':
-            struct tm rtcTime;
-            int uartReceivedYear;
+            int year   = 0;
+            int month  = 0;
+            int day    = 0;
+            int hour   = 0;
+            int minute = 0;
+            int second = 0;
+            
             uartUsb.printf("Enter the current year (YYYY): ");
-            uartUsb.scanf("%d",&uartReceivedYear);
-            rtcTime.tm_year = uartReceivedYear - 1900;
-            uartUsb.printf("%d\r\n",uartReceivedYear);
+            uartUsb.scanf("%d", &year);
+            uartUsb.printf("%d\r\n", year);
 
-            int uartReceivedMonth;
             uartUsb.printf("Enter the current month (1-12): ");
-            uartUsb.scanf("%d",&uartReceivedMonth);
-            rtcTime.tm_mon = uartReceivedMonth - 1;
-            uartUsb.printf("%d\r\n",uartReceivedMonth);
+            uartUsb.scanf("%d", &month);
+            uartUsb.printf("%d\r\n", month);
 
             uartUsb.printf("Enter the current day (1-31): ");
-            uartUsb.scanf("%d",&rtcTime.tm_mday);
-            uartUsb.printf("%d\r\n",rtcTime.tm_mday);
+            uartUsb.scanf("%d", &day);
+            uartUsb.printf("%d\r\n", day);
 
             uartUsb.printf("Enter the current hour (0-24): ");
-            uartUsb.scanf("%d",&rtcTime.tm_hour);
-            uartUsb.printf("%d\r\n",rtcTime.tm_hour);
+            uartUsb.scanf("%d", &hour);
+            uartUsb.printf("%d\r\n",hour);
 
-            uartUsb.printf("Enter the current minutes (0-59): ");
-            uartUsb.scanf("%d",&rtcTime.tm_min);
-            uartUsb.printf("%d\r\n",rtcTime.tm_min);
+            uartUsb.printf("Enter the current minute (0-59): ");
+            uartUsb.scanf("%d", &minute);
+            uartUsb.printf("%d\r\n", minute);
 
-            uartUsb.printf("Enter the current seconds (0-59): ");
-            uartUsb.scanf("%d",&rtcTime.tm_sec);
-            uartUsb.printf("%d\r\n",rtcTime.tm_sec);
+            uartUsb.printf("Enter the current second (0-59): ");
+            uartUsb.scanf("%d", &second);
+            uartUsb.printf("%d\r\n", second);
 
             while ( uartUsb.readable() ) {
                 uartUsb.getc();
             }
 
-            rtcTime.tm_isdst = -1;
-
-            set_time( mktime( &rtcTime ) );
+            dateAndTimeIndividualIntsSet( year, month, day, 
+                                          hour, minute, second );
             break;
 
         case 't':
         case 'T':
-            uartUsb.printf("Date and Time = %s", dateAndTimeGet());
+            uartUsb.printf("Date and Time = %s", dateAndTimeStringGet());
             break;
 
         case 'e':
