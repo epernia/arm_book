@@ -72,7 +72,6 @@ bool SBLastState           = OFF;
 bool gasDetectorState      = OFF;
 bool overTempDetectorState = OFF;
 
-float potentiometerReading      = 0.0;
 float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
 float lm35TempC                 = 0.0;

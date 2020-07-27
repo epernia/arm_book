@@ -1,3 +1,17 @@
+/*
+
+Modules:
+    alarm
+    temperature_sensor
+    gas_sensor
+    pc_serial_communication
+    smartphone_ble_communication
+    matrix_keypad
+    date_and_time
+    event_log
+*/
+
+
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
@@ -6,16 +20,22 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
+
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
+
 #define LM35_SAMPLE_TIME                       100
 #define NUMBER_OF_AVG_SAMPLES                   10
-#define OVER_TEMP_LEVEL                         50
+#define OVER_TEMP_LEVEL_CELSIUS                 50
+#define GAS_LEVEL                               50 // TODO: Ver que valor va
+
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
+
 #define KEYPAD_NUMBER_OF_ROWS                    4
 #define KEYPAD_NUMBER_OF_COLS                    4
+
 #define EVENT_MAX_STORAGE                      100
 #define EVENT_NAME_MAX_LENGTH                   15
 
@@ -42,6 +62,7 @@ DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
+
 Serial uartBle(D1, D0);
 
 AnalogIn lm35(A1);
@@ -51,134 +72,129 @@ DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of public global variables]=============
 
-bool alarmState       = OFF;
-bool incorrectCode    = false;
-bool overTempDetector = OFF;
+bool incorrectCode         = false;
+bool overTempDetector      = OFF;
 
-int numberOfIncorrectCodes = 0;
-int keyBeingCompared       = 0;
-int accumulatedTimeAlarm   = 0;
-int accumulatedTimeLm35    = 0;
-int lm35SampleIndex        = 0;
-
-char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
-char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
+bool alarmState            = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
 
 bool alarmLastState        = OFF;
 bool gasLastState          = OFF;
 bool tempLastState         = OFF;
 bool ICLastState           = OFF;
 bool SBLastState           = OFF;
-bool gasDetectorState      = OFF;
-bool overTempDetectorState = OFF;
 
-float potentiometerReading      = 0.0;
-float lm35ReadingsMovingAverage = 0.0;
-float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
-float lm35TempC                 = 0.0;
+int accumulatedTimeAlarm   = 0;
 
+int numberOfIncorrectCodes = 0;
+int keyBeingCompared       = 0;
+int matrixKeypadCodeIndex = 0;
+char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
+char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
 int numberOfEnterButtonReleasedEvents = 0;
 
-int accumulatedDebounceMatrixKeypadTime = 0;
-int matrixKeypadCodeIndex = 0;
-char matrixKeypadLastKeyPressed = '\0';
-char matrixKeypadIndexToCharArray[] = {
+
+
+static float lm35TempC = 0.0;
+static float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
+
+
+static char matrixKeypadIndexToCharArray[] = {
     '1', '2', '3', 'A',
     '4', '5', '6', 'B',
     '7', '8', '9', 'C',
     '*', '0', '#', 'D',
 };
-matrixKeypadState_t matrixKeypadState;
+static matrixKeypadState_t matrixKeypadState;
 
-int eventsIndex            = 0;
+
+int eventsIndex = 0;
 systemEvent_t arrayOfStoredEvents[EVENT_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void inputsInit();
-void outputsInit();
-
-void alarmActivationUpdate();
-void alarmDeactivationUpdate();
+void alarmInit();
+void alarmUpdate();
+static void alarmActivationUpdate();
+static void alarmDeactivationUpdate();
 
 void pcSerialCommunicationUpdate();
-void availableCommands();
-
-bool areEqual();
+static void availableCommands();
+static bool areEqual();
+static void commandShowCurrentAlarmState();
+static void commandShowCurrentGasDetectorState();
+static void commandShowCurrentOverTempDetectorState();
+static void commandEnterNewCode();
+static void commandShowCurrentTemperatureInCelsius();
+static void commandShowCurrentTemperatureInFahrenheit();
+static void commandSetDateAndTime();
+static void commandShowDateAndTime();
+static void commandShowStoredEvents();
+static void commandEnterCodeSequence();
 
 void eventLogUpdate();
-void systemElementStateUpdate( bool lastState,
-                               bool currentState,
-                               const char* elementName );
+static void systemElementStateUpdate( bool lastState,
+                                      bool currentState,
+                                      const char* elementName );
 
+char* dateAndTimeReadString();
+void dateAndTimeWriteIndividualValues( int year, int month, int day, 
+                                       int hour, int minute, int second );
+
+void temperatureSensorUpdate( void );
+float temperatureSensorReadCelsius( void );
+float temperatureSensorReadFahrenheit( void );
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
-float analogReadingScaledWithTheLM35Formula( float analogReading );
-void shiftLm35AvgReadingsArray();
+static float analogReadingScaledWithTheLM35Formula( float analogReading );
+static void shiftLm35AvgReadingsArray();
 
 void matrixKeypadInit();
-char matrixKeypadScan();
+static char matrixKeypadScan();
 char matrixKeypadUpdate();
 
 //=====[Main function, the program entry point after power on or reset]========
 
 int main()
 {
-    inputsInit();
-    outputsInit();
-    matrixKeypadInit();
+    alarmInit();    
     while (true) {
-        alarmActivationUpdate();
-        alarmDeactivationUpdate();
-        pcSerialCommunicationUpdate();
-        eventLogUpdate();
-        delay(TIME_INCREMENT_MS);
+        alarmUpdate();
     }
 }
 
 //=====[Implementations of public functions]===================================
 
-void inputsInit()
+void alarmInit()
 {
     gasDetector.mode(PullDown);
-}
-
-void outputsInit()
-{
     alarmLed = OFF;
     incorrectCodeLed = OFF;
     systemBlockedLed = OFF;
+    matrixKeypadInit();
 }
 
-void alarmActivationUpdate()
+void alarmUpdate()
 {
-    accumulatedTimeLm35 = accumulatedTimeLm35 + TIME_INCREMENT_MS;
+    alarmActivationUpdate();
+    alarmDeactivationUpdate();
+    pcSerialCommunicationUpdate();
+    eventLogUpdate();
+    delay(TIME_INCREMENT_MS);
+}
 
-    if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
-        if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
-            lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / NUMBER_OF_AVG_SAMPLES;
-            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage +
-                                        lm35AvgReadingsArray[lm35SampleIndex];
-            lm35SampleIndex++;
-        } else {
-            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage -
-                                        lm35AvgReadingsArray[0];
+static void alarmActivationUpdate()
+{
+    temperatureSensorUpdate();
+    gasSensorUpdate();
 
-            shiftLm35AvgReadingsArray();
-
-            lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] =
-                lm35.read() / NUMBER_OF_AVG_SAMPLES;
-
-            lm35ReadingsMovingAverage =
-                lm35ReadingsMovingAverage +
-                lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1];
-
-            lm35TempC = analogReadingScaledWithTheLM35Formula(
-                            lm35ReadingsMovingAverage );
-        }
-        accumulatedTimeLm35 = 0;
+    if ( temperatureSensorReadCelsius() > OVER_TEMP_LEVEL_CELSIUS ) {
+        overTempDetector = ON;
+    } else {
+        overTempDetector = OFF;
     }
 
-    if ( lm35TempC > OVER_TEMP_LEVEL ) {
+    if ( gasSensorRead() > GAS_LEVEL ) {
         overTempDetector = ON;
     } else {
         overTempDetector = OFF;
@@ -218,7 +234,7 @@ void alarmActivationUpdate()
     }
 }
 
-void alarmDeactivationUpdate()
+static void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
         char keyReleased = matrixKeypadUpdate();
@@ -256,20 +272,15 @@ void alarmDeactivationUpdate()
     }
 }
 
-char* dateAndTimeStringGet();
-
-char* dateAndTimeStringGet()
+char* dateAndTimeReadString()
 {
     time_t epochSeconds;
     epochSeconds = time(NULL);
     return ctime(&epochSeconds);    
 }
 
-void dateAndTimeIndividualIntsSet( int year, int month, int day, 
-                                   int hour, int minute, int second );
-
-void dateAndTimeIndividualIntsSet( int year, int month, int day, 
-                                   int hour, int minute, int second )
+void dateAndTimeWriteIndividualValues( int year, int month, int day, 
+                                       int hour, int minute, int second )
 {
     struct tm rtcTime;
 
@@ -285,39 +296,50 @@ void dateAndTimeIndividualIntsSet( int year, int month, int day,
     set_time( mktime( &rtcTime ) );
 }
 
-
-
-
-float temperatureSensorCelsiusUpdate( void );
-float temperatureSensorCelsiusGet( void );
-float temperatureSensorFahrenheitGet( void );
-
-float temperatureSensorCelsiusUpdate( void )
+void temperatureSensorUpdate( void )
 {
-    // TODO: 
-    return 0.0;
+    static int accumulatedTimeLm35 = 0;
+    static int lm35SampleIndex     = 0;
+    static float lm35ReadingsMovingAverage = 0.0;
+
+    accumulatedTimeLm35 = accumulatedTimeLm35 + TIME_INCREMENT_MS;
+
+    if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
+        if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
+            lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / NUMBER_OF_AVG_SAMPLES;
+            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage +
+                                        lm35AvgReadingsArray[lm35SampleIndex];
+            lm35SampleIndex++;
+        } else {
+            lm35ReadingsMovingAverage = lm35ReadingsMovingAverage -
+                                        lm35AvgReadingsArray[0];
+
+            shiftLm35AvgReadingsArray();
+
+            lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1] =
+                lm35.read() / NUMBER_OF_AVG_SAMPLES;
+
+            lm35ReadingsMovingAverage =
+                lm35ReadingsMovingAverage +
+                lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1];
+
+            lm35TempC = analogReadingScaledWithTheLM35Formula(
+                            lm35ReadingsMovingAverage );
+        }
+        accumulatedTimeLm35 = 0;
+    }
 }
 
-float temperatureSensorCelsiusGet( void )
+float temperatureSensorReadCelsius( void )
 {
     return lm35TempC;
 }
 
-float temperatureSensorFahrenheitGet( void )
+float temperatureSensorReadFahrenheit( void )
 {
     return celsiusToFahrenheit( lm35TempC );
 }
 
-void commandShowCurrentAlarmState();
-void commandShowCurrentGasDetectorState();
-void commandShowCurrentOverTempDetectorState();
-void commandEnterNewCode();
-void commandShowCurrentTemperatureInCelsius();
-void commandShowCurrentTemperatureInFahrenheit();
-void commandSetDateAndTime();
-void commandShowDateAndTime();
-void commandShowStoredEvents();
-void commandEnterCodeSequence();
 
 void pcSerialCommunicationUpdate()
 {
@@ -339,7 +361,7 @@ void pcSerialCommunicationUpdate()
     }
 }
 
-void availableCommands()
+static void availableCommands()
 {
     uartUsb.printf( "Available commands:\r\n" );
     uartUsb.printf( "Press '1' to get the alarm state\r\n" );
@@ -355,10 +377,8 @@ void availableCommands()
     uartUsb.printf( "\r\n" );
 }
 
-
-
 // TODO: MODULARIZAR!!!!
-void commandShowCurrentAlarmState()
+static void commandShowCurrentAlarmState()
 {
     if ( alarmState ) {
         uartUsb.printf( "The alarmLed is activated\r\n");
@@ -368,7 +388,7 @@ void commandShowCurrentAlarmState()
 }
 
 // TODO: MODULARIZAR!!!!
-void commandShowCurrentGasDetectorState()
+static void commandShowCurrentGasDetectorState()
 {
     if ( gasDetector ) {
         uartUsb.printf( "Gas is being detected\r\n");
@@ -378,7 +398,7 @@ void commandShowCurrentGasDetectorState()
 }
 
 // TODO: MODULARIZAR!!!!
-void commandShowCurrentOverTempDetectorState()
+static void commandShowCurrentOverTempDetectorState()
 {
     if ( overTempDetector ) {
         uartUsb.printf( "Temperature is above the maximum level\r\n");
@@ -388,7 +408,7 @@ void commandShowCurrentOverTempDetectorState()
 }
 
 // TODO: MODULARIZAR!!!!
-void commandEnterCodeSequence()
+static void commandEnterCodeSequence()
 {
     char receivedChar;
     
@@ -420,7 +440,7 @@ void commandEnterCodeSequence()
 }
 
 // TODO: MODULARIZAR!!!!
-void commandEnterNewCode()
+static void commandEnterNewCode()
 {
     uartUsb.printf( "Please enter the new four digits numeric code" );
 
@@ -434,19 +454,19 @@ void commandEnterNewCode()
     uartUsb.printf( "\r\nNew code configurated\r\n\r\n" ); 
 }
 
-void commandShowCurrentTemperatureInCelsius()
+static void commandShowCurrentTemperatureInCelsius()
 {
     uartUsb.printf( "Temperature: %.2f °C\r\n",
-                    temperatureSensorCelsiusGet() );    
+                    temperatureSensorReadCelsius() );    
 }
 
-void commandShowCurrentTemperatureInFahrenheit()
+static void commandShowCurrentTemperatureInFahrenheit()
 {
     uartUsb.printf( "Temperature: %.2f °F\r\n", 
-                    temperatureSensorFahrenheitGet() );    
+                    temperatureSensorReadFahrenheit() );    
 }
 
-void commandSetDateAndTime()
+static void commandSetDateAndTime()
 {
     int year   = 0;
     int month  = 0;
@@ -483,18 +503,18 @@ void commandSetDateAndTime()
         uartUsb.getc();
     }
 
-    dateAndTimeIndividualIntsSet( year, month, day, 
-                                  hour, minute, second );
+    dateAndTimeWriteIndividualValues( year, month, day, 
+                                      hour, minute, second );
 }
 
-void commandShowDateAndTime()
+static void commandShowDateAndTime()
 {
-    uartUsb.printf("Date and Time = %s", dateAndTimeStringGet());
+    uartUsb.printf("Date and Time = %s", dateAndTimeReadString());
 }
 
 
 // TODO: MODULARIZAR!!!!
-void commandShowStoredEvents()
+static void commandShowStoredEvents()
 {
     for (int i = 0; i < eventsIndex; i++) {
         uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].typeOfEvent);
@@ -504,9 +524,7 @@ void commandShowStoredEvents()
     }
 }
 
-
-
-bool areEqual()
+static bool areEqual()
 {
     int i;
 
@@ -537,9 +555,9 @@ void eventLogUpdate()
     SBLastState = systemBlockedLed;
 }
 
-void systemElementStateUpdate( bool lastState,
-                               bool currentState,
-                               const char* elementName )
+static void systemElementStateUpdate( bool lastState,
+                                      bool currentState,
+                                      const char* elementName )
 {
     if ( lastState != currentState ) {
         
@@ -553,7 +571,7 @@ void systemElementStateUpdate( bool lastState,
         }
 
         arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
-        strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent,eventAndStateStr );
+        strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent, eventAndStateStr );
         if ( eventsIndex < EVENT_MAX_STORAGE ) {
             eventsIndex++;
         } else {
@@ -568,7 +586,7 @@ void systemElementStateUpdate( bool lastState,
     }
 }
 
-float analogReadingScaledWithTheLM35Formula( float analogReading )
+static float analogReadingScaledWithTheLM35Formula( float analogReading )
 {
     return ( analogReading * 3.3 / 0.01 );
 }
@@ -578,7 +596,7 @@ float celsiusToFahrenheit( float tempInCelsiusDegrees )
     return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
 }
 
-void shiftLm35AvgReadingsArray()
+static void shiftLm35AvgReadingsArray()
 {
     int i = 0;
     for( i=1; i<NUMBER_OF_AVG_SAMPLES; i++ ) {
@@ -596,7 +614,7 @@ void matrixKeypadInit()
     }
 }
 
-char matrixKeypadScan()
+static char matrixKeypadScan()
 {
     int r = 0;
     int c = 0;
@@ -621,6 +639,9 @@ char matrixKeypadScan()
 
 char matrixKeypadUpdate()
 {
+    static int accumulatedDebounceMatrixKeypadTime = 0;
+    static char matrixKeypadLastKeyPressed = '\0';
+
     char keyDetected = '\0';
     char keyReleased = '\0';
 
