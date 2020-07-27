@@ -121,7 +121,6 @@ void availableCommands();
 
 bool areEqual();
 
-void bleTask();
 void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
         bool currentState,
         const char* elementName );
@@ -152,7 +151,6 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
-        bleTask();
         systemEventsUpdate();
         delay(TIME_INCREMENT_MS);
     }
