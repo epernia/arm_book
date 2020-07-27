@@ -288,9 +288,14 @@ void dateAndTimeIndividualIntsSet( int year, int month, int day,
 
 
 
+float temperatureSensorCelsiusUpdate( void );
+float temperatureSensorCelsiusGet( void );
+float temperatureSensorFahrenheitGet( void );
+
 float temperatureSensorCelsiusUpdate( void )
 {
     // TODO: 
+    return 0.0;
 }
 
 float temperatureSensorCelsiusGet( void )
@@ -298,7 +303,7 @@ float temperatureSensorCelsiusGet( void )
     return lm35TempC;
 }
 
-float temperatureSensorFahrenheit( void )
+float temperatureSensorFahrenheitGet( void )
 {
     return celsiusToFahrenheit( lm35TempC );
 }
@@ -385,6 +390,8 @@ void commandShowCurrentOverTempDetectorState()
 // TODO: MODULARIZAR!!!!
 void commandEnterCodeSequence()
 {
+    char receivedChar;
+    
     uartUsb.printf( "Please enter the new four digits numeric code " );
     uartUsb.printf( "to deactivate the alarm.\r\n" );
 
