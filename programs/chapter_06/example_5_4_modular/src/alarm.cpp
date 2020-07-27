@@ -3,6 +3,19 @@
 #include "alarm.h"
 #include "shared.h"
 
+
+#include "mbed.h"
+#include "arm_book_lib.h"
+
+#include "pc_serial_communication.h"
+#include "smartphone_ble_communication.h"
+#include "event_log.h"
+
+#include "temperature_sensor.h"
+#include "gas_sensor.h"
+
+#include "matrix_keypad.h"
+
 //=====[Declaration of private data types]=====================================
 
 
@@ -19,11 +32,10 @@
 
 //=====[Declaration of external public global objects]=========================
 
-
+extern DigitalIn gasDetector;
 
 //=====[Declaration and intitalization of public global objects]===============
 
-DigitalIn gasDetector(D2);
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
@@ -61,6 +73,8 @@ int matrixKeypadCodeIndex = 0;
 
 //=====[Declarations (prototypes) of private functions]========================
 
+static void alarmActivationUpdate();
+static void alarmDeactivationUpdate();
 static bool areEqual();
 
 //=====[Implementations of public functions]===================================
@@ -74,7 +88,18 @@ void alarmInit()
     matrixKeypadInit();
 }
 
-void alarmActivationUpdate()
+int alarmUpdate()
+{
+    alarmActivationUpdate();
+    alarmDeactivationUpdate();
+    uartTask();
+    eventLogUpdate();
+    delay(TIME_INCREMENT_MS);
+}
+
+//=====[Implementations of private functions]==================================
+
+static void alarmActivationUpdate()
 {
     accumulatedTimeLm35 = accumulatedTimeLm35 + TIME_INCREMENT_MS;
 
@@ -148,7 +173,7 @@ void alarmActivationUpdate()
     }
 }
 
-void alarmDeactivationUpdate()
+static void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
         char keyReleased = matrixKeypadUpdate();
@@ -185,8 +210,6 @@ void alarmDeactivationUpdate()
         systemBlockedLed = ON;
     }
 }
-
-//=====[Implementations of private functions]==================================
 
 static bool areEqual()
 {

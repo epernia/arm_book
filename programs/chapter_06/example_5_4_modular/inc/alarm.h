@@ -5,8 +5,7 @@
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
+
 
 //=====[Declaration of public data types]======================================
 
@@ -19,8 +18,7 @@
 //=====[Declarations (prototypes) of public functions]=========================
 
 void alarmInit();
-void alarmActivationUpdate();
-void alarmDeactivationUpdate();
+int alarmUpdate();
 
 //=====[#include guards - end]=================================================
 

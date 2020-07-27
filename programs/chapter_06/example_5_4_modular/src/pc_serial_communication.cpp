@@ -32,7 +32,6 @@ Serial uartUsb(USBTX, USBRX);
 
 //=====[Declaration and intitalization of private global variables]============
 
-char receivedChar = '\0';
 
 //=====[Declarations (prototypes) of private functions]========================
 

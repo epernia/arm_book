@@ -16,7 +16,7 @@
 
 //=====[Declaration and intitalization of public global objects]===============
 
-
+DigitalIn gasDetector(D2);
 
 //=====[Declaration and intitalization of private global objects]==============
 

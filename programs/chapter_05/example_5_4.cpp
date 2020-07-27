@@ -61,7 +61,6 @@ int accumulatedTimeAlarm   = 0;
 int accumulatedTimeLm35    = 0;
 int lm35SampleIndex        = 0;
 
-char receivedChar = '\0';
 char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 char buttonsPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
 
