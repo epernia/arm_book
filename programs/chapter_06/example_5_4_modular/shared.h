@@ -3,10 +3,15 @@
 #ifndef _SHARED_H_
 #define _SHARED_H_
 
+//=====[Libraries]=============================================================
+
+#include "mbed.h"
+#include "arm_book_lib.h"
+
 //=====[Declaration of public constants]=======================================
 
-#define DEBOUNCE_BUTTON_TIME_MS                 40
-#define TIME_INCREMENT_MS                       10
+#define TIME_INCREMENT_MS         10
+#define DEBOUNCE_BUTTON_TIME_MS   40
 
 //=====[#include guards - end]=================================================
 

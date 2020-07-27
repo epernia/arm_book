@@ -43,10 +43,6 @@ typedef struct systemEvent {
 
 DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
-DigitalIn aButton(D4);
-DigitalIn bButton(D5);
-DigitalIn cButton(D6);
-DigitalIn dButton(D7);
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
@@ -55,7 +51,6 @@ DigitalOut systemBlockedLed(LED2);
 Serial uartUsb(USBTX, USBRX);
 Serial uartBle(D1, D0);
 
-AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
 DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
@@ -121,11 +116,7 @@ void availableCommands();
 
 bool areEqual();
 
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState,
-        bool currentState,
-        const char* elementName );
-
-void systemEventsUpdate();
+void eventLogUpdate();
 void systemElementStateUpdate( bool lastState,
                                bool currentState,
                                const char* elementName );
@@ -147,11 +138,13 @@ int main()
 {
     inputsInit();
     outputsInit();
+    debounceButtonInit();
+    matrixKeypadInit();
     while (true) {
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
-        systemEventsUpdate();
+        eventLogUpdate();
         delay(TIME_INCREMENT_MS);
     }
 }
@@ -161,12 +154,6 @@ int main()
 void inputsInit()
 {
     gasDetector.mode(PullDown);
-    aButton.mode(PullDown);
-    bButton.mode(PullDown);
-    cButton.mode(PullDown);
-    dButton.mode(PullDown);
-    debounceButtonInit();
-    matrixKeypadInit();
 }
 
 void outputsInit()
@@ -466,7 +453,7 @@ bool areEqual()
     return true;
 }
 
-void systemEventsUpdate()
+void eventLogUpdate()
 {
     systemElementStateUpdate( alarmLastState,alarmState, "ALARM" );
     alarmLastState = alarmState;

@@ -1,14 +1,20 @@
 //=====[Libraries]=============================================================
 
-#include <fsm_matrix_keypad.h>
+#include "shared.h"
+#include "matrix_keypad.h"
 
 //=====[Declaration of private data types]=====================================
 
-
+typedef enum {
+    MATRIX_KEYPAD_SCANNING,
+    MATRIX_KEYPAD_DEBOUNCE,
+    MATRIX_KEYPAD_KEY_HOLD_PRESSED
+} matrixKeypadState_t;
 
 //=====[Declaration of private constants]======================================
 
-
+#define KEYPAD_NUMBER_OF_ROWS   4
+#define KEYPAD_NUMBER_OF_COLS   4
 
 //=====[Declaration of external public global objects]=========================
 
@@ -33,15 +39,15 @@ DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of private global variables]============
 
-int accumulatedDebounceMatrixKeypadTime = 0;
-char matrixKeypadLastKeyPressed = '\0';
-char matrixKeypadIndexToCharArray[] = {
+static int accumulatedDebounceMatrixKeypadTime = 0;
+static char matrixKeypadLastKeyPressed = '\0';
+static char matrixKeypadIndexToCharArray[] = {
     '1', '2', '3', 'A',
     '4', '5', '6', 'B',
     '7', '8', '9', 'C',
     '*', '0', '#', 'D',
 };
-matrixKeypadState_t matrixKeypadState;
+static matrixKeypadState_t matrixKeypadState;
 
 //=====[Declarations (prototypes) of private functions]========================
 
