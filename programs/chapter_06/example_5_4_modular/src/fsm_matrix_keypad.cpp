@@ -1,6 +1,37 @@
-#include "fsm_matrix_keypad.h"
+//=====[Libraries]=============================================================
 
-//=====[Implementations of public functions]===================================
+#include <fsm_matrix_keypad.h>
+
+//=====[Declaration of private data types]=====================================
+
+
+
+//=====[Declaration of private constants]======================================
+
+
+
+//=====[Declaration of external public global objects]=========================
+
+
+
+//=====[Declaration and intitalization of public global objects]===============
+
+
+
+//=====[Declaration and intitalization of private global objects]==============
+
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
+
+//=====[Declaration of external public global variables]=======================
+
+
+
+//=====[Declaration and intitalization of public global variables]=============
+
+
+
+//=====[Declaration and intitalization of private global variables]============
 
 int accumulatedDebounceMatrixKeypadTime = 0;
 char matrixKeypadLastKeyPressed = '\0';
@@ -12,8 +43,11 @@ char matrixKeypadIndexToCharArray[] = {
 };
 matrixKeypadState_t matrixKeypadState;
 
-DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
+//=====[Declarations (prototypes) of private functions]========================
+
+
+
+//=====[Implementations of public functions]===================================
 
 void matrixKeypadInit()
 {
@@ -93,3 +127,6 @@ char matrixKeypadUpdate()
     }
     return keyReleased;
 }
+
+//=====[Implementations of private functions]==================================
+

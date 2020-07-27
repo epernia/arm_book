@@ -1,14 +1,13 @@
+//=====[#include guards - begin]===============================================
+
 #ifndef __MATRIX_H__
 #define __MATRIX_H__
 
 //=====[Libraries]=============================================================
 
+#include "mbed.h"
+#include "arm_book_lib.h"
 #include "shared.h"
-
-//=====[Defines]===============================================================
-
-#define KEYPAD_NUMBER_OF_ROWS                    4
-#define KEYPAD_NUMBER_OF_COLS                    4
 
 //=====[Declaration of public data types]======================================
 
@@ -18,14 +17,16 @@ typedef enum {
     MATRIX_KEYPAD_KEY_HOLD_PRESSED
 } matrixKeypadState_t;
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration of public constants]=======================================
 
-//=====[Declaration and intitalization of public global variables]=============
+#define KEYPAD_NUMBER_OF_ROWS                    4
+#define KEYPAD_NUMBER_OF_COLS                    4
 
 //=====[Declarations (prototypes) of public functions]=========================
 
 void matrixKeypadInit();
-char matrixKeypadScan();
 char matrixKeypadUpdate();
+
+//=====[#include guards - end]=================================================
 
 #endif

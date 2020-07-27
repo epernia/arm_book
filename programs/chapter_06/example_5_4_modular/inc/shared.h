@@ -1,10 +1,14 @@
-#include "mbed.h"
-#include "arm_book_lib.h"
+//=====[#include guards - begin]===============================================
 
-//=====[Defines]===============================================================
+#ifndef _SHARED_H_
+#define _SHARED_H_
 
-#define NUMBER_OF_KEYS                           4
+//=====[Declaration of public constants]=======================================
+
 #define DEBOUNCE_BUTTON_TIME_MS                 40
 #define TIME_INCREMENT_MS                       10
-#define MAX_NUMBER_OF_CHARACTERS                15
-#define MAX_NUMBER_OF_EVENTS                   100
+
+
+//=====[#include guards - end]=================================================
+
+#endif // _SHARED_H_
