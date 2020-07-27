@@ -101,7 +101,7 @@ void outputsInit();
 void alarmActivationUpdate();
 void alarmDeactivationUpdate();
 
-void uartTask();
+void pcSerialCommunicationUpdate();
 void availableCommands();
 
 bool areEqual();
@@ -129,7 +129,7 @@ int main()
     while (true) {
         alarmActivationUpdate();
         alarmDeactivationUpdate();
-        uartTask();
+        pcSerialCommunicationUpdate();
         eventLogUpdate();
         delay(TIME_INCREMENT_MS);
     }
@@ -286,147 +286,50 @@ void dateAndTimeIndividualIntsSet( int year, int month, int day,
 }
 
 
-void uartTask()
+
+
+float temperatureSensorCelsiusUpdate( void )
+{
+    // TODO: 
+}
+
+float temperatureSensorCelsiusGet( void )
+{
+    return lm35TempC;
+}
+
+float temperatureSensorFahrenheit( void )
+{
+    return celsiusToFahrenheit( lm35TempC );
+}
+
+void commandShowCurrentAlarmState();
+void commandShowCurrentGasDetectorState();
+void commandShowCurrentOverTempDetectorState();
+void commandEnterNewCode();
+void commandShowCurrentTemperatureInCelsius();
+void commandShowCurrentTemperatureInFahrenheit();
+void commandSetDateAndTime();
+void commandShowDateAndTime();
+void commandShowStoredEvents();
+void commandEnterCodeSequence();
+
+void pcSerialCommunicationUpdate()
 {
     if( uartUsb.readable() ) {
         char receivedChar = uartUsb.getc();
         switch (receivedChar) {
-        case '1':
-            if ( alarmState ) {
-                uartUsb.printf( "The alarmLed is activated\r\n");
-            } else {
-                uartUsb.printf( "The alarmLed is not activated\r\n");
-            }
-            break;
-
-        case '2':
-            if ( gasDetector ) {
-                uartUsb.printf( "Gas is being detected\r\n");
-            } else {
-                uartUsb.printf( "Gas is not being detected\r\n");
-            }
-            break;
-
-        case '3':
-            if ( overTempDetector ) {
-                uartUsb.printf( "Temperature is above the maximum level\r\n");
-            } else {
-                uartUsb.printf( "Temperature is below the maximum level\r\n");
-            }
-            break;
-
-        case '4':
-            uartUsb.printf( "Please enter the new four digits numeric code " );
-            uartUsb.printf( "to deactivate the alarm.\r\n" );
-
-            incorrectCode = false;
-
-            for ( keyBeingCompared = 0;
-                  keyBeingCompared < NUMBER_OF_KEYS;
-                  keyBeingCompared++) {
-                receivedChar = uartUsb.getc();
-                uartUsb.printf( "*" );
-                if ( codeSequence[keyBeingCompared] != receivedChar ) {
-                    incorrectCode = true;
-                }
-            }
-
-            if ( incorrectCode == false ) {
-                uartUsb.printf( "\r\nThe code is correct\r\n\r\n" );
-                alarmState = OFF;
-                incorrectCodeLed = OFF;
-                numberOfIncorrectCodes = 0;
-            } else {
-                uartUsb.printf( "\r\nThe code is incorrect\r\n\r\n" );
-                incorrectCodeLed = ON;
-                numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
-            }
-            break;
-
-        case '5':
-            uartUsb.printf( "Please enter the new four digits numeric code" );
-
-            for ( keyBeingCompared = 0;
-                  keyBeingCompared < NUMBER_OF_KEYS;
-                  keyBeingCompared++) {
-                codeSequence[keyBeingCompared] = uartUsb.getc();
-                uartUsb.printf( "*" );
-            }
-
-            uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
-            break;
-
-        case 'c':
-        case 'C':
-            uartUsb.printf( "Temperature: %.2f °C\r\n", lm35TempC );
-            break;
-
-        case 'f':
-        case 'F':
-            uartUsb.printf( "Temperature: %.2f °F\r\n",
-                            celsiusToFahrenheit( lm35TempC ) );
-            break;
-
-        case 's':
-        case 'S':
-            int year   = 0;
-            int month  = 0;
-            int day    = 0;
-            int hour   = 0;
-            int minute = 0;
-            int second = 0;
-            
-            uartUsb.printf("Enter the current year (YYYY): ");
-            uartUsb.scanf("%d", &year);
-            uartUsb.printf("%d\r\n", year);
-
-            uartUsb.printf("Enter the current month (1-12): ");
-            uartUsb.scanf("%d", &month);
-            uartUsb.printf("%d\r\n", month);
-
-            uartUsb.printf("Enter the current day (1-31): ");
-            uartUsb.scanf("%d", &day);
-            uartUsb.printf("%d\r\n", day);
-
-            uartUsb.printf("Enter the current hour (0-24): ");
-            uartUsb.scanf("%d", &hour);
-            uartUsb.printf("%d\r\n",hour);
-
-            uartUsb.printf("Enter the current minute (0-59): ");
-            uartUsb.scanf("%d", &minute);
-            uartUsb.printf("%d\r\n", minute);
-
-            uartUsb.printf("Enter the current second (0-59): ");
-            uartUsb.scanf("%d", &second);
-            uartUsb.printf("%d\r\n", second);
-
-            while ( uartUsb.readable() ) {
-                uartUsb.getc();
-            }
-
-            dateAndTimeIndividualIntsSet( year, month, day, 
-                                          hour, minute, second );
-            break;
-
-        case 't':
-        case 'T':
-            uartUsb.printf("Date and Time = %s", dateAndTimeStringGet());
-            break;
-
-        case 'e':
-        case 'E':
-            for (int i = 0; i < eventsIndex; i++) {
-                uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].typeOfEvent);
-                uartUsb.printf("Date and Time = %s\r\n",
-                               ctime(&arrayOfStoredEvents[i].seconds));
-                uartUsb.printf("\r\n");
-            }
-            break;
-
-        default:
-            availableCommands();
-            break;
-
+        case '1': commandShowCurrentAlarmState(); break;
+        case '2': commandShowCurrentGasDetectorState(); break;
+        case '3': commandShowCurrentOverTempDetectorState(); break;
+        case '4': commandEnterCodeSequence(); break;
+        case '5': commandEnterNewCode(); break;
+        case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
+        case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
+        case 's': case 'S': commandSetDateAndTime(); break;
+        case 't': case 'T': commandShowDateAndTime(); break;
+        case 'e': case 'E': commandShowStoredEvents(); break;
+        default: availableCommands(); break;
         }
     }
 }
@@ -446,6 +349,155 @@ void availableCommands()
     uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
     uartUsb.printf( "\r\n" );
 }
+
+
+
+// TODO: MODULARIZAR!!!!
+void commandShowCurrentAlarmState()
+{
+    if ( alarmState ) {
+        uartUsb.printf( "The alarmLed is activated\r\n");
+    } else {
+        uartUsb.printf( "The alarmLed is not activated\r\n");
+    }
+}
+
+// TODO: MODULARIZAR!!!!
+void commandShowCurrentGasDetectorState()
+{
+    if ( gasDetector ) {
+        uartUsb.printf( "Gas is being detected\r\n");
+    } else {
+        uartUsb.printf( "Gas is not being detected\r\n");
+    }    
+}
+
+// TODO: MODULARIZAR!!!!
+void commandShowCurrentOverTempDetectorState()
+{
+    if ( overTempDetector ) {
+        uartUsb.printf( "Temperature is above the maximum level\r\n");
+    } else {
+        uartUsb.printf( "Temperature is below the maximum level\r\n");
+    }
+}
+
+// TODO: MODULARIZAR!!!!
+void commandEnterCodeSequence()
+{
+    uartUsb.printf( "Please enter the new four digits numeric code " );
+    uartUsb.printf( "to deactivate the alarm.\r\n" );
+
+    incorrectCode = false;
+
+    for ( keyBeingCompared = 0;
+          keyBeingCompared < NUMBER_OF_KEYS;
+          keyBeingCompared++) {
+        receivedChar = uartUsb.getc();
+        uartUsb.printf( "*" );
+        if ( codeSequence[keyBeingCompared] != receivedChar ) {
+            incorrectCode = true;
+        }
+    }
+
+    if ( incorrectCode == false ) {
+        uartUsb.printf( "\r\nThe code is correct\r\n\r\n" );
+        alarmState = OFF;
+        incorrectCodeLed = OFF;
+        numberOfIncorrectCodes = 0;
+    } else {
+        uartUsb.printf( "\r\nThe code is incorrect\r\n\r\n" );
+        incorrectCodeLed = ON;
+        numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
+    } 
+}
+
+// TODO: MODULARIZAR!!!!
+void commandEnterNewCode()
+{
+    uartUsb.printf( "Please enter the new four digits numeric code" );
+
+    for ( keyBeingCompared = 0;
+          keyBeingCompared < NUMBER_OF_KEYS;
+          keyBeingCompared++) {
+        codeSequence[keyBeingCompared] = uartUsb.getc();
+        uartUsb.printf( "*" );
+    }
+
+    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" ); 
+}
+
+void commandShowCurrentTemperatureInCelsius()
+{
+    uartUsb.printf( "Temperature: %.2f °C\r\n",
+                    temperatureSensorCelsiusGet() );    
+}
+
+void commandShowCurrentTemperatureInFahrenheit()
+{
+    uartUsb.printf( "Temperature: %.2f °F\r\n", 
+                    temperatureSensorFahrenheitGet() );    
+}
+
+void commandSetDateAndTime()
+{
+    int year   = 0;
+    int month  = 0;
+    int day    = 0;
+    int hour   = 0;
+    int minute = 0;
+    int second = 0;
+    
+    uartUsb.printf("Enter the current year (YYYY): ");
+    uartUsb.scanf("%d", &year);
+    uartUsb.printf("%d\r\n", year);
+
+    uartUsb.printf("Enter the current month (1-12): ");
+    uartUsb.scanf("%d", &month);
+    uartUsb.printf("%d\r\n", month);
+
+    uartUsb.printf("Enter the current day (1-31): ");
+    uartUsb.scanf("%d", &day);
+    uartUsb.printf("%d\r\n", day);
+
+    uartUsb.printf("Enter the current hour (0-24): ");
+    uartUsb.scanf("%d", &hour);
+    uartUsb.printf("%d\r\n",hour);
+
+    uartUsb.printf("Enter the current minute (0-59): ");
+    uartUsb.scanf("%d", &minute);
+    uartUsb.printf("%d\r\n", minute);
+
+    uartUsb.printf("Enter the current second (0-59): ");
+    uartUsb.scanf("%d", &second);
+    uartUsb.printf("%d\r\n", second);
+
+    while ( uartUsb.readable() ) {
+        uartUsb.getc();
+    }
+
+    dateAndTimeIndividualIntsSet( year, month, day, 
+                                  hour, minute, second );
+}
+
+void commandShowDateAndTime()
+{
+    uartUsb.printf("Date and Time = %s", dateAndTimeStringGet());
+}
+
+
+// TODO: MODULARIZAR!!!!
+void commandShowStoredEvents()
+{
+    for (int i = 0; i < eventsIndex; i++) {
+        uartUsb.printf("Event = %s\r\n", arrayOfStoredEvents[i].typeOfEvent);
+        uartUsb.printf("Date and Time = %s\r\n",
+                       ctime(&arrayOfStoredEvents[i].seconds));
+        uartUsb.printf("\r\n");
+    }
+}
+
+
 
 bool areEqual()
 {
