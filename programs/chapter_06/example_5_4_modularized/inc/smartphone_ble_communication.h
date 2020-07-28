@@ -1,25 +1,18 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _SMARTPHONE_BLE_COMUNICATION_H_
+#define _SMARTPHONE_BLE_COMUNICATION_H_
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
+//=====[Declaration of public constants]=======================================
 
 //=====[Declaration of public data types]======================================
 
-
-
-//=====[Declaration of public constants]=======================================
-
-
-
 //=====[Declarations (prototypes) of public functions]=========================
 
-
+void smarphoneBleCommunicationWrite( const char* str );
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _SMARTPHONE_BLE_COMUNICATION_H_

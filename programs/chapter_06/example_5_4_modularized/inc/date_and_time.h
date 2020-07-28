@@ -5,23 +5,18 @@
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
+//=====[Declaration of public constants]=======================================
 
 //=====[Declaration of public data types]======================================
 
-
-
-//=====[Declaration of public constants]=======================================
-
-
+#define SYSTEM_TIME_INCREMENT_MS   10
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-char* dateAndTimeStringGet();
+char* dateAndTimeReadString();
 
-void dateAndTimeIndividualIntsSet( int year, int month, int day, 
-                                   int hour, int minute, int second );
+void dateAndTimeWriteIndividualValues( int year, int month, int day, 
+                                       int hour, int minute, int second );
 
 //=====[#include guards - end]=================================================
 

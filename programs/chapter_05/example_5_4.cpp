@@ -34,7 +34,6 @@ typedef struct systemEvent {
 
 //=====[Declaration and intitalization of public global objects]===============
 
-DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
 
 DigitalOut alarmLed(LED1);

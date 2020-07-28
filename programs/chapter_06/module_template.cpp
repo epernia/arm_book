@@ -1,12 +1,12 @@
 //=====[Libraries]=============================================================
 
-#include "smartphone_ble_communication.h"
-
-//=====[Declaration of private data types]=====================================
-
-
+#include "_module.h"
 
 //=====[Declaration of private constants]======================================
+
+
+
+//=====[Declaration of private data types]=====================================
 
 
 
@@ -20,7 +20,7 @@
 
 //=====[Declaration and intitalization of private global objects]==============
 
-Serial uartBle(D1, D0);
+
 
 //=====[Declaration of external public global variables]=======================
 

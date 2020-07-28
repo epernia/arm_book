@@ -1,29 +1,19 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _EVENT_LOG_H_
-#define _EVENT_LOG_H_
+#ifndef _PC_SERIAL_COMMUNICATION_H_
+#define _PC_SERIAL_COMMUNICATION_H_
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
+//=====[Declaration of public constants]=======================================
 
 //=====[Declaration of public data types]======================================
 
-
-
-//=====[Declaration of public constants]=======================================
-
-
-
 //=====[Declarations (prototypes) of public functions]=========================
 
-void eventLogUpdate();
-
-void systemElementStateUpdate( bool lastState,
-                               bool currentState,
-                               const char* elementName );
+void pcSerialCommunicationWrite( const char* str );
+void pcSerialCommunicationCommandUpdate();;
 
 //=====[#include guards - end]=================================================
 
-#endif // _EVENT_LOG_H_
+#endif // _PC_SERIAL_COMMUNICATION_H_

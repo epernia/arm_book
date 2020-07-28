@@ -1,25 +1,19 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _ALARM_H_
-#define _ALARM_H_
+#ifndef _MATRIX_KEYPAD_H_
+#define _MATRIX_KEYPAD_H_
 
 //=====[Libraries]=============================================================
 
-
+//=====[Declaration of public constants]=======================================
 
 //=====[Declaration of public data types]======================================
 
-
-
-//=====[Declaration of public constants]=======================================
-
-
-
 //=====[Declarations (prototypes) of public functions]=========================
 
-void alarmInit();
-int alarmUpdate();
+void matrixKeypadInit();
+char matrixKeypadUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _ALARM_H_
+#endif // _MATRIX_KEYPAD_H_

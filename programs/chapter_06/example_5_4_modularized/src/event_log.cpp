@@ -1,0 +1,133 @@
+//=====[Libraries]=============================================================
+
+#include "mbed.h"
+#include "arm_book_lib.h"
+
+#include "event_log.h"
+
+#include "alarm.h"
+#include "date_and_time.h"
+#include "pc_serial_communication.h"
+#include "smartphone_ble_communication.h"
+
+//=====[Declaration of private constants]======================================
+
+#define EVENT_LOG_MAX_STORAGE       100
+#define EVENT_LOG_NAME_MAX_LENGTH    15
+
+//=====[Declaration of private data types]=====================================
+
+typedef struct systemEvent {
+    time_t seconds;
+    char typeOfEvent[EVENT_LOG_NAME_MAX_LENGTH];
+} systemEvent_t;
+
+//=====[Declaration of external public global objects]=========================
+
+//=====[Declaration and intitalization of public global objects]===============
+
+//=====[Declaration and intitalization of private global objects]==============
+
+//=====[Declaration of external public global variables]=======================
+
+//=====[Declaration and intitalization of public global variables]=============
+
+//=====[Declaration and intitalization of private global variables]============
+
+static bool alarmLastState = OFF;
+static bool gasLastState   = OFF;
+static bool tempLastState  = OFF;
+static bool ICLastState    = OFF;
+static bool SBLastState    = OFF;
+static int eventsIndex     = 0;
+static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
+
+//=====[Declarations (prototypes) of private functions]========================
+
+static void eventLogElementStateUpdate( bool lastState,
+                                        bool currentState,
+                                        const char* elementName );
+
+//=====[Implementations of public functions]===================================
+
+void eventLogUpdate()
+{
+    bool currentState = alarmReadState();
+    eventLogElementStateUpdate( alarmLastState, currentState, "ALARM" );
+    alarmLastState = currentState;
+
+    currentState = alarmGasDetectorReadState();
+    eventLogElementStateUpdate( gasLastState, currentState, "GAS_DET" );
+    gasLastState = currentState;
+
+    currentState = alarmOverTempDetectorReadState();
+    eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
+    tempLastState = currentState;
+
+    currentState = alarmIncorrectCodeReadState();
+    eventLogElementStateUpdate( ICLastState, currentState, "LED_IC" );
+    ICLastState = currentState;
+
+    currentState = alarmSystemBlockedReadState();
+    eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
+    SBLastState = currentState;
+}
+
+int eventLogNumberOfStoredEvents()
+{
+    return eventsIndex;
+}
+
+void eventLogReadStriangAtIndex( int index, char* str )
+{
+    str[0] = 0;
+
+    strncat( str, "Event = ", strlen("Event = ") );
+
+    strncat( str, arrayOfStoredEvents[index].typeOfEvent,
+             strlen(arrayOfStoredEvents[index].typeOfEvent) );
+
+    strncat( str, "\r\nDate and Time = ", strlen("\r\nDate and Time = ") );
+
+    strncat( str, ctime(&arrayOfStoredEvents[index].seconds),
+             strlen(ctime(&arrayOfStoredEvents[index].seconds)) );
+
+    strncat( str, "\r\n", strlen("\r\n") );
+}
+
+void eventLogWrite( bool currentState, const char* elementName )
+{
+    char eventAndStateStr[EVENT_LOG_NAME_MAX_LENGTH];
+    eventAndStateStr[0] = 0;
+    strncat( eventAndStateStr, elementName, strlen(elementName) );
+    if ( currentState ) {
+        strncat( eventAndStateStr, "_ON", strlen("_ON") );
+    } else {
+        strncat( eventAndStateStr, "_OFF", strlen("_OFF") );
+    }
+
+    arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
+    strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent, eventAndStateStr );
+    if ( eventsIndex < EVENT_LOG_MAX_STORAGE ) {
+        eventsIndex++;
+    } else {
+        eventsIndex = 0;
+    }
+
+    pcSerialCommunicationWrite(eventAndStateStr);
+    pcSerialCommunicationWrite("\r\n");
+ 
+    smarphoneBleCommunicationWrite(eventAndStateStr);
+    smarphoneBleCommunicationWrite("\r\n");
+}
+
+//=====[Implementations of private functions]==================================
+
+static void eventLogElementStateUpdate( bool lastState,
+                                        bool currentState,
+                                        const char* elementName )
+{
+    if ( lastState != currentState ) {        
+        eventLogWrite( currentState, elementName );       
+    }
+}

@@ -1,18 +1,20 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SHARED_H_
-#define _SHARED_H_
+#ifndef _GAS_SENSOR_H_
+#define _GAS_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
-
 //=====[Declaration of public constants]=======================================
 
-#define TIME_INCREMENT_MS         10
-#define DEBOUNCE_BUTTON_TIME_MS   40
+//=====[Declaration of public data types]======================================
+
+//=====[Declarations (prototypes) of public functions]=========================
+
+void gasSensorInit( void );
+void gasSensorUpdate( void );
+float gasSensorRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _SHARED_H_
+#endif // _GAS_SENSOR_H_

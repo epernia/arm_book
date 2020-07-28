@@ -1,27 +1,21 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _TEMPERATURE_SENSOR_H_
-#define _TEMPERATURE_SENSOR_H_
+#ifndef _EVENT_LOG_H_
+#define _EVENT_LOG_H_
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
+//=====[Declaration of public constants]=======================================
 
 //=====[Declaration of public data types]======================================
 
-
-
-//=====[Declaration of public constants]=======================================
-
-
-
 //=====[Declarations (prototypes) of public functions]=========================
 
-float analogReadingScaledWithTheLM35Formula( float analogReading );
-float celsiusToFahrenheit( float tempInCelsiusDegrees );
-void shiftLm35AvgReadingsArray();
+void eventLogUpdate();
+int eventLogNumberOfStoredEvents();
+void eventLogReadStriangAtIndex( int index, char* str );
+void eventLogWrite( bool currentState, const char* elementName );
 
 //=====[#include guards - end]=================================================
 
-#endif // _TEMPERATURE_SENSOR_H_
+#endif // _EVENT_LOG_H_
