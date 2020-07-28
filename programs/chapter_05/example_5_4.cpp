@@ -11,7 +11,7 @@
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
 #define LM35_SAMPLE_TIME                       100
 #define NUMBER_OF_AVG_SAMPLES                   10
-#define OVER_TEMP_LEVEL                         50
+#define OVER_TEMP_LEVEL                       50.0
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
 #define KEYPAD_NUMBER_OF_ROWS                    4
