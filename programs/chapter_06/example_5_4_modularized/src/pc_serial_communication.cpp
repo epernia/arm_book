@@ -139,7 +139,7 @@ static void commandEnterNewCode()
 {
     char newCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
 
-    uartUsb.printf( "Please enter the new four digits numeric code" );
+    uartUsb.printf( "Please enter the new four digits numeric code\r\n" );
 
     for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
         newCodeSequence[i] = uartUsb.getc();

@@ -1,13 +1,13 @@
 //=====[Libraries]=============================================================
 
-#include "alarm.h"
+#include "smartHomeSystem.h"
 
 //=====[Main function, the program entry point after power on or reset]========
 
 int main()
 {
-    alarmInit();
+    smartHomeSystemInit();
     while (true) {
-        alarmUpdate();
+        smartHomeSystemUpdate();
     }
 }
