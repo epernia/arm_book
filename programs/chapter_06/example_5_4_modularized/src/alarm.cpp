@@ -5,13 +5,9 @@
 
 #include "alarm.h"
 
-#include "date_and_time.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
 #include "matrix_keypad.h"
-#include "pc_serial_communication.h"
-#include "smartphone_ble_communication.h"
-#include "event_log.h"
 
 //=====[Declaration of private constants]======================================
 
@@ -23,22 +19,11 @@
 #define ALARM_OVER_TEMP_LEVEL_CELSIUS         50.0
 #define ALARM_GAS_LEVEL                        0.0 // TODO: Ver que valor de umbral poner
 
-//=====[Declaration of external public global objects]=========================
-
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
-
-//=====[Declaration and intitalization of private global objects]==============
-
-
-//=====[Declaration of external public global variables]=======================
-
-
-//=====[Declaration and intitalization of public global variables]=============
-
 
 //=====[Declaration and intitalization of private global variables]============
 
@@ -62,6 +47,7 @@ static void alarmCodeCheckFromMatrixKeypad();
 
 //=====[Implementations of public functions]===================================
 
+
 void alarmInit()
 {
     alarmLed = OFF;
@@ -69,16 +55,12 @@ void alarmInit()
     systemBlockedLed = OFF;
     gasSensorInit();
     temperatureSensorInit();
-    matrixKeypadInit();
 }
 
 void alarmUpdate()
 {
     alarmActivationUpdate();
     alarmDeactivationUpdate();
-    pcSerialCommunicationCommandUpdate();
-    eventLogUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
 }
 
 bool alarmGasDetectorReadState()

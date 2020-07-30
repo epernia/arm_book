@@ -113,26 +113,24 @@ static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+void smartHomeSystemInit();
+void smartHomeSystemUpdate();
+
 void alarmInit();
 void alarmUpdate();
-
 bool alarmGasDetectorReadState();
 bool alarmOverTempDetectorReadState();
 bool alarmReadState();
 bool alarmIncorrectCodeReadState();
 bool alarmSystemBlockedReadState();
-
 void alarmCodeWrite( char* newCodeSequence );
 bool alarmCodeMatch( char* codeToCompare );
-
 static void alarmLedUpdate();
 static void incorrectCodeLedUpdate();
 static void systemBlockedLedUpdate();
-
 static void alarmActivationUpdate();
 static void alarmDeactivationUpdate();
 static void alarmCodeCheckFromMatrixKeypad();
-
 
 void smarphoneBleCommunicationWrite( const char* str );
 
@@ -182,13 +180,27 @@ char matrixKeypadUpdate();
 
 int main()
 {
-    alarmInit();    
+    smartHomeSystemInit();
     while (true) {
-        alarmUpdate();
+        smartHomeSystemUpdate();
     }
 }
 
 //=====[Implementations of public functions]===================================
+
+void smartHomeSystemInit()
+{
+    alarmInit();
+    matrixKeypadInit();
+}
+
+void smartHomeSystemUpdate()
+{
+    alarmUpdate();
+    pcSerialCommunicationCommandUpdate();
+    eventLogUpdate();
+    delay(SYSTEM_TIME_INCREMENT_MS);
+}
 
 void alarmInit()
 {
@@ -197,16 +209,12 @@ void alarmInit()
     systemBlockedLed = OFF;
     gasSensorInit();
     temperatureSensorInit();
-    matrixKeypadInit();
 }
 
 void alarmUpdate()
 {
     alarmActivationUpdate();
     alarmDeactivationUpdate();
-    pcSerialCommunicationCommandUpdate();
-    eventLogUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
 }
 
 bool alarmGasDetectorReadState()
@@ -547,7 +555,7 @@ static void commandEnterNewCode()
 {
     char newCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
 
-    uartUsb.printf( "Please enter the new four digits numeric code" );
+    uartUsb.printf( "Please enter the new four digits numeric code\r\n" );
 
     for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
         newCodeSequence[i] = uartUsb.getc();
