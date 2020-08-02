@@ -304,7 +304,6 @@ void alarmActivationUpdate()
 
 bool startSaveMatrixKeypadCode     = true;
 bool matrixKeypadCodeCompleteSaved = false;
-bool waitForPressHash              = false;
 bool waitForDoublePressHash        = false;
 int matrixKeypadCodeIndex          = 0;
 char alarmCodeFromMatrixKeypadBuffer[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
@@ -318,16 +317,19 @@ char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0
 
 bool alarmCodeFromMatrixKeypadMatch()
 {
-    bool codeIsIncorrect = false;    
+    bool codeIsCorrect = false;    
     if( matrixKeypadCodeCompleteSaved ) {
         matrixKeypadCodeCompleteSaved = false;
-        codeIsIncorrect = alarmCodeMatch(alarmCodeFromMatrixKeypadBuffer);
-        if( codeIsIncorrect ) {
+        codeIsCorrect = alarmCodeMatch(alarmCodeFromMatrixKeypadBuffer);
+        if( codeIsCorrect ) {
+            uartUsb.printf( "Code is correct!!\r\n" );
+        } else {
+            uartUsb.printf( "Code is incorrect.\r\n" );
             numberOfIncorrectCodes++;
             waitForDoublePressHash = true;
         }
     }
-    return codeIsIncorrect;
+    return codeIsCorrect;
 }
 
 
@@ -353,37 +355,31 @@ void alarmCodeMatrixKeypadUpdate()
 
     if( keyReleased != '\0' ) {
         uartUsb.printf( "%c\r\n", keyReleased );
-        
+
         if( startSaveMatrixKeypadCode ){
             uartUsb.printf( "startSaveMatrixKeypadCode\r\n" );
-            if( keyReleased != '#' ) {
+            if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
+                uartUsb.printf( "Wait for press hash...\r\n" );
+                if( keyReleased == '#' ) {
+                    uartUsb.printf( "Hash presed.\r\n" );
+                    matrixKeypadCodeIndex = 0;
+                    startSaveMatrixKeypadCode = false;
+                    matrixKeypadCodeCompleteSaved = true;
+                }
+            } else {
                 alarmCodeFromMatrixKeypadBuffer[matrixKeypadCodeIndex] = 
                     keyReleased;
                 uartUsb.printf( "  %d\r\n", matrixKeypadCodeIndex );
                 matrixKeypadCodeIndex++;
-                if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
-                    startSaveMatrixKeypadCode = false;
-                    matrixKeypadCodeIndex = 0;
-                    waitForPressHash = true;                  
-                }
-            }
-        }
-
-        if( waitForPressHash ){
-            uartUsb.printf( "waitForPressHash\r\n" );
-            if( keyReleased == '#' ) {
-                waitForPressHash = false;
-                matrixKeypadCodeCompleteSaved = true;
             }
         }
 
         if( waitForDoublePressHash ){
-            uartUsb.printf( "waitForDoublePressHash\r\n" );
+            uartUsb.printf( ">> Wait for Double Press Hash\r\n" );
             if( keyReleased == '#' ) {
                 numberOfHaskKeyReleased++;
                 if( numberOfHaskKeyReleased >= 2 ) {
                     numberOfHaskKeyReleased = 0;
-                    numberOfIncorrectCodes = 0;
                     waitForDoublePressHash = false;
                     startSaveMatrixKeypadCode = true;
                 }
