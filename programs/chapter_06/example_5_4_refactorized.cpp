@@ -62,7 +62,6 @@ bool gasDetectorState      = OFF;
 bool overTempDetectorState = OFF;
 bool alarmState            = OFF;
 bool systemBlockedState    = OFF;
-bool incorrectCodeState    = OFF;
 int numberOfIncorrectCodes = 0;
 char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 
@@ -100,12 +99,13 @@ void alarmDeactivate();
 void alarmCodeWrite( char* newCodeSequence );
 bool alarmCodeMatch( char* codeToCompare );
 bool alarmCodeFromMatrixKeypadMatch();
-bool alarmCodePcCommunicationMatch();
+bool alarmCodePcSerialCommunicationMatch();
 
 void smarphoneBleCommunicationWrite( const char* str );
 
 void pcSerialCommunicationWrite( const char* str );
 void pcSerialCommunicationCommandUpdate();
+bool pcSerialCommunicationCodeMatch();
 void availableCommands();
 void commandShowCurrentAlarmState();
 void commandShowCurrentGasDetectorState();
@@ -166,7 +166,9 @@ void smartHomeSystemInit()
 
 void smartHomeSystemUpdate()
 {
-    alarmUpdate();
+    alarmUpdate();    
+    incorrectCodeLedUpdate();
+    systemBlockedLedUpdate();
     pcSerialCommunicationCommandUpdate();
     eventLogUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
@@ -185,6 +187,7 @@ void alarmUpdate()
 {
     alarmActivationUpdate();
     alarmDeactivationUpdate();
+    alarmLedUpdate();
 }
 
 bool alarmGasDetectorReadState()
@@ -204,7 +207,7 @@ bool alarmReadState()
 
 bool alarmIncorrectCodeReadState()
 {
-    return incorrectCodeState;
+    return numberOfIncorrectCodes > 0;
 }
 
 bool alarmSystemBlockedReadState()
@@ -222,7 +225,6 @@ void alarmCodeWrite( char* newCodeSequence )
 bool alarmCodeMatch( char* codeToCompare )
 {
     int i;
-
     for (i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
         if ( codeSequence[i] != codeToCompare[i] ) {
             return false;
@@ -233,9 +235,10 @@ bool alarmCodeMatch( char* codeToCompare )
 
 void alarmDeactivate()
 {
-    alarmState            = OFF;
-    systemBlockedState    = OFF;
-    incorrectCodeState    = OFF;
+    alarmState             = OFF;
+    overTempDetected       = OFF;
+    gasDetected            = OFF;
+    systemBlockedState     = OFF;
     numberOfIncorrectCodes = 0;
 }
 
@@ -268,7 +271,7 @@ void alarmLedUpdate()
 
 void incorrectCodeLedUpdate()
 {
-    incorrectCodeLed = incorrectCodeState;
+    incorrectCodeLed = alarmIncorrectCodeReadState();
 }
 
 void systemBlockedLedUpdate()
@@ -281,86 +284,101 @@ void alarmActivationUpdate()
     temperatureSensorUpdate();
     gasSensorUpdate();
 
-    overTempDetectorState = temperatureSensorReadCelsius() > 
-                            ALARM_OVER_TEMP_LEVEL_CELSIUS;
+    //overTempDetectorState = temperatureSensorReadCelsius() > 
+    //                        ALARM_OVER_TEMP_LEVEL_CELSIUS;
+
     if ( overTempDetectorState ) {
         overTempDetected = ON;
         alarmState = ON;
     }
 
-    gasDetectorState = gasSensorRead() > ALARM_GAS_LEVEL;                         
+    gasDetectorState = gasSensorRead() > ALARM_GAS_LEVEL;
+
     if ( gasDetectorState ) {
         gasDetected = ON;
         alarmState = ON;
     }
-
-    if( alarmState == OFF ) {
-        overTempDetected = OFF;
-        gasDetected = OFF;
-    }
-
-    alarmLedUpdate();
 }
 
-char buttonsPressed[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+bool startSaveMatrixKeypadCode     = false;
+bool matrixKeypadCodeCompleteSaved = false;
+bool waitForDoublePressHash        = false;
+int matrixKeypadCodeIndex          = 0;
+char alarmCodeFromMatrixKeypadBuffer[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+
+int pcSerialCommunicationCodeIndex = 0;
+char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+
+
+
+
 
 bool alarmCodeFromMatrixKeypadMatch()
-{      
-    return alarmCodeMatch(buttonsPressed);
+{
+    bool codeIsIncorrect = false;    
+    if( matrixKeypadCodeCompleteSaved ) {
+        matrixKeypadCodeCompleteSaved = false;
+        codeIsIncorrect = alarmCodeMatch(alarmCodeFromMatrixKeypadBuffer);
+        if( codeIsIncorrect ) {
+            numberOfIncorrectCodes++;
+        }
+    } else{
+        startSaveMatrixKeypadCode = true;
+    }
+    return codeIsIncorrect;
+}
+
+
+
+
+void alarmDeactivationUpdate()
+{
+    if ( numberOfIncorrectCodes >= 5 ) {
+        systemBlockedState = ON;
+    }
+    if ( alarmState ) {
+        if ( alarmCodeFromMatrixKeypadMatch() ||
+             alarmCodePcSerialCommunicationMatch() ) {
+            alarmDeactivate();
+        }
+    }
 }
 
 void alarmCodeMatrixKeypadUpdate()
 {
-    static int matrixKeypadCodeIndex = 0;
-    static int numberOfEnterButtonReleased = 0;
+    static int numberOfHaskKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
 
-    if( keyReleased != '\0' && keyReleased != '#' ) {
-        buttonsPressed[matrixKeypadCodeIndex] = keyReleased;
-        if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
-            matrixKeypadCodeIndex = 0;
-        } else {
-            matrixKeypadCodeIndex++;
-        }
-    }
-
-    if( keyReleased == '#' ) {
-        if( incorrectCodeState ) {
-            numberOfEnterButtonReleased++;
-            if( numberOfEnterButtonReleased >= 2 ) {
-                numberOfEnterButtonReleased = 0;
-                matrixKeypadCodeIndex = 0;
-                incorrectCodeState = OFF;
+    if( keyReleased != '\0' ) {
+        
+        if( startSaveMatrixKeypadCode ){            
+            if( keyReleased != '#' ) {
+                alarmCodeFromMatrixKeypadBuffer[matrixKeypadCodeIndex] = keyReleased;
+                if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
+                    waitForDoublePressHash = true;
+                    startSaveMatrixKeypadCode = false;
+                    matrixKeypadCodeIndex = 0;
+                }
+                matrixKeypadCodeIndex++;
             }
-        } else{
-            
+        }
+
+        if( waitForDoublePressHash ){   
+            if( keyReleased == '#' ) {
+                numberOfHaskKeyReleased++;
+                if( numberOfHaskKeyReleased >= 2 ) {
+                    numberOfHaskKeyReleased = 0;
+                    waitForDoublePressHash = false;
+                    matrixKeypadCodeCompleteSaved = true;
+                }
+            }
         }
     }
 }
 
-bool alarmCodePcCommunicationMatch()
+bool alarmCodePcSerialCommunicationMatch()
 {
-    rerurn true;
-}
-
-void alarmDeactivationUpdate()
-{
-    if ( alarmCodeFromMatrixKeypadMatch() ) {
-        alarmDeactivate();
-    } else {
-        incorrectCodeState = ON;
-        numberOfIncorrectCodes++;
-    }
-    if ( numberOfIncorrectCodes >= 5 ) {
-        systemBlockedState = ON;
-    }
-
-    if ( alarmCodePcCommunicationMatch() ) {
-        alarmDeactivate();
-    }
-
-    incorrectCodeLedUpdate();
-    systemBlockedLedUpdate();
+    return pcSerialCommunicationCodeMatch();
 }
 
 char* dateAndTimeReadString()
@@ -480,6 +498,11 @@ void pcSerialCommunicationCommandUpdate()
             default: availableCommands(); break;
         }
     }
+}
+
+bool pcSerialCommunicationCodeMatch()
+{
+    return false;
 }
 
 void availableCommands()
