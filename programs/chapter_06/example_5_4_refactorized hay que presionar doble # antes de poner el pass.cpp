@@ -66,13 +66,6 @@ bool systemBlockedState    = OFF;
 int numberOfIncorrectCodes = 0;
 char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 
-bool matrixKeypadCodeCompleteSaved = false;
-int matrixKeypadCodeIndex          = 0;
-char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
-
-int pcSerialCommunicationCodeIndex = 0;
-char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
-
 float lm35TempC = 0.0;
 float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
 
@@ -250,8 +243,7 @@ void alarmDeactivate()
     gasDetected            = OFF;
     systemBlockedState     = OFF;
     incorrectCodeState     = OFF;
-    numberOfIncorrectCodes = 0;    
-    matrixKeypadCodeIndex  = 0;
+    numberOfIncorrectCodes = 0;
 }
 
 void alarmLedUpdate()
@@ -312,7 +304,13 @@ void alarmActivationUpdate()
     }
 }
 
+bool saveMatrixKeypadCode          = false;
+bool matrixKeypadCodeCompleteSaved = false;
+int matrixKeypadCodeIndex          = 0;
+char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
+int pcSerialCommunicationCodeIndex = 0;
+char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
 bool alarmCodeFromMatrixKeypadMatch()
 {
@@ -348,35 +346,30 @@ void alarmCodeMatrixKeypadUpdate()
 {
     static int numberOfHaskKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
-    
-    // Se me ocurrio que sea una sola funcion esta y la de uart que segun 
-    // un parametro revise caracteres de una o la otra
 
     if( keyReleased != '\0' ) {
         uartUsb.printf( "%c\r\n", keyReleased );
 
-        if( alarmState ) {
-
-            if( keyReleased == '#' ) {
-                numberOfHaskKeyReleased++;
-                if( numberOfHaskKeyReleased >= 2 ) {
-                    uartUsb.printf( "Double Press Hash: keypad code reset\r\n" );
-                    numberOfHaskKeyReleased = 0;
-                    matrixKeypadCodeIndex = 0;
-                    incorrectCodeState = OFF;
-                }
-                return;
+        if( keyReleased == '#' ) {
+            numberOfHaskKeyReleased++;
+            if( numberOfHaskKeyReleased >= 2 ) {
+                uartUsb.printf( "Double Press Hash: keypad code reset\r\n" );
+                numberOfHaskKeyReleased = 0;
+                saveMatrixKeypadCode = true;
+                matrixKeypadCodeIndex = 0;
+                incorrectCodeState = OFF;
             }
+            return;
+        }
 
-            if( matrixKeypadCodeIndex < ALARM_CODE_NUMBER_OF_KEYS ) {
-                uartUsb.printf( "Start save matrix keypad code\r\n" ); 
-                alarmCodeFromMatrixKeypad[matrixKeypadCodeIndex] = keyReleased;
-                uartUsb.printf( "  index: %d\r\n", matrixKeypadCodeIndex );
-                matrixKeypadCodeIndex++;      
-            } else {
-                if( !incorrectCodeState ) {
-                    matrixKeypadCodeCompleteSaved = true;                    
-                }
+        if( saveMatrixKeypadCode ){
+            uartUsb.printf( "Start save matrix keypad code\r\n" ); 
+            alarmCodeFromMatrixKeypad[matrixKeypadCodeIndex] = keyReleased;
+            uartUsb.printf( "  index: %d\r\n", matrixKeypadCodeIndex );
+            matrixKeypadCodeIndex++;
+            if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
+                saveMatrixKeypadCode = false;
+                matrixKeypadCodeCompleteSaved = true;          
             }
         }
     }

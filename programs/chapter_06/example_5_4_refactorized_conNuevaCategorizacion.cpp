@@ -6,6 +6,10 @@
 //=====[Constants]=============================================================
 
 #define ALARM_CODE_NUMBER_OF_KEYS                4
+#define SYSTEM_TIME_INCREMENT_MS                10
+
+
+
 #define ALARM_BLINKING_TIME_GAS               1000
 #define ALARM_BLINKING_TIME_OVER_TEMP          500
 #define ALARM_BLINKING_TIME_GAS_AND_OVER_TEMP  100
@@ -15,7 +19,6 @@
 #define LM35_SAMPLE_TIME                       100
 #define LM35_NUMBER_OF_AVG_SAMPLES              10
 
-#define SYSTEM_TIME_INCREMENT_MS                10
 
 #define MATRIX_KEYPAD_NUMBER_OF_ROWS             4
 #define MATRIX_KEYPAD_NUMBER_OF_COLS             4
@@ -66,13 +69,6 @@ bool systemBlockedState    = OFF;
 int numberOfIncorrectCodes = 0;
 char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 
-bool matrixKeypadCodeCompleteSaved = false;
-int matrixKeypadCodeIndex          = 0;
-char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
-
-int pcSerialCommunicationCodeIndex = 0;
-char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
-
 float lm35TempC = 0.0;
 float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
 
@@ -88,30 +84,43 @@ systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+// Smart home system ----------------------------------
+
 void smartHomeSystemInit();
 void smartHomeSystemUpdate();
+void alarmDeactivationUpdate();
+void alarmDeactivate();
+void alarmActivationUpdate();
 
-void alarmInit();
+
+// Sub-systems ----------------------------------
+
+// Intruder Detection
+
+// Fire Detection
+void fireDetectionInit();
 void alarmUpdate();
 bool alarmGasDetectorReadState();
 bool alarmOverTempDetectorReadState();
-bool alarmReadState();
-bool alarmIncorrectCodeReadState();
-bool alarmSystemBlockedReadState();
-void alarmLedUpdate();
-void incorrectCodeLedUpdate();
-void systemBlockedLedUpdate();
-void alarmActivationUpdate();
-void alarmDeactivationUpdate();
-void alarmDeactivate();
+
+// User Interface
+void userInterfaceInit();
 void alarmCodeWrite( char* newCodeSequence );
 bool alarmCodeMatch( char* codeToCompare );
 bool alarmCodeFromMatrixKeypadMatch();
 void alarmCodeMatrixKeypadUpdate();
-bool alarmCodePcSerialCommunicationMatch();
+bool alarmIncorrectCodeReadState();
+bool alarmSystemBlockedReadState();
+void incorrectCodeLedUpdate();
+void systemBlockedLedUpdate();
 
+// Communications
+
+//    Smartphone BLE
 void smarphoneBleCommunicationWrite( const char* str );
 
+//    PC Serial
+bool alarmCodePcSerialCommunicationMatch();
 void pcSerialCommunicationWrite( const char* str );
 void pcSerialCommunicationCommandUpdate();
 bool pcSerialCommunicationCodeMatch();
@@ -127,6 +136,8 @@ void commandShowDateAndTime();
 void commandShowStoredEvents();
 void commandEnterCodeSequence();
 
+// Event Log
+
 void eventLogUpdate();
 int eventLogNumberOfStoredEvents();
 void eventLogReadStriangAtIndex( int index, char* str );
@@ -135,13 +146,21 @@ void eventLogElementStateUpdate( bool lastState,
                                  bool currentState,
                                  const char* elementName );
 
-char* dateAndTimeReadString();
-void dateAndTimeWriteIndividualValues( int year, int month, int day, 
-                                       int hour, int minute, int second );
+
+
+// Drivers ----------------------------------
+
+// Alarm
+bool alarmReadState();
+void alarmLedUpdate();
+
+// Driver Gas
 
 void gasSensorInit( void );
 void gasSensorUpdate( void );
 float gasSensorRead();
+
+// Driver Temperature
 
 void temperatureSensorInit( void );
 void temperatureSensorUpdate( void );
@@ -151,9 +170,19 @@ float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
 void shiftLm35AvgReadingsArray();
 
+// Driver Matrix Keypad
+
 void matrixKeypadInit();
 char matrixKeypadScan();
 char matrixKeypadUpdate();
+
+
+// Driver Date and time
+
+char* dateAndTimeReadString();
+void dateAndTimeWriteIndividualValues( int year, int month, int day, 
+                                       int hour, int minute, int second );
+
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -169,8 +198,9 @@ int main()
 
 void smartHomeSystemInit()
 {
-    alarmInit();
-    matrixKeypadInit();
+    alarmLed = OFF;
+    fireDetectionInit();
+    userInterfaceInit();
 }
 
 void smartHomeSystemUpdate()
@@ -183,11 +213,15 @@ void smartHomeSystemUpdate()
     delay(SYSTEM_TIME_INCREMENT_MS);
 }
 
-void alarmInit()
+void userInterfaceInit()
 {
-    alarmLed = OFF;
     incorrectCodeLed = OFF;
     systemBlockedLed = OFF;
+    matrixKeypadInit();
+}
+
+void fireDetectionInit()
+{
     gasSensorInit();
     temperatureSensorInit();
 }
@@ -250,8 +284,7 @@ void alarmDeactivate()
     gasDetected            = OFF;
     systemBlockedState     = OFF;
     incorrectCodeState     = OFF;
-    numberOfIncorrectCodes = 0;    
-    matrixKeypadCodeIndex  = 0;
+    numberOfIncorrectCodes = 0;
 }
 
 void alarmLedUpdate()
@@ -312,7 +345,13 @@ void alarmActivationUpdate()
     }
 }
 
+bool saveMatrixKeypadCode     = false;
+bool matrixKeypadCodeCompleteSaved = false;
+int matrixKeypadCodeIndex          = 0;
+char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
+int pcSerialCommunicationCodeIndex = 0;
+char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
 bool alarmCodeFromMatrixKeypadMatch()
 {
@@ -346,39 +385,36 @@ void alarmDeactivationUpdate()
 
 void alarmCodeMatrixKeypadUpdate()
 {
-    static int numberOfHaskKeyReleased = 0;
+    static int numberOfHashKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
-    
-    // Se me ocurrio que sea una sola funcion esta y la de uart que segun 
-    // un parametro revise caracteres de una o la otra
 
     if( keyReleased != '\0' ) {
         uartUsb.printf( "%c\r\n", keyReleased );
 
         if( alarmState ) {
-
             if( keyReleased == '#' ) {
-                numberOfHaskKeyReleased++;
-                if( numberOfHaskKeyReleased >= 2 ) {
+                numberOfHashKeyReleased++;
+                if( numberOfHashKeyReleased >= 2) {
                     uartUsb.printf( "Double Press Hash: keypad code reset\r\n" );
-                    numberOfHaskKeyReleased = 0;
+                    numberOfHashKeyReleased = 0;
+                    saveMatrixKeypadCode = true;
                     matrixKeypadCodeIndex = 0;
                     incorrectCodeState = OFF;
                 }
                 return;
             }
-
-            if( matrixKeypadCodeIndex < ALARM_CODE_NUMBER_OF_KEYS ) {
+            if( saveMatrixKeypadCode ){
                 uartUsb.printf( "Start save matrix keypad code\r\n" ); 
                 alarmCodeFromMatrixKeypad[matrixKeypadCodeIndex] = keyReleased;
                 uartUsb.printf( "  index: %d\r\n", matrixKeypadCodeIndex );
-                matrixKeypadCodeIndex++;      
-            } else {
-                if( !incorrectCodeState ) {
-                    matrixKeypadCodeCompleteSaved = true;                    
+                matrixKeypadCodeIndex++;
+                if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
+                    saveMatrixKeypadCode = false;
+                    matrixKeypadCodeCompleteSaved = true;          
                 }
             }
         }
+
     }
 }
 
