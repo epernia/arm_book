@@ -96,19 +96,24 @@ void alarmUpdate();
 bool alarmGasDetectorReadState();
 bool alarmOverTempDetectorReadState();
 bool alarmReadState();
-bool alarmIncorrectCodeReadState();
-bool alarmSystemBlockedReadState();
 void alarmLedUpdate();
-void incorrectCodeLedUpdate();
-void systemBlockedLedUpdate();
 void alarmActivationUpdate();
 void alarmDeactivationUpdate();
 void alarmDeactivate();
+
 void alarmCodeWrite( char* newCodeSequence );
 bool alarmCodeMatch( char* codeToCompare );
 bool alarmCodeFromMatrixKeypadMatch();
-void alarmCodeMatrixKeypadUpdate();
 bool alarmCodePcSerialCommunicationMatch();
+
+bool incorrectCodeStateRead();
+void incorrectCodeStateWrite( bool state );
+void incorrectCodeLedUpdate();
+bool systemBlockedStateRead();
+void systemBlockedStateWrite( bool state );
+void systemBlockedLedUpdate();
+void userInterfaceUpdate();
+void userInterfaceMatrixKeypadUpdate();
 
 void smarphoneBleCommunicationWrite( const char* str );
 
@@ -175,9 +180,8 @@ void smartHomeSystemInit()
 
 void smartHomeSystemUpdate()
 {
-    alarmUpdate();    
-    incorrectCodeLedUpdate();
-    systemBlockedLedUpdate();
+    alarmUpdate();
+    userInterfaceUpdate();
     pcSerialCommunicationCommandUpdate();
     eventLogUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
@@ -197,7 +201,6 @@ void alarmUpdate()
     alarmActivationUpdate();
     alarmDeactivationUpdate();
     alarmLedUpdate();
-    alarmCodeMatrixKeypadUpdate();
 }
 
 bool alarmGasDetectorReadState()
@@ -215,12 +218,12 @@ bool alarmReadState()
     return alarmState;
 }
 
-bool alarmIncorrectCodeReadState()
+bool incorrectCodeStateRead()
 {
     return incorrectCodeState;
 }
 
-bool alarmSystemBlockedReadState()
+bool systemBlockedStateRead()
 {
     return systemBlockedState;
 }
@@ -250,7 +253,7 @@ void alarmDeactivate()
     gasDetected            = OFF;
     systemBlockedState     = OFF;
     incorrectCodeState     = OFF;
-    numberOfIncorrectCodes = 0;    
+    numberOfIncorrectCodes = 0;
     matrixKeypadCodeIndex  = 0;
 }
 
@@ -283,7 +286,7 @@ void alarmLedUpdate()
 
 void incorrectCodeLedUpdate()
 {
-    incorrectCodeLed = alarmIncorrectCodeReadState();
+    incorrectCodeLed = incorrectCodeStateRead();
 }
 
 void systemBlockedLedUpdate()
@@ -344,7 +347,14 @@ void alarmDeactivationUpdate()
     }
 }
 
-void alarmCodeMatrixKeypadUpdate()
+void userInterfaceUpdate()
+{
+	userInterfaceMatrixKeypadUpdate();
+    incorrectCodeLedUpdate();
+    systemBlockedLedUpdate();
+}
+
+void userInterfaceMatrixKeypadUpdate()
 {
     static int numberOfHaskKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
@@ -670,11 +680,11 @@ void eventLogUpdate()
     eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
     tempLastState = currentState;
 
-    currentState = alarmIncorrectCodeReadState();
+    currentState = incorrectCodeStateRead();
     eventLogElementStateUpdate( ICLastState, currentState, "LED_IC" );
     ICLastState = currentState;
 
-    currentState = alarmSystemBlockedReadState();
+    currentState = systemBlockedStateRead();
     eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
     SBLastState = currentState;
 }
