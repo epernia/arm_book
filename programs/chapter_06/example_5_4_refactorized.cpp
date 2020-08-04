@@ -95,7 +95,6 @@ systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 void smartHomeSystemInit();
 void smartHomeSystemUpdate();
 
-
 void fireAlarmInit();
 void fireAlarmUpdate();
 void fireAlarmActivationUpdate();
