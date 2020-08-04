@@ -68,14 +68,14 @@ bool incorrectCodeState    = OFF;
 bool systemBlockedState    = OFF;
 
 int numberOfIncorrectCodes = 0;
-char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
+char codeSequence[CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 
 bool matrixKeypadCodeCompleteSaved = false;
 int matrixKeypadCodeIndex          = 0;
-char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+char alarmCodeFromMatrixKeypad[CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
 int pcSerialComCodeIndex = 0;
-char alarmCodeFromPcSerialCom[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+char alarmCodeFromPcSerialCom[CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
 float lm35TempC = 0.0;
 float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
@@ -109,7 +109,7 @@ bool sirenStateRead();
 void sirenStateWrite( bool state );
 void sirenIndicatorUpdate();
 
-
+void userInterfaceInit();
 void userInterfaceUpdate();
 void userInterfaceMatrixKeypadUpdate();
 
@@ -233,6 +233,7 @@ bool overTempDetectorStateRead()
 }
 
 
+
 void sirenInit()
 {
     alarmLed = OFF;
@@ -241,6 +242,38 @@ void sirenInit()
 bool sirenStateRead()
 {
     return sirenState;
+}
+
+void sirenStateWrite( bool state )
+{
+    sirenState = state;
+}
+
+void sirenIndicatorUpdate()
+{
+    static int accumulatedTimeAlarm = 0;
+    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
+    
+    if( sirenState ) {
+        if( gasDetected && overTempDetected ) {
+            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
+                accumulatedTimeAlarm = 0;
+                alarmLed = !alarmLed;
+            }
+        } else if( gasDetected ) {
+            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS ) {
+                accumulatedTimeAlarm = 0;
+                alarmLed = !alarmLed;
+            }
+        } else if ( overTempDetected ) {
+            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_OVER_TEMP  ) {
+                accumulatedTimeAlarm = 0;
+                alarmLed = !alarmLed;
+            }
+        }
+    } else {
+        alarmLed = OFF;
+    }
 }
 
 bool incorrectCodeStateRead()
@@ -275,7 +308,7 @@ void systemBlockedIndicatorUpdate()
 
 void codeWrite( char* newCodeSequence )
 {
-    for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
+    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         codeSequence[i] = newCodeSequence[i];
     }
 }
@@ -283,7 +316,7 @@ void codeWrite( char* newCodeSequence )
 bool codeMatch( char* codeToCompare )
 {
     int i;
-    for (i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
+    for (i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         if ( codeSequence[i] != codeToCompare[i] ) {
             return false;
         }
@@ -301,33 +334,6 @@ void fireAlarmDeactivate()
     incorrectCodeState     = OFF;
     numberOfIncorrectCodes = 0;
     matrixKeypadCodeIndex  = 0;
-}
-
-void sirenIndicatorUpdate()
-{
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
-    if( sirenState ) {
-        if( gasDetected && overTempDetected ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        } else if( gasDetected ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        } else if ( overTempDetected ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_OVER_TEMP  ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        }
-    } else {
-        alarmLed = OFF;
-    }
 }
 
 void fireAlarmActivationUpdate()
@@ -350,8 +356,6 @@ void fireAlarmActivationUpdate()
         sirenStateWrite(ON);
     }
 }
-
-
 
 bool codeFromMatrixKeypadMatch()
 {
@@ -377,7 +381,7 @@ void fireAlarmDeactivationUpdate()
             systemBlockedState = ON;
         }
         if ( codeFromMatrixKeypadMatch() ||
-             alarmcodeFromPcSerialComMatch() ) {
+            codeFromPcSerialComMatch() ) {
             fireAlarmDeactivate();
         }
     }
@@ -414,7 +418,7 @@ void userInterfaceMatrixKeypadUpdate()
                 return;
             }
 
-            if( matrixKeypadCodeIndex < ALARM_CODE_NUMBER_OF_KEYS ) {
+            if( matrixKeypadCodeIndex < CODE_NUMBER_OF_KEYS ) {
                 uartUsb.printf( "Start save matrix keypad code\r\n" ); 
                 alarmCodeFromMatrixKeypad[matrixKeypadCodeIndex] = keyReleased;
                 uartUsb.printf( "  index: %d\r\n", matrixKeypadCodeIndex );
@@ -428,7 +432,7 @@ void userInterfaceMatrixKeypadUpdate()
     }
 }
 
-bool alarmcodeFromPcSerialComMatch()
+bool codeFromPcSerialComMatch()
 {
     return pcSerialComCodeMatch();
 }
@@ -610,12 +614,12 @@ void commandShowCurrentOverTempDetectorState()
 
 void commandEnterCodeSequence()
 {
-    char receivedCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
+    char receivedCodeSequence[CODE_NUMBER_OF_KEYS];
     
     uartUsb.printf( "Please enter the new four digits numeric code " );
     uartUsb.printf( "to deactivate the alarm.\r\n" );
 
-    for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
+    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         receivedCodeSequence[i] = uartUsb.getc();
         uartUsb.printf( "*" );
     }
@@ -629,11 +633,11 @@ void commandEnterCodeSequence()
 
 void commandEnterNewCode()
 {
-    char newCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
+    char newCodeSequence[CODE_NUMBER_OF_KEYS];
 
     uartUsb.printf( "Please enter the new four digits numeric code\r\n" );
 
-    for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
+    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         newCodeSequence[i] = uartUsb.getc();
         uartUsb.printf( "*" );
     }
