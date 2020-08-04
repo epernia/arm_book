@@ -56,13 +56,22 @@ DigitalIn keypadColPins[MATRIX_KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of public global variables]=============
 
+bool gasDetected           = OFF;
+bool overTempDetected      = OFF;
 bool gasDetectorState      = OFF;
 bool overTempDetectorState = OFF;
 bool alarmState            = OFF;
-bool incorrectCodeState    = false;
-bool systemBlockedState    = false;
+bool incorrectCodeState    = OFF;
+bool systemBlockedState    = OFF;
 int numberOfIncorrectCodes = 0;
 char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
+
+bool matrixKeypadCodeCompleteSaved = false;
+int matrixKeypadCodeIndex          = 0;
+char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+
+int pcSerialCommunicationCodeIndex = 0;
+char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
 
 float lm35TempC = 0.0;
 float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
@@ -79,30 +88,38 @@ systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+void smartHomeSystemInit();
+void smartHomeSystemUpdate();
+
 void alarmInit();
 void alarmUpdate();
-
 bool alarmGasDetectorReadState();
 bool alarmOverTempDetectorReadState();
 bool alarmReadState();
-bool alarmIncorrectCodeReadState();
-bool alarmSystemBlockedReadState();
+void alarmLedUpdate();
+void alarmActivationUpdate();
+void alarmDeactivationUpdate();
+void alarmDeactivate();
 
 void alarmCodeWrite( char* newCodeSequence );
 bool alarmCodeMatch( char* codeToCompare );
+bool alarmCodeFromMatrixKeypadMatch();
+bool alarmCodePcSerialCommunicationMatch();
 
-void alarmLedUpdate();
+bool incorrectCodeStateRead();
+void incorrectCodeStateWrite( bool state );
 void incorrectCodeLedUpdate();
+bool systemBlockedStateRead();
+void systemBlockedStateWrite( bool state );
 void systemBlockedLedUpdate();
-
-void alarmActivationUpdate();
-void alarmDeactivationUpdate();
-void alarmCodeCheckFromMatrixKeypad();
+void userInterfaceUpdate();
+void userInterfaceMatrixKeypadUpdate();
 
 void smarphoneBleCommunicationWrite( const char* str );
 
 void pcSerialCommunicationWrite( const char* str );
 void pcSerialCommunicationCommandUpdate();
+bool pcSerialCommunicationCodeMatch();
 void availableCommands();
 void commandShowCurrentAlarmState();
 void commandShowCurrentGasDetectorState();
@@ -147,13 +164,28 @@ char matrixKeypadUpdate();
 
 int main()
 {
-    alarmInit();    
+    smartHomeSystemInit();
     while (true) {
-        alarmUpdate();
+        smartHomeSystemUpdate();
     }
 }
 
 //=====[Implementations of public functions]===================================
+
+void smartHomeSystemInit()
+{
+    alarmInit();
+    matrixKeypadInit();
+}
+
+void smartHomeSystemUpdate()
+{
+    alarmUpdate();
+    userInterfaceUpdate();
+    pcSerialCommunicationCommandUpdate();
+    eventLogUpdate();
+    delay(SYSTEM_TIME_INCREMENT_MS);
+}
 
 void alarmInit()
 {
@@ -162,16 +194,13 @@ void alarmInit()
     systemBlockedLed = OFF;
     gasSensorInit();
     temperatureSensorInit();
-    matrixKeypadInit();
 }
 
 void alarmUpdate()
 {
     alarmActivationUpdate();
     alarmDeactivationUpdate();
-    pcSerialCommunicationCommandUpdate();
-    eventLogUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    alarmLedUpdate();
 }
 
 bool alarmGasDetectorReadState()
@@ -189,12 +218,12 @@ bool alarmReadState()
     return alarmState;
 }
 
-bool alarmIncorrectCodeReadState()
+bool incorrectCodeStateRead()
 {
     return incorrectCodeState;
 }
 
-bool alarmSystemBlockedReadState()
+bool systemBlockedStateRead()
 {
     return systemBlockedState;
 }
@@ -209,19 +238,23 @@ void alarmCodeWrite( char* newCodeSequence )
 bool alarmCodeMatch( char* codeToCompare )
 {
     int i;
-
     for (i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
         if ( codeSequence[i] != codeToCompare[i] ) {
-            incorrectCodeState = true;
-            numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
             return false;
         }
     }
-
-    incorrectCodeState = false;
-    alarmState = OFF;
-    numberOfIncorrectCodes = 0;
     return true;
+}
+
+void alarmDeactivate()
+{
+    alarmState             = OFF;
+    overTempDetected       = OFF;
+    gasDetected            = OFF;
+    systemBlockedState     = OFF;
+    incorrectCodeState     = OFF;
+    numberOfIncorrectCodes = 0;
+    matrixKeypadCodeIndex  = 0;
 }
 
 void alarmLedUpdate()
@@ -230,17 +263,17 @@ void alarmLedUpdate()
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( alarmState ) {
-        if( gasDetectorState && overTempDetectorState ) {
+        if( gasDetected && overTempDetected ) {
             if( accumulatedTimeAlarm >= ALARM_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
-        } else if( gasDetectorState ) {
+        } else if( gasDetected ) {
             if( accumulatedTimeAlarm >= ALARM_BLINKING_TIME_GAS ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
-        } else if ( overTempDetectorState ) {
+        } else if ( overTempDetected ) {
             if( accumulatedTimeAlarm >= ALARM_BLINKING_TIME_OVER_TEMP  ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
@@ -253,7 +286,7 @@ void alarmLedUpdate()
 
 void incorrectCodeLedUpdate()
 {
-    incorrectCodeLed = incorrectCodeState;
+    incorrectCodeLed = incorrectCodeStateRead();
 }
 
 void systemBlockedLedUpdate()
@@ -264,67 +297,104 @@ void systemBlockedLedUpdate()
 void alarmActivationUpdate()
 {
     temperatureSensorUpdate();
-    if ( temperatureSensorReadCelsius() > ALARM_OVER_TEMP_LEVEL_CELSIUS ) {
-        overTempDetectorState = ON;
-        alarmState = ON;
-    }
-
     gasSensorUpdate();
-    if ( gasSensorRead() > ALARM_GAS_LEVEL ) {
-        gasDetectorState = ON;
+
+    //overTempDetectorState = temperatureSensorReadCelsius() > 
+    //                        ALARM_OVER_TEMP_LEVEL_CELSIUS;
+
+    if ( overTempDetectorState ) {
+        overTempDetected = ON;
         alarmState = ON;
     }
 
-    if( alarmState == OFF ) {
-        gasDetectorState = OFF;
-        overTempDetectorState = OFF;
-    }
+    gasDetectorState = gasSensorRead() > ALARM_GAS_LEVEL;
 
-    alarmLedUpdate();
+    if ( gasDetectorState ) {
+        gasDetected = ON;
+        alarmState = ON;
+    }
 }
 
-void alarmCodeCheckFromMatrixKeypad()
+
+
+bool alarmCodeFromMatrixKeypadMatch()
 {
-    static int matrixKeypadCodeIndex = 0;
-    static int numberOfEnterButtonReleased = 0;
-    static char buttonsPressed[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
-
-    char keyReleased = matrixKeypadUpdate();
-
-    if( keyReleased != '\0' && keyReleased != '#' ) {
-        buttonsPressed[matrixKeypadCodeIndex] = keyReleased;
-        if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
-            matrixKeypadCodeIndex = 0;
+    bool codeIsCorrect = false;    
+    if( matrixKeypadCodeCompleteSaved ) {
+        matrixKeypadCodeCompleteSaved = false;
+        codeIsCorrect = alarmCodeMatch(alarmCodeFromMatrixKeypad);
+        if( codeIsCorrect ) {
+            uartUsb.printf( "Code is correct!!\r\n" );
         } else {
-            matrixKeypadCodeIndex++;
+            uartUsb.printf( "Code is incorrect.\r\n" );
+            incorrectCodeState = ON;
+            numberOfIncorrectCodes++;
         }
     }
-
-    if( keyReleased == '#' ) {
-        if( incorrectCodeState ) {
-            numberOfEnterButtonReleased++;
-            if( numberOfEnterButtonReleased >= 2 ) {
-                numberOfEnterButtonReleased = 0;
-                matrixKeypadCodeIndex = 0;
-                incorrectCodeState = OFF;
-            }
-        } else {
-            if ( alarmState ) {
-                alarmCodeMatch(buttonsPressed);
-            }
-        }
-    }
+    return codeIsCorrect;
 }
 
 void alarmDeactivationUpdate()
 {
-    if ( numberOfIncorrectCodes < 5 ) {
-        alarmCodeCheckFromMatrixKeypad();
-    } else {
-        systemBlockedState = ON;
+    if ( alarmState ) {
+        if ( numberOfIncorrectCodes >= 5 ) {
+            systemBlockedState = ON;
+        }
+        if ( alarmCodeFromMatrixKeypadMatch() ||
+             alarmCodePcSerialCommunicationMatch() ) {
+            alarmDeactivate();
+        }
     }
+}
+
+void userInterfaceUpdate()
+{
+	userInterfaceMatrixKeypadUpdate();
     incorrectCodeLedUpdate();
     systemBlockedLedUpdate();
+}
+
+void userInterfaceMatrixKeypadUpdate()
+{
+    static int numberOfHaskKeyReleased = 0;
+    char keyReleased = matrixKeypadUpdate();
+    
+    // Se me ocurrio que sea una sola funcion esta y la de uart que segun 
+    // un parametro revise caracteres de una o la otra
+
+    if( keyReleased != '\0' ) {
+        uartUsb.printf( "%c\r\n", keyReleased );
+
+        if( alarmState ) {
+
+            if( keyReleased == '#' ) {
+                numberOfHaskKeyReleased++;
+                if( numberOfHaskKeyReleased >= 2 ) {
+                    uartUsb.printf( "Double Press Hash: keypad code reset\r\n" );
+                    numberOfHaskKeyReleased = 0;
+                    matrixKeypadCodeIndex = 0;
+                    incorrectCodeState = OFF;
+                }
+                return;
+            }
+
+            if( matrixKeypadCodeIndex < ALARM_CODE_NUMBER_OF_KEYS ) {
+                uartUsb.printf( "Start save matrix keypad code\r\n" ); 
+                alarmCodeFromMatrixKeypad[matrixKeypadCodeIndex] = keyReleased;
+                uartUsb.printf( "  index: %d\r\n", matrixKeypadCodeIndex );
+                matrixKeypadCodeIndex++;      
+            } else {
+                if( !incorrectCodeState ) {
+                    matrixKeypadCodeCompleteSaved = true;                    
+                }
+            }
+        }
+    }
+}
+
+bool alarmCodePcSerialCommunicationMatch()
+{
+    return pcSerialCommunicationCodeMatch();
 }
 
 char* dateAndTimeReadString()
@@ -446,6 +516,11 @@ void pcSerialCommunicationCommandUpdate()
     }
 }
 
+bool pcSerialCommunicationCodeMatch()
+{
+    return false;
+}
+
 void availableCommands()
 {
     uartUsb.printf( "Available commands:\r\n" );
@@ -512,7 +587,7 @@ void commandEnterNewCode()
 {
     char newCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
 
-    uartUsb.printf( "Please enter the new four digits numeric code" );
+    uartUsb.printf( "Please enter the new four digits numeric code\r\n" );
 
     for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
         newCodeSequence[i] = uartUsb.getc();
@@ -521,7 +596,7 @@ void commandEnterNewCode()
 
     alarmCodeWrite( newCodeSequence );
 
-    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" ); 
+    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
 }
 
 void commandShowCurrentTemperatureInCelsius()
@@ -605,11 +680,11 @@ void eventLogUpdate()
     eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
     tempLastState = currentState;
 
-    currentState = alarmIncorrectCodeReadState();
+    currentState = incorrectCodeStateRead();
     eventLogElementStateUpdate( ICLastState, currentState, "LED_IC" );
     ICLastState = currentState;
 
-    currentState = alarmSystemBlockedReadState();
+    currentState = systemBlockedStateRead();
     eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
     SBLastState = currentState;
 }

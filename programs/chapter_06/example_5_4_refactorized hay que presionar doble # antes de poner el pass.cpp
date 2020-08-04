@@ -1,37 +1,3 @@
-/*
-Modules:
---------
-
-alarm
-date_and_time    
-event_log    
-gas_sensor    
-matrix_keypad
-pc_serial_communication
-smartphone_ble_communication
-temperature_sensor
-
-Includes:
----------
-
-#include "mbed.h"
-#include "arm_book_lib.h"
-
-#include "alarm.h"
-
-#include "date_and_time.h"
-
-#include "temperature_sensor.h"
-#include "gas_sensor.h"
-
-#include "matrix_keypad.h"
-
-#include "pc_serial_communication.h"
-#include "smartphone_ble_communication.h"
-
-#include "event_log.h"
-*/
-
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
@@ -90,26 +56,28 @@ DigitalIn keypadColPins[MATRIX_KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
 //=====[Declaration and intitalization of public global variables]=============
 
-static bool gasDetectorState      = OFF;
-static bool overTempDetectorState = OFF;
-static bool alarmState            = OFF;
-static bool incorrectCodeState    = false;
-static bool systemBlockedState    = false;
-static int numberOfIncorrectCodes = 0;
-static char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
+bool gasDetected           = OFF;
+bool overTempDetected      = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
+bool alarmState            = OFF;
+bool incorrectCodeState    = OFF;
+bool systemBlockedState    = OFF;
+int numberOfIncorrectCodes = 0;
+char codeSequence[ALARM_CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 
-static float lm35TempC = 0.0;
-static float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
+float lm35TempC = 0.0;
+float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
 
-static matrixKeypadState_t matrixKeypadState;
+matrixKeypadState_t matrixKeypadState;
 
-static bool alarmLastState = OFF;
-static bool gasLastState   = OFF;
-static bool tempLastState  = OFF;
-static bool ICLastState    = OFF;
-static bool SBLastState    = OFF;
-static int eventsIndex     = 0;
-static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
+bool alarmLastState = OFF;
+bool gasLastState   = OFF;
+bool tempLastState  = OFF;
+bool ICLastState    = OFF;
+bool SBLastState    = OFF;
+int eventsIndex     = 0;
+systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -123,38 +91,42 @@ bool alarmOverTempDetectorReadState();
 bool alarmReadState();
 bool alarmIncorrectCodeReadState();
 bool alarmSystemBlockedReadState();
+void alarmLedUpdate();
+void incorrectCodeLedUpdate();
+void systemBlockedLedUpdate();
+void alarmActivationUpdate();
+void alarmDeactivationUpdate();
+void alarmDeactivate();
 void alarmCodeWrite( char* newCodeSequence );
 bool alarmCodeMatch( char* codeToCompare );
-static void alarmLedUpdate();
-static void incorrectCodeLedUpdate();
-static void systemBlockedLedUpdate();
-static void alarmActivationUpdate();
-static void alarmDeactivationUpdate();
-static void alarmCodeCheckFromMatrixKeypad();
+bool alarmCodeFromMatrixKeypadMatch();
+void alarmCodeMatrixKeypadUpdate();
+bool alarmCodePcSerialCommunicationMatch();
 
 void smarphoneBleCommunicationWrite( const char* str );
 
 void pcSerialCommunicationWrite( const char* str );
 void pcSerialCommunicationCommandUpdate();
-static void availableCommands();
-static void commandShowCurrentAlarmState();
-static void commandShowCurrentGasDetectorState();
-static void commandShowCurrentOverTempDetectorState();
-static void commandEnterNewCode();
-static void commandShowCurrentTemperatureInCelsius();
-static void commandShowCurrentTemperatureInFahrenheit();
-static void commandSetDateAndTime();
-static void commandShowDateAndTime();
-static void commandShowStoredEvents();
-static void commandEnterCodeSequence();
+bool pcSerialCommunicationCodeMatch();
+void availableCommands();
+void commandShowCurrentAlarmState();
+void commandShowCurrentGasDetectorState();
+void commandShowCurrentOverTempDetectorState();
+void commandEnterNewCode();
+void commandShowCurrentTemperatureInCelsius();
+void commandShowCurrentTemperatureInFahrenheit();
+void commandSetDateAndTime();
+void commandShowDateAndTime();
+void commandShowStoredEvents();
+void commandEnterCodeSequence();
 
 void eventLogUpdate();
 int eventLogNumberOfStoredEvents();
 void eventLogReadStriangAtIndex( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
-static void eventLogElementStateUpdate( bool lastState,
-                                        bool currentState,
-                                        const char* elementName );
+void eventLogElementStateUpdate( bool lastState,
+                                 bool currentState,
+                                 const char* elementName );
 
 char* dateAndTimeReadString();
 void dateAndTimeWriteIndividualValues( int year, int month, int day, 
@@ -169,11 +141,11 @@ void temperatureSensorUpdate( void );
 float temperatureSensorReadCelsius( void );
 float temperatureSensorReadFahrenheit( void );
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
-static float analogReadingScaledWithTheLM35Formula( float analogReading );
-static void shiftLm35AvgReadingsArray();
+float analogReadingScaledWithTheLM35Formula( float analogReading );
+void shiftLm35AvgReadingsArray();
 
 void matrixKeypadInit();
-static char matrixKeypadScan();
+char matrixKeypadScan();
 char matrixKeypadUpdate();
 
 //=====[Main function, the program entry point after power on or reset]========
@@ -196,7 +168,9 @@ void smartHomeSystemInit()
 
 void smartHomeSystemUpdate()
 {
-    alarmUpdate();
+    alarmUpdate();    
+    incorrectCodeLedUpdate();
+    systemBlockedLedUpdate();
     pcSerialCommunicationCommandUpdate();
     eventLogUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
@@ -215,6 +189,8 @@ void alarmUpdate()
 {
     alarmActivationUpdate();
     alarmDeactivationUpdate();
+    alarmLedUpdate();
+    alarmCodeMatrixKeypadUpdate();
 }
 
 bool alarmGasDetectorReadState()
@@ -252,38 +228,41 @@ void alarmCodeWrite( char* newCodeSequence )
 bool alarmCodeMatch( char* codeToCompare )
 {
     int i;
-
     for (i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
         if ( codeSequence[i] != codeToCompare[i] ) {
-            incorrectCodeState = true;
-            numberOfIncorrectCodes = numberOfIncorrectCodes + 1;
             return false;
         }
     }
-
-    incorrectCodeState = false;
-    alarmState = OFF;
-    numberOfIncorrectCodes = 0;
     return true;
 }
 
-static void alarmLedUpdate()
+void alarmDeactivate()
+{
+    alarmState             = OFF;
+    overTempDetected       = OFF;
+    gasDetected            = OFF;
+    systemBlockedState     = OFF;
+    incorrectCodeState     = OFF;
+    numberOfIncorrectCodes = 0;
+}
+
+void alarmLedUpdate()
 {
     static int accumulatedTimeAlarm = 0;
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( alarmState ) {
-        if( gasDetectorState && overTempDetectorState ) {
+        if( gasDetected && overTempDetected ) {
             if( accumulatedTimeAlarm >= ALARM_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
-        } else if( gasDetectorState ) {
+        } else if( gasDetected ) {
             if( accumulatedTimeAlarm >= ALARM_BLINKING_TIME_GAS ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
-        } else if ( overTempDetectorState ) {
+        } else if ( overTempDetected ) {
             if( accumulatedTimeAlarm >= ALARM_BLINKING_TIME_OVER_TEMP  ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
@@ -294,80 +273,111 @@ static void alarmLedUpdate()
     }
 }
 
-static void incorrectCodeLedUpdate()
+void incorrectCodeLedUpdate()
 {
-    incorrectCodeLed = incorrectCodeState;
+    incorrectCodeLed = alarmIncorrectCodeReadState();
 }
 
-static void systemBlockedLedUpdate()
+void systemBlockedLedUpdate()
 {
     systemBlockedLed = systemBlockedState;
 }
 
-static void alarmActivationUpdate()
+void alarmActivationUpdate()
 {
     temperatureSensorUpdate();
-    if ( temperatureSensorReadCelsius() > ALARM_OVER_TEMP_LEVEL_CELSIUS ) {
-        overTempDetectorState = ON;
-        alarmState = ON;
-    }
-
     gasSensorUpdate();
-    if ( gasSensorRead() > ALARM_GAS_LEVEL ) {
-        gasDetectorState = ON;
+
+    //overTempDetectorState = temperatureSensorReadCelsius() > 
+    //                        ALARM_OVER_TEMP_LEVEL_CELSIUS;
+
+    if ( overTempDetectorState ) {
+        overTempDetected = ON;
         alarmState = ON;
     }
 
-    if( alarmState == OFF ) {
-        gasDetectorState = OFF;
-        overTempDetectorState = OFF;
-    }
+    gasDetectorState = gasSensorRead() > ALARM_GAS_LEVEL;
 
-    alarmLedUpdate();
+    if ( gasDetectorState ) {
+        gasDetected = ON;
+        alarmState = ON;
+    }
 }
 
-static void alarmCodeCheckFromMatrixKeypad()
+bool saveMatrixKeypadCode          = false;
+bool matrixKeypadCodeCompleteSaved = false;
+int matrixKeypadCodeIndex          = 0;
+char alarmCodeFromMatrixKeypad[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+
+int pcSerialCommunicationCodeIndex = 0;
+char alarmCodeFromPcSerialCommunication[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
+
+bool alarmCodeFromMatrixKeypadMatch()
 {
-    static int matrixKeypadCodeIndex = 0;
-    static int numberOfEnterButtonReleased = 0;
-    static char buttonsPressed[ALARM_CODE_NUMBER_OF_KEYS] = {'0','0','0','0'};
-
-    char keyReleased = matrixKeypadUpdate();
-
-    if( keyReleased != '\0' && keyReleased != '#' ) {
-        buttonsPressed[matrixKeypadCodeIndex] = keyReleased;
-        if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
-            matrixKeypadCodeIndex = 0;
+    bool codeIsCorrect = false;    
+    if( matrixKeypadCodeCompleteSaved ) {
+        matrixKeypadCodeCompleteSaved = false;
+        codeIsCorrect = alarmCodeMatch(alarmCodeFromMatrixKeypad);
+        if( codeIsCorrect ) {
+            uartUsb.printf( "Code is correct!!\r\n" );
         } else {
-            matrixKeypadCodeIndex++;
+            uartUsb.printf( "Code is incorrect.\r\n" );
+            incorrectCodeState = ON;
+            numberOfIncorrectCodes++;
         }
     }
+    return codeIsCorrect;
+}
 
-    if( keyReleased == '#' ) {
-        if( incorrectCodeState ) {
-            numberOfEnterButtonReleased++;
-            if( numberOfEnterButtonReleased >= 2 ) {
-                numberOfEnterButtonReleased = 0;
+void alarmDeactivationUpdate()
+{
+    if ( alarmState ) {
+        if ( numberOfIncorrectCodes >= 5 ) {
+            systemBlockedState = ON;
+        }
+        if ( alarmCodeFromMatrixKeypadMatch() ||
+             alarmCodePcSerialCommunicationMatch() ) {
+            alarmDeactivate();
+        }
+    }
+}
+
+void alarmCodeMatrixKeypadUpdate()
+{
+    static int numberOfHaskKeyReleased = 0;
+    char keyReleased = matrixKeypadUpdate();
+
+    if( keyReleased != '\0' ) {
+        uartUsb.printf( "%c\r\n", keyReleased );
+
+        if( keyReleased == '#' ) {
+            numberOfHaskKeyReleased++;
+            if( numberOfHaskKeyReleased >= 2 ) {
+                uartUsb.printf( "Double Press Hash: keypad code reset\r\n" );
+                numberOfHaskKeyReleased = 0;
+                saveMatrixKeypadCode = true;
                 matrixKeypadCodeIndex = 0;
                 incorrectCodeState = OFF;
             }
-        } else {
-            if ( alarmState ) {
-                alarmCodeMatch(buttonsPressed);
+            return;
+        }
+
+        if( saveMatrixKeypadCode ){
+            uartUsb.printf( "Start save matrix keypad code\r\n" ); 
+            alarmCodeFromMatrixKeypad[matrixKeypadCodeIndex] = keyReleased;
+            uartUsb.printf( "  index: %d\r\n", matrixKeypadCodeIndex );
+            matrixKeypadCodeIndex++;
+            if( matrixKeypadCodeIndex >= ALARM_CODE_NUMBER_OF_KEYS ) {
+                saveMatrixKeypadCode = false;
+                matrixKeypadCodeCompleteSaved = true;          
             }
         }
     }
 }
 
-static void alarmDeactivationUpdate()
+bool alarmCodePcSerialCommunicationMatch()
 {
-    if ( numberOfIncorrectCodes < 5 ) {
-        alarmCodeCheckFromMatrixKeypad();
-    } else {
-        systemBlockedState = ON;
-    }
-    incorrectCodeLedUpdate();
-    systemBlockedLedUpdate();
+    return pcSerialCommunicationCodeMatch();
 }
 
 char* dateAndTimeReadString()
@@ -489,7 +499,12 @@ void pcSerialCommunicationCommandUpdate()
     }
 }
 
-static void availableCommands()
+bool pcSerialCommunicationCodeMatch()
+{
+    return false;
+}
+
+void availableCommands()
 {
     uartUsb.printf( "Available commands:\r\n" );
     uartUsb.printf( "Press '1' to get the alarm state\r\n" );
@@ -505,7 +520,7 @@ static void availableCommands()
     uartUsb.printf( "\r\n" );
 }
 
-static void commandShowCurrentAlarmState()
+void commandShowCurrentAlarmState()
 {
     if ( alarmReadState() ) {
         uartUsb.printf( "The alarmLed is activated\r\n");
@@ -514,7 +529,7 @@ static void commandShowCurrentAlarmState()
     }
 }
 
-static void commandShowCurrentGasDetectorState()
+void commandShowCurrentGasDetectorState()
 {
     if ( alarmGasDetectorReadState() ) {
         uartUsb.printf( "Gas is being detected\r\n");
@@ -523,7 +538,7 @@ static void commandShowCurrentGasDetectorState()
     }    
 }
 
-static void commandShowCurrentOverTempDetectorState()
+void commandShowCurrentOverTempDetectorState()
 {
     if ( alarmOverTempDetectorReadState() ) {
         uartUsb.printf( "Temperature is above the maximum level\r\n");
@@ -532,7 +547,7 @@ static void commandShowCurrentOverTempDetectorState()
     }
 }
 
-static void commandEnterCodeSequence()
+void commandEnterCodeSequence()
 {
     char receivedCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
     
@@ -551,7 +566,7 @@ static void commandEnterCodeSequence()
     }    
 }
 
-static void commandEnterNewCode()
+void commandEnterNewCode()
 {
     char newCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
 
@@ -564,22 +579,22 @@ static void commandEnterNewCode()
 
     alarmCodeWrite( newCodeSequence );
 
-    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" ); 
+    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
 }
 
-static void commandShowCurrentTemperatureInCelsius()
+void commandShowCurrentTemperatureInCelsius()
 {
     uartUsb.printf( "Temperature: %.2f °C\r\n",
                     temperatureSensorReadCelsius() );    
 }
 
-static void commandShowCurrentTemperatureInFahrenheit()
+void commandShowCurrentTemperatureInFahrenheit()
 {
     uartUsb.printf( "Temperature: %.2f °F\r\n", 
                     temperatureSensorReadFahrenheit() );    
 }
 
-static void commandSetDateAndTime()
+void commandSetDateAndTime()
 {
     int year   = 0;
     int month  = 0;
@@ -620,12 +635,12 @@ static void commandSetDateAndTime()
                                       hour, minute, second );
 }
 
-static void commandShowDateAndTime()
+void commandShowDateAndTime()
 {
     uartUsb.printf("Date and Time = %s", dateAndTimeReadString());
 }
 
-static void commandShowStoredEvents()
+void commandShowStoredEvents()
 {
     char str[100];
     for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
@@ -705,16 +720,16 @@ void eventLogWrite( bool currentState, const char* elementName )
     smarphoneBleCommunicationWrite("\r\n");
 }
 
-static void eventLogElementStateUpdate( bool lastState,
-                                        bool currentState,
-                                        const char* elementName )
+void eventLogElementStateUpdate( bool lastState,
+                                 bool currentState,
+                                 const char* elementName )
 {
     if ( lastState != currentState ) {        
         eventLogWrite( currentState, elementName );       
     }
 }
 
-static float analogReadingScaledWithTheLM35Formula( float analogReading )
+float analogReadingScaledWithTheLM35Formula( float analogReading )
 {
     return ( analogReading * 3.3 / 0.01 );
 }
@@ -724,7 +739,7 @@ float celsiusToFahrenheit( float tempInCelsiusDegrees )
     return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
 }
 
-static void shiftLm35AvgReadingsArray()
+void shiftLm35AvgReadingsArray()
 {
     int i = 0;
     for( i=1; i<LM35_NUMBER_OF_AVG_SAMPLES; i++ ) {
@@ -742,7 +757,7 @@ void matrixKeypadInit()
     }
 }
 
-static char matrixKeypadScan()
+char matrixKeypadScan()
 {
     int r = 0;
     int c = 0;
