@@ -103,7 +103,6 @@ void fireAlarmDeactivate();
 bool gasDetectorStateRead();
 bool overTempDetectorStateRead();
 
-
 void sirenInit();
 bool sirenStateRead();
 void sirenStateWrite( bool state );
