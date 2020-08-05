@@ -124,5 +124,4 @@ static void userInterfaceMatrixKeypadUpdate()
             }
         }
     }
-
 }
