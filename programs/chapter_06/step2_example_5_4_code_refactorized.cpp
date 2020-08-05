@@ -157,8 +157,8 @@ char matrixKeypadLastKeyPressed = '\0';
 
 char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
-bool codeComplete = false;
-int numberOfCodeChars = 0;
+bool codeCompleteFromPcSerialCom = false;
+int numberOfCodeCharsFromPcSerialCom = 0;
 char newCodeSequence[CODE_NUMBER_OF_KEYS];
 
 // Module: siren --------------------------------------
@@ -710,34 +710,34 @@ void pcSerialComUpdate()
 
 bool pcSerialComCodeCompleteRead()
 {
-    return codeComplete;
+    return codeCompleteFromPcSerialCom;
 }
 
 void pcSerialComCodeCompleteWrite( bool state )
 {
-    codeComplete = state;
+    codeCompleteFromPcSerialCom = state;
 }
 
 void pcSerialComSaveCodeUpdate( char receivedChar )
 {
-    codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
+    codeSequenceFromPcSerialCom[numberOfCodeCharsFromPcSerialCom] = receivedChar;
     uartUsb.printf( "*" );
-    numberOfCodeChars++;
-   if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
+    numberOfCodeCharsFromPcSerialCom++;
+   if ( numberOfCodeCharsFromPcSerialCom >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        codeComplete = true;
-        numberOfCodeChars = 0;
+        codeCompleteFromPcSerialCom = true;
+        numberOfCodeCharsFromPcSerialCom = 0;
     } 
 }
 
 void pcSerialComSaveNewCodeUpdate( char receivedChar )
 {
-    newCodeSequence[numberOfCodeChars] = receivedChar;
+    newCodeSequence[numberOfCodeCharsFromPcSerialCom] = receivedChar;
     uartUsb.printf( "*" );
-    numberOfCodeChars++;
-    if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
+    numberOfCodeCharsFromPcSerialCom++;
+    if ( numberOfCodeCharsFromPcSerialCom >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        numberOfCodeChars = 0;
+        numberOfCodeCharsFromPcSerialCom = 0;
         codeWrite( newCodeSequence );
         uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
     } 
@@ -809,8 +809,8 @@ void commandEnterCodeSequence()
         uartUsb.printf( "Please enter the four digits numeric code " );
         uartUsb.printf( "to deactivate the alarm.\r\n" );
         pcSerialComMode = PC_SERIAL_SAVE_CODE;
-        codeComplete = false;
-        numberOfCodeChars = 0;
+        codeCompleteFromPcSerialCom = false;
+        numberOfCodeCharsFromPcSerialCom = 0;
     } else {
         uartUsb.printf( "Alarm is not activated.\r\n" );
     }
@@ -820,7 +820,7 @@ void commandEnterNewCode()
 {
     uartUsb.printf( "Please enter the new four digits numeric code " );
     uartUsb.printf( "to deactivate the alarm.\r\n" );
-    numberOfCodeChars = 0;
+    numberOfCodeCharsFromPcSerialCom = 0;
     pcSerialComMode = PC_SERIAL_SAVE_NEW_CODE;
 
 }

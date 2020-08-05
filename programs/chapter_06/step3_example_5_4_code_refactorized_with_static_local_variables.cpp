@@ -155,8 +155,8 @@ int timeIncrement_ms = 0;
 
 char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
-bool codeComplete = false;
-int numberOfCodeChars = 0;
+bool codeCompleteFromPcSerialCom = false;
+int numberOfCodeCharsFromPcSerialCom = 0;
 
 // Module: siren --------------------------------------
 
@@ -705,23 +705,23 @@ void pcSerialComUpdate()
 
 bool pcSerialComCodeCompleteRead()
 {
-    return codeComplete;
+    return codeCompleteFromPcSerialCom;
 }
 
 void pcSerialComCodeCompleteWrite( bool state )
 {
-    codeComplete = state;
+    codeCompleteFromPcSerialCom = state;
 }
 
 void pcSerialComSaveCodeUpdate( char receivedChar )
 {
-    codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
+    codeSequenceFromPcSerialCom[numberOfCodeCharsFromPcSerialCom] = receivedChar;
     uartUsb.printf( "*" );
-    numberOfCodeChars++;
-   if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
+    numberOfCodeCharsFromPcSerialCom++;
+   if ( numberOfCodeCharsFromPcSerialCom >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        codeComplete = true;
-        numberOfCodeChars = 0;
+        codeCompleteFromPcSerialCom = true;
+        numberOfCodeCharsFromPcSerialCom = 0;
     } 
 }
 
@@ -729,12 +729,12 @@ void pcSerialComSaveNewCodeUpdate( char receivedChar )
 {
     static char newCodeSequence[CODE_NUMBER_OF_KEYS];
 
-    newCodeSequence[numberOfCodeChars] = receivedChar;
+    newCodeSequence[numberOfCodeCharsFromPcSerialCom] = receivedChar;
     uartUsb.printf( "*" );
-    numberOfCodeChars++;
-    if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
+    numberOfCodeCharsFromPcSerialCom++;
+    if ( numberOfCodeCharsFromPcSerialCom >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        numberOfCodeChars = 0;
+        numberOfCodeCharsFromPcSerialCom = 0;
         codeWrite( newCodeSequence );
         uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
     } 
