@@ -8,12 +8,12 @@ System:
 
 Sub-systems:
 
- - Fire alarm: Control alarm siren activation using gas and temperature sensors, and deactivation using code sub-system
- - User interface: Update user interface (incorrectCodeLed, systemBlockedLed and matrix keypad)
+ - Fire alarm: Control alarm siren activation using gas and temperature sensors, and deactivation 
  - Code: alarm deactivation code contol
- - Event log: Log the events of the system
+ - User interface: Update user interface (incorrectCodeLed, systemBlockedLed and matrix keypad)
  - PC Serial communication: Update communication with a PC via serial interface (UART)
  - Smartphone BLE communication: Update communication with a Smartphone via BLE interface
+ - Event log: Log the events of the systemusing code sub-system
 
 Drivers:
 
