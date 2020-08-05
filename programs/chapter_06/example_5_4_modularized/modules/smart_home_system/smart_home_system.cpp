@@ -34,7 +34,7 @@ void smartHomeSystemUpdate()
     fireAlarmUpdate();	
     sirenIndicatorUpdate();
     userInterfaceUpdate();
-    pcSerialComCommandUpdate();
+    pcSerialComUpdate();
     eventLogUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
 }

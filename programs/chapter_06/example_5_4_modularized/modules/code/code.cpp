@@ -60,26 +60,33 @@ bool codeMatchFrom( codeOrigin_t codeOrigin )
             if( userInterfaceCodeCompleteRead() ) {
                 codeIsCorrect = codeMatch(codeSequenceFromUserInterface);
                 userInterfaceCodeCompleteWrite(false);
+                if ( codeIsCorrect ) {
+                    codeDeactivate();
+                } else {
+                    incorrectCodeStateWrite(ON);
+                    numberOfIncorrectCodes++;
+                }
             }
+
+
         break;
         case CODE_PC_SERIAL:
             if( pcSerialComCodeCompleteRead() ) {
                 codeIsCorrect = codeMatch(codeSequenceFromPcSerialCom);
                 pcSerialComCodeCompleteWrite(false);
                 if ( codeIsCorrect ) {
+                    codeDeactivate();
                     pcSerialComWrite( "\r\nThe code is correct\r\n\r\n" );
                 } else {
+                    incorrectCodeStateWrite(ON);
+                    numberOfIncorrectCodes++;
                     pcSerialComWrite( "\r\nThe code is incorrect\r\n\r\n" );
                 }
             }
+
         break;
         default:
         break;
-    }
-
-    if( !codeIsCorrect ) {
-        incorrectCodeStateWrite(ON);
-        numberOfIncorrectCodes++;
     }
 
     if ( numberOfIncorrectCodes >= 5 ) {

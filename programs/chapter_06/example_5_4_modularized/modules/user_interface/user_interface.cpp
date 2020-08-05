@@ -96,30 +96,25 @@ void userInterfaceCodeCompleteWrite( bool state )
 
 //=====[Implementations of private functions]==================================
 
-extern Serial uartUsb; // <-- BORRAME PABLO!!
-
 static void userInterfaceMatrixKeypadUpdate()
 {
     static int numberOfHaskKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
 
     if( keyReleased != '\0' ) {
-        uartUsb.printf( "%c\r\n", keyReleased );
 
-        if( sirenStateRead() ) {
+        if( sirenStateRead() && !systemBlockedStateRead() ) {
             if( !incorrectCodeStateRead() ) {
-                if ( numberOfCodeChars < CODE_NUMBER_OF_KEYS ) {
-                    codeSequenceFromUserInterface[numberOfCodeChars] = keyReleased;
-                    uartUsb.printf( "  numberOfCodeChars: %d\r\n", numberOfCodeChars );
-                    numberOfCodeChars++;
-                } else {
+                codeSequenceFromUserInterface[numberOfCodeChars] = keyReleased;
+                numberOfCodeChars++;
+                if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
                     codeComplete = true;
+                    numberOfCodeChars = 0;
                 }
-            } else{
+            } else {
                 if( keyReleased == '#' ) {
                     numberOfHaskKeyReleased++;
                     if( numberOfHaskKeyReleased >= 2 ) {
-                        uartUsb.printf( "Double Press Hash: keypad code reset\r\n" );
                         numberOfHaskKeyReleased = 0;
                         numberOfCodeChars = 0;
                         codeComplete = false;

@@ -20,6 +20,7 @@
 typedef enum{
     PC_SERIAL_COMMANDS,
     PC_SERIAL_SAVE_CODE,
+    PC_SERIAL_SAVE_NEW_CODE,
 } pcSerialComMode_t;
 
 //=====[Declaration and intitalization of public global objects]===============
@@ -39,6 +40,7 @@ static int numberOfCodeChars = 0;
 //=====[Declarations (prototypes) of private functions]========================
 
 static void pcSerialComSaveCodeUpdate( char receivedChar );
+static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 
 static void pcSerialComCommandUpdate( char receivedChar );
 
@@ -83,6 +85,9 @@ void pcSerialComUpdate()
                 pcSerialComSaveCodeUpdate( receivedChar );
             break;
 
+            case PC_SERIAL_SAVE_NEW_CODE:
+                pcSerialComSaveNewCodeUpdate( receivedChar );
+            break;
             default:
                 pcSerialComMode = PC_SERIAL_COMMANDS;
             break;
@@ -104,13 +109,28 @@ void pcSerialComCodeCompleteWrite( bool state )
 
 static void pcSerialComSaveCodeUpdate( char receivedChar )
 {
-    if ( numberOfCodeChars < CODE_NUMBER_OF_KEYS ) {
-        codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
-        uartUsb.printf( "*" );
-        numberOfCodeChars++;
-    } else {
+    codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
+    uartUsb.printf( "*" );
+    numberOfCodeChars++;
+   if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         codeComplete = true;
+        numberOfCodeChars = 0;
+    } 
+}
+
+static void pcSerialComSaveNewCodeUpdate( char receivedChar )
+{
+    static char newCodeSequence[CODE_NUMBER_OF_KEYS];
+
+    newCodeSequence[numberOfCodeChars] = receivedChar;
+    uartUsb.printf( "*" );
+    numberOfCodeChars++;
+   if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
+        pcSerialComMode = PC_SERIAL_COMMANDS;
+        numberOfCodeChars = 0;
+        codeWrite( newCodeSequence );
+        uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
     } 
 }
 
@@ -189,19 +209,11 @@ static void commandEnterCodeSequence()
 
 static void commandEnterNewCode()
 {
-    char newCodeSequence[CODE_NUMBER_OF_KEYS];
-
-    uartUsb.printf( "Please enter the new four digits numeric code \r\n" );
+    uartUsb.printf( "Please enter the new four digits numeric code " );
     uartUsb.printf( "to deactivate the alarm.\r\n" );
+    numberOfCodeChars = 0;
+    pcSerialComMode = PC_SERIAL_SAVE_NEW_CODE;
 
-    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
-        newCodeSequence[i] = uartUsb.getc();
-        uartUsb.printf( "*" );
-    }
-
-    codeWrite( newCodeSequence );
-
-    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
 }
 
 static void commandShowCurrentTemperatureInCelsius()
