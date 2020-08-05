@@ -202,7 +202,7 @@ void dateAndTimeWriteIndividualValues( int year, int month, int day,
 
 void eventLogUpdate();
 int eventLogNumberOfStoredEvents();
-void eventLogReadStriangAtIndex( int index, char* str );
+void eventLogReadStringAtIndex( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
 void eventLogElementStateUpdate( bool lastState,
                                  bool currentState,
@@ -434,7 +434,7 @@ int eventLogNumberOfStoredEvents()
     return eventsIndex;
 }
 
-void eventLogReadStriangAtIndex( int index, char* str )
+void eventLogReadStringAtIndex( int index, char* str )
 {
     str[0] = 0;
 
@@ -887,7 +887,7 @@ void commandShowStoredEvents()
 {
     char str[100];
     for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogReadStriangAtIndex( i, str );
+        eventLogReadStringAtIndex( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
 }

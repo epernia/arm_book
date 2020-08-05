@@ -13,7 +13,7 @@
 
 void eventLogUpdate();
 int eventLogNumberOfStoredEvents();
-void eventLogReadStriangAtIndex( int index, char* str );
+void eventLogReadStringAtIndex( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
 
 //=====[#include guards - end]=================================================

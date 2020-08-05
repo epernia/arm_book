@@ -280,7 +280,7 @@ static void commandShowStoredEvents()
 {
     char str[100];
     for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogReadStriangAtIndex( i, str );
+        eventLogReadStringAtIndex( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
 }

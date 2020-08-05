@@ -76,7 +76,7 @@ int eventLogNumberOfStoredEvents()
     return eventsIndex;
 }
 
-void eventLogReadStriangAtIndex( int index, char* str )
+void eventLogReadStringAtIndex( int index, char* str )
 {
     str[0] = 0;
 
