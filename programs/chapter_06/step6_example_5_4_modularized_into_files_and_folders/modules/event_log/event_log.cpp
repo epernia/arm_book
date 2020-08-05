@@ -115,8 +115,8 @@ void eventLogWrite( bool currentState, const char* elementName )
     pcSerialComWrite(eventAndStateStr);
     pcSerialComWrite("\r\n");
  
-    smarphoneBleComWrite(eventAndStateStr);
-    smarphoneBleComWrite("\r\n");
+    smartphoneBleComWrite(eventAndStateStr);
+    smartphoneBleComWrite("\r\n");
 }
 
 //=====[Implementations of private functions]==================================

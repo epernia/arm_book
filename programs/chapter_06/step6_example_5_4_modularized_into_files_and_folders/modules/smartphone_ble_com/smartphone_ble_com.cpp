@@ -22,7 +22,7 @@ Serial uartBle(D1, D0);
 
 //=====[Implementations of public functions]===================================
 
-void smarphoneBleComWrite( const char* str )
+void smartphoneBleComWrite( const char* str )
 {
     uartBle.printf( "%s", str );
 }

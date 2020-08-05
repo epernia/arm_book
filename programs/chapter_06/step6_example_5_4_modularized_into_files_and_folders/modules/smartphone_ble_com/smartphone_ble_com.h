@@ -11,7 +11,7 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void smarphoneBleComWrite( const char* str );
+void smartphoneBleComWrite( const char* str );
 
 //=====[#include guards - end]=================================================
 

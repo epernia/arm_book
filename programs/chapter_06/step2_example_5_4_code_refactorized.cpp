@@ -269,7 +269,7 @@ void smartHomeSystemUpdate();
 
 // Module: smartphone_ble_com -------------------------
 
-void smarphoneBleComWrite( const char* str );
+void smartphoneBleComWrite( const char* str );
 
 // Module: temperature_sensor -------------------------
 
@@ -473,8 +473,8 @@ void eventLogWrite( bool currentState, const char* elementName )
     pcSerialComWrite(eventAndStateStr);
     pcSerialComWrite("\r\n");
  
-    smarphoneBleComWrite(eventAndStateStr);
-    smarphoneBleComWrite("\r\n");
+    smartphoneBleComWrite(eventAndStateStr);
+    smartphoneBleComWrite("\r\n");
 }
 
 void eventLogElementStateUpdate( bool lastState,
@@ -956,7 +956,7 @@ void smartHomeSystemUpdate()
 
 // Module: smartphone_ble_com -------------------------
 
-void smarphoneBleComWrite( const char* str )
+void smartphoneBleComWrite( const char* str )
 {
     uartBle.printf( "%s", str );
 }
