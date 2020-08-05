@@ -13,10 +13,6 @@
 #include "gas_sensor.h"
 #include "matrix_keypad.h"
 
-
-extern Serial uartUsb;
-
-
 //=====[Declaration of private constants]======================================
 
 //=====[Declaration of private data types]=====================================
@@ -99,6 +95,8 @@ void userInterfaceCodeCompleteWrite( bool state )
 }
 
 //=====[Implementations of private functions]==================================
+
+extern Serial uartUsb; // <-- BORRAME PABLO!!
 
 static void userInterfaceMatrixKeypadUpdate()
 {
