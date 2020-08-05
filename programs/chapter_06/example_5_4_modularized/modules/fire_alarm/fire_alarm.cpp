@@ -15,16 +15,12 @@
 
 //=====[Declaration of private constants]======================================
 
-#define TEMPERATURE_C_LIMIT_ALARM             50.0
-#define GAS_CONCENTRATION_LIMIT_ALARM          0.0 // TODO: Ver que valor de umbral poner
+#define TEMPERATURE_C_LIMIT_ALARM       50.0
+#define GAS_CONCENTRATION_LIMIT_ALARM   0.0 // TODO: Ver que valor de umbral poner
 
 //=====[Declaration of private data types]=====================================
 
-
-
 //=====[Declaration and intitalization of public global objects]===============
-
-
 
 //=====[Declaration and intitalization of private global variables]============
 
@@ -45,7 +41,6 @@ static void fireAlarmDeactivate();
 
 void fireAlarmInit()
 {
-    gasSensorInit();
     gasSensorInit();
     temperatureSensorInit();
 }
@@ -82,10 +77,10 @@ static void fireAlarmActivationUpdate()
 {
     temperatureSensorUpdate();
     gasSensorUpdate();
-
-    //overTempDetectorState = temperatureSensorReadCelsius() > 
-    //                        TEMPERATURE_C_LIMIT_ALARM;
-
+/*
+    overTempDetectorState = temperatureSensorReadCelsius() > 
+                            TEMPERATURE_C_LIMIT_ALARM;
+*/
     if ( overTempDetectorState ) {
         overTempDetected = ON;
         sirenStateWrite(ON);
@@ -115,4 +110,3 @@ static void fireAlarmDeactivate()
     overTempDetected = OFF;
     gasDetected      = OFF;    
 }
-

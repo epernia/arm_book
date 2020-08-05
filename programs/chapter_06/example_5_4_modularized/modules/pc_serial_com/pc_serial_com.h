@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _DATE_AND_TIME_H_
-#define _DATE_AND_TIME_H_
+#ifndef _PC_SERIAL_COM_H_
+#define _PC_SERIAL_COM_H_
 
 //=====[Libraries]=============================================================
 
@@ -9,15 +9,15 @@
 
 //=====[Declaration of public data types]======================================
 
-#define SYSTEM_TIME_INCREMENT_MS   10
-
 //=====[Declarations (prototypes) of public functions]=========================
 
-char* dateAndTimeReadString();
-
-void dateAndTimeWriteIndividualValues( int year, int month, int day, 
-                                       int hour, int minute, int second );
+char pcSerialComReadChar();
+void pcSerialComWrite( const char* str );
+void pcSerialComUpdate();
+bool pcSerialComCodeMatch();
+bool pcSerialComCodeCompleteRead();
+void pcSerialComCodeCompleteWrite( bool state );
 
 //=====[#include guards - end]=================================================
 
-#endif // _DATE_AND_TIME_H_
+#endif // _PC_SERIAL_COM_H_

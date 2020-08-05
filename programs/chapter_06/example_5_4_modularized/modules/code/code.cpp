@@ -16,21 +16,17 @@
 
 //=====[Declaration of private data types]=====================================
 
-typedef struct{
-    bool codeCompleteSaved;
-    int codeIndex;
-    char code[CODE_NUMBER_OF_KEYS];
-} code_t;
-
 //=====[Declaration and intitalization of public global objects]===============
+
+//=====[Declaration and intitalization of extern global variables]=============
+
+extern char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
+extern char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
 //=====[Declaration and intitalization of private global variables]============
 
 static int numberOfIncorrectCodes = 0;
-static char codeSequence[CODE_NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
-
-static code_t codeFromMatrixKeypad;
-static code_t codeFromPcSerialCom;
+static char codeSequence[CODE_NUMBER_OF_KEYS] = { '1', '8', '0', '5' };
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -59,44 +55,39 @@ bool codeMatch( char* codeToCompare )
 bool codeMatchFrom( codeOrigin_t codeOrigin )
 {
     bool codeIsCorrect = false;
-    
-/*
-    codeFromMatrixKeypad.codeCompleteSaved; // bool
-    codeFromMatrixKeypad.codeIndex; // int
-    codeFromMatrixKeypad.code[0]; // char []
-
-    codeFromPcSerialCom.codeCompleteSaved; // bool
-    codeFromPcSerialCom.codeIndex; // int
-    codeFromPcSerialCom.code[0]; // char [] 
-*/
     switch (codeOrigin) {
         case CODE_KEYPAD:
+            if( userInterfaceCodeCompleteRead() ) {
+                codeIsCorrect = codeMatch(codeSequenceFromUserInterface);
+                userInterfaceCodeCompleteWrite(false);
+            }
         break;
         case CODE_PC_SERIAL:
+            if( pcSerialComCodeCompleteRead() ) {
+                codeIsCorrect = codeMatch(codeSequenceFromPcSerialCom);
+                pcSerialComCodeCompleteWrite(false);
+                if ( codeIsCorrect ) {
+                    pcSerialComWrite( "\r\nThe code is correct\r\n\r\n" );
+                } else {
+                    pcSerialComWrite( "\r\nThe code is incorrect\r\n\r\n" );
+                }
+            }
         break;
         default:
         break;
     }
-    /*/
-    if( codeCompleteSaved ) {
-        codeCompleteSaved = false;
-        codeIsCorrect = codeMatch(alarmCodeFromMatrixKeypad);
-        if( codeIsCorrect ) {
-            //uartUsb.printf( "Code is correct!!\r\n" );
-        } else {
-            //uartUsb.printf( "Code is incorrect.\r\n" );
-            incorrectCodeStateWrite(ON);
-            numberOfIncorrectCodes++;
-        }
-    }*/
+
+    if( !codeIsCorrect ) {
+        incorrectCodeStateWrite(ON);
+        numberOfIncorrectCodes++;
+    }
+
+    if ( numberOfIncorrectCodes >= 5 ) {
+        systemBlockedStateWrite(ON);
+    }
+
     return codeIsCorrect;
 }
-
-bool codeFromPcSerialComMatch()
-{
-    return pcSerialComCodeMatch();
-}
-
 
 //=====[Implementations of private functions]==================================
 
@@ -105,5 +96,4 @@ static void codeDeactivate()
     systemBlockedStateWrite(OFF);
     incorrectCodeStateWrite(OFF);
     numberOfIncorrectCodes = 0;
-    //matrixKeypadCodeIndex  = 0;
 }

@@ -3,9 +3,11 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "pc_serial_communication.h"
+#include "pc_serial_com.h"
 
-#include "alarm.h"
+#include "siren.h"
+#include "fire_alarm.h"
+#include "code.h"
 #include "date_and_time.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
@@ -15,28 +17,37 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration of external public global objects]=========================
+typedef enum{
+    PC_SERIAL_COMMANDS,
+    PC_SERIAL_SAVE_CODE,
+} pcSerialComMode_t;
 
 //=====[Declaration and intitalization of public global objects]===============
 
 Serial uartUsb(USBTX, USBRX);
 
-//=====[Declaration and intitalization of private global objects]==============
-
-//=====[Declaration of external public global variables]=======================
-
 //=====[Declaration and intitalization of public global variables]=============
+
+char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
 //=====[Declaration and intitalization of private global variables]============
 
+static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
+static bool codeComplete = false;
+static int numberOfCodeChars = 0;
+
 //=====[Declarations (prototypes) of private functions]========================
 
+static void pcSerialComSaveCodeUpdate( char receivedChar );
+
+static void pcSerialComCommandUpdate( char receivedChar );
+
 static void availableCommands();
-static void commandShowCurrentAlarmState();
+static void commandShowCurrentSirenState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTempDetectorState();
-static void commandEnterNewCode();
 static void commandEnterCodeSequence();
+static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
 static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
@@ -45,33 +56,80 @@ static void commandShowStoredEvents();
 
 //=====[Implementations of public functions]===================================
 
-void pcSerialCommunicationWrite( const char* str )
+char pcSerialComReadChar()
+{
+	char receivedChar = '\0';
+    if( uartUsb.readable() ) {
+        receivedChar = uartUsb.getc();
+    }
+	return receivedChar;
+}
+
+void pcSerialComWrite( const char* str )
 {
     uartUsb.printf( "%s", str );
 }
 
-void pcSerialCommunicationCommandUpdate()
+void pcSerialComUpdate()
 {
-    if( uartUsb.readable() ) {
-        char receivedChar = uartUsb.getc();
+    char receivedChar = pcSerialComReadChar();
+    if( receivedChar != '\0' ) {
+        switch ( pcSerialComMode ) {
+            case PC_SERIAL_COMMANDS:
+                pcSerialComCommandUpdate( receivedChar );
+            break;
 
-        switch (receivedChar) {
-            case '1': commandShowCurrentAlarmState(); break;
-            case '2': commandShowCurrentGasDetectorState(); break;
-            case '3': commandShowCurrentOverTempDetectorState(); break;
-            case '4': commandEnterCodeSequence(); break;
-            case '5': commandEnterNewCode(); break;
-            case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
-            case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
-            case 's': case 'S': commandSetDateAndTime(); break;
-            case 't': case 'T': commandShowDateAndTime(); break;
-            case 'e': case 'E': commandShowStoredEvents(); break;
-            default: availableCommands(); break;
+            case PC_SERIAL_SAVE_CODE:
+                pcSerialComSaveCodeUpdate( receivedChar );
+            break;
+
+            default:
+                pcSerialComMode = PC_SERIAL_COMMANDS;
+            break;
         }
-    }
+    }    
+}
+
+bool pcSerialComCodeCompleteRead()
+{
+    return codeComplete;
+}
+
+void pcSerialComCodeCompleteWrite( bool state )
+{
+    codeComplete = state;
 }
 
 //=====[Implementations of private functions]==================================
+
+static void pcSerialComSaveCodeUpdate( char receivedChar )
+{
+    if ( numberOfCodeChars < CODE_NUMBER_OF_KEYS ) {
+        codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
+        uartUsb.printf( "*" );
+        numberOfCodeChars++;
+    } else {
+        pcSerialComMode = PC_SERIAL_COMMANDS;
+        codeComplete = true;
+    } 
+}
+
+static void pcSerialComCommandUpdate( char receivedChar )
+{
+    switch (receivedChar) {
+        case '1': commandShowCurrentSirenState(); break;
+        case '2': commandShowCurrentGasDetectorState(); break;
+        case '3': commandShowCurrentOverTempDetectorState(); break;
+        case '4': commandEnterCodeSequence(); break;
+        case '5': commandEnterNewCode(); break;
+        case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
+        case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
+        case 's': case 'S': commandSetDateAndTime(); break;
+        case 't': case 'T': commandShowDateAndTime(); break;
+        case 'e': case 'E': commandShowStoredEvents(); break;
+        default: availableCommands(); break;
+    } 
+}
 
 static void availableCommands()
 {
@@ -79,8 +137,8 @@ static void availableCommands()
     uartUsb.printf( "Press '1' to get the alarm state\r\n" );
     uartUsb.printf( "Press '2' for gas detector state\r\n" );
     uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
-    uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
-    uartUsb.printf( "Press '5' to enter a new code\r\n" );
+    uartUsb.printf( "Press '4' to enter the code sequence to deactivate the alarm\r\n" );
+    uartUsb.printf( "Press '5' to enter a new code to deactivate the alarm\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
     uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
     uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
@@ -89,9 +147,9 @@ static void availableCommands()
     uartUsb.printf( "\r\n" );
 }
 
-static void commandShowCurrentAlarmState()
+static void commandShowCurrentSirenState()
 {
-    if ( alarmReadState() ) {
+    if ( sirenStateRead() ) {
         uartUsb.printf( "The alarmLed is activated\r\n");
     } else {
         uartUsb.printf( "The alarmLed is not activated\r\n");
@@ -100,8 +158,8 @@ static void commandShowCurrentAlarmState()
 
 static void commandShowCurrentGasDetectorState()
 {
-    if ( alarmGasDetectorReadState() ) {
-        uartUsb.printf( "Gas is being detected\r\n");
+    if ( gasDetectorStateRead() ) {
+        uartUsb.printf( "Gas is being detected\r\n"); // Ver de poner la concentracion de gas no este superando el umbral
     } else {
         uartUsb.printf( "Gas is not being detected\r\n");
     }    
@@ -109,7 +167,7 @@ static void commandShowCurrentGasDetectorState()
 
 static void commandShowCurrentOverTempDetectorState()
 {
-    if ( alarmOverTempDetectorReadState() ) {
+    if ( overTempDetectorStateRead() ) {
         uartUsb.printf( "Temperature is above the maximum level\r\n");
     } else {
         uartUsb.printf( "Temperature is below the maximum level\r\n");
@@ -118,37 +176,32 @@ static void commandShowCurrentOverTempDetectorState()
 
 static void commandEnterCodeSequence()
 {
-    char receivedCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
-    
-    uartUsb.printf( "Please enter the new four digits numeric code " );
-    uartUsb.printf( "to deactivate the alarm.\r\n" );
-
-    for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
-        receivedCodeSequence[i] = uartUsb.getc();
-        uartUsb.printf( "*" );
-    }
-
-    if ( alarmCodeMatch(receivedCodeSequence) ) {
-        uartUsb.printf( "\r\nThe code is correct\r\n\r\n" );
+    if( sirenStateRead() ) {
+        uartUsb.printf( "Please enter the four digits numeric code " );
+        uartUsb.printf( "to deactivate the alarm.\r\n" );
+        pcSerialComMode = PC_SERIAL_SAVE_CODE;
+        codeComplete = false;
+        numberOfCodeChars = 0;
     } else {
-        uartUsb.printf( "\r\nThe code is incorrect\r\n\r\n" );
-    }    
+        uartUsb.printf( "Alarm is not activated.\r\n" );
+    }
 }
 
 static void commandEnterNewCode()
 {
-    char newCodeSequence[ALARM_CODE_NUMBER_OF_KEYS];
+    char newCodeSequence[CODE_NUMBER_OF_KEYS];
 
-    uartUsb.printf( "Please enter the new four digits numeric code\r\n" );
+    uartUsb.printf( "Please enter the new four digits numeric code \r\n" );
+    uartUsb.printf( "to deactivate the alarm.\r\n" );
 
-    for ( int i = 0; i < ALARM_CODE_NUMBER_OF_KEYS; i++) {
+    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         newCodeSequence[i] = uartUsb.getc();
         uartUsb.printf( "*" );
     }
 
-    alarmCodeWrite( newCodeSequence );
+    codeWrite( newCodeSequence );
 
-    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" ); 
+    uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
 }
 
 static void commandShowCurrentTemperatureInCelsius()
@@ -184,7 +237,7 @@ static void commandSetDateAndTime()
     uartUsb.scanf("%d", &day);
     uartUsb.printf("%d\r\n", day);
 
-    uartUsb.printf("Enter the current hour (0-24): ");
+    uartUsb.printf("Enter the current hour (0-23): ");
     uartUsb.scanf("%d", &hour);
     uartUsb.printf("%d\r\n",hour);
 
