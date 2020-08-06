@@ -11,8 +11,8 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit( void );
-void gasSensorUpdate( void );
+void gasSensorInit();
+void gasSensorUpdate();
 float gasSensorRead();
 
 //=====[#include guards - end]=================================================

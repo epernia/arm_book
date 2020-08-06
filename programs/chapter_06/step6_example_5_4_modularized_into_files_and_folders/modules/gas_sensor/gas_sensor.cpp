@@ -22,12 +22,12 @@ DigitalIn gasDetector(D2);
 
 //=====[Implementations of public functions]===================================
 
-void gasSensorInit( void )
+void gasSensorInit()
 {
     gasDetector.mode(PullDown);
 }
 
-void gasSensorUpdate( void )
+void gasSensorUpdate()
 {
     return;
 }

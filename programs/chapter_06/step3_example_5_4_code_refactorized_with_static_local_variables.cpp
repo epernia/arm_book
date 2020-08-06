@@ -214,8 +214,8 @@ void fireAlarmDeactivate();
 
 // Module: gas_sensor ---------------------------------
 
-void gasSensorInit( void );
-void gasSensorUpdate( void );
+void gasSensorInit();
+void gasSensorUpdate();
 float gasSensorRead();
 
 // Module: matrix_keypad ------------------------------
@@ -265,10 +265,10 @@ void smartphoneBleComWrite( const char* str );
 
 // Module: temperature_sensor -------------------------
 
-void temperatureSensorInit( void );
-void temperatureSensorUpdate( void );
-float temperatureSensorReadCelsius( void );
-float temperatureSensorReadFahrenheit( void );
+void temperatureSensorInit();
+void temperatureSensorUpdate();
+float temperatureSensorReadCelsius();
+float temperatureSensorReadFahrenheit();
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
 void shiftLm35AvgReadingsArray();
@@ -552,12 +552,12 @@ void fireAlarmDeactivate()
 
 // Module: gas_sensor ---------------------------------
 
-void gasSensorInit( void )
+void gasSensorInit()
 {
     gasDetector.mode(PullDown);
 }
 
-void gasSensorUpdate( void )
+void gasSensorUpdate()
 {
     return;
 }
@@ -961,12 +961,12 @@ void smartphoneBleComWrite( const char* str )
 
 // Module: temperature_sensor -------------------------
 
-void temperatureSensorInit( void )
+void temperatureSensorInit()
 {
     return;
 }
 
-void temperatureSensorUpdate( void )
+void temperatureSensorUpdate()
 {
     static int accumulatedTimeLm35 = 0;
     static int lm35SampleIndex     = 0;
@@ -1000,12 +1000,12 @@ void temperatureSensorUpdate( void )
     }
 }
 
-float temperatureSensorReadCelsius( void )
+float temperatureSensorReadCelsius()
 {
     return lm35TempC;
 }
 
-float temperatureSensorReadFahrenheit( void )
+float temperatureSensorReadFahrenheit()
 {
     return celsiusToFahrenheit( lm35TempC );
 }

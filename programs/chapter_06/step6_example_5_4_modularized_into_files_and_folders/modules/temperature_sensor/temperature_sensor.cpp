@@ -33,12 +33,12 @@ static void shiftLm35AvgReadingsArray();
 
 //=====[Implementations of public functions]===================================
 
-void temperatureSensorInit( void )
+void temperatureSensorInit()
 {
     return;
 }
 
-void temperatureSensorUpdate( void )
+void temperatureSensorUpdate()
 {
     static int accumulatedTimeLm35 = 0;
     static int lm35SampleIndex     = 0;
@@ -72,12 +72,12 @@ void temperatureSensorUpdate( void )
     }
 }
 
-float temperatureSensorReadCelsius( void )
+float temperatureSensorReadCelsius()
 {
     return lm35TempC;
 }
 
-float temperatureSensorReadFahrenheit( void )
+float temperatureSensorReadFahrenheit()
 {
     return celsiusToFahrenheit( lm35TempC );
 }
