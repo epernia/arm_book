@@ -34,20 +34,17 @@ user_interface
 
 // Module: fire_alarm ---------------------------------
 
-#define TEMPERATURE_C_LIMIT_ALARM       50.0
-#define GAS_CONCENTRATION_LIMIT_ALARM   0.0 // TODO: Ver que valor de umbral poner
+#define TEMPERATURE_C_LIMIT_ALARM               50.0
+#define GAS_CONCENTRATION_LIMIT_ALARM            0.0 // TODO: Ver que valor de umbral poner
+#define SIREN_BLINKING_TIME_GAS               1000
+#define SIREN_BLINKING_TIME_OVER_TEMP          500
+#define SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP  100
 
 // Module: matrix_keypad ------------------------------
 
 #define MATRIX_KEYPAD_NUMBER_OF_ROWS    4
 #define MATRIX_KEYPAD_NUMBER_OF_COLS    4
 #define DEBOUNCE_BUTTON_TIME_MS        40
-
-// Module: siren --------------------------------------
-
-#define SIREN_BLINKING_TIME_GAS               1000
-#define SIREN_BLINKING_TIME_OVER_TEMP          500
-#define SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP  100
 
 // Module: smart_home_system --------------------------
 
@@ -253,7 +250,7 @@ void commandShowStoredEvents();
 void sirenInit();
 bool sirenStateRead();
 void sirenStateWrite( bool state );
-void sirenIndicatorUpdate();
+void sirenIndicatorUpdate( int blinkTime);
 
 // Module: smart_home_system --------------------------
 
@@ -491,6 +488,7 @@ void fireAlarmUpdate()
 {
     fireAlarmActivationUpdate();
     fireAlarmDeactivationUpdate();
+    sirenIndicatorUpdate( fireAlarmBlinkTime() );
 }
 
 bool gasDetectorStateRead()
@@ -549,6 +547,19 @@ void fireAlarmDeactivate()
     sirenStateWrite(OFF);
     overTemperatureDetected = OFF;
     gasDetected      = OFF;    
+}
+
+int fireAlarmBlinkTime()
+{
+    if( gasDetectedRead() && overTemperatureDetectedRead() ) {
+        return SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP;
+    } else if ( gasDetectedRead() ) {
+        return SIREN_BLINKING_TIME_GAS;
+    } else if ( overTemperatureDetectedRead() ) {
+        return SIREN_BLINKING_TIME_OVER_TEMP;
+    } else {
+        return 0;
+    }
 }
 
 // Module: gas_sensor ---------------------------------
@@ -911,27 +922,15 @@ void sirenStateWrite( bool state )
     sirenState = state;
 }
 
-void sirenIndicatorUpdate()
+void sirenIndicatorUpdate( int blinkTime )
 {
     static int accumulatedTimeAlarm = 0;
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( sirenState ) {
-        if( gasDetectedRead() && overTemperatureDetectedRead() ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        } else if( gasDetectedRead() ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        } else if ( overTemperatureDetectedRead() ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_OVER_TEMP  ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
+        if( accumulatedTimeAlarm >= blinkTime ) {
+            accumulatedTimeAlarm = 0;
+            alarmLed = !alarmLed;
         }
     } else {
         alarmLed = OFF;
@@ -942,7 +941,6 @@ void sirenIndicatorUpdate()
 
 void smartHomeSystemInit()
 {
-    sirenInit();
     userInterfaceInit();
     fireAlarmInit();
     pcSerialComInit();
@@ -950,7 +948,6 @@ void smartHomeSystemInit()
 
 void smartHomeSystemUpdate()
 {
-    sirenIndicatorUpdate();
     fireAlarmUpdate();    
     userInterfaceUpdate();
     pcSerialComUpdate();

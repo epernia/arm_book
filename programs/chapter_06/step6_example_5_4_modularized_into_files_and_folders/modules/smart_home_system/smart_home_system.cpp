@@ -28,7 +28,6 @@
 
 void smartHomeSystemInit()
 {
-    sirenInit();
     userInterfaceInit();
     fireAlarmInit();
     pcSerialComInit();
@@ -36,9 +35,8 @@ void smartHomeSystemInit()
 
 void smartHomeSystemUpdate()
 {
-    sirenIndicatorUpdate();
-    fireAlarmUpdate();    
     userInterfaceUpdate();
+    fireAlarmUpdate();    
     pcSerialComUpdate();
     eventLogUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);

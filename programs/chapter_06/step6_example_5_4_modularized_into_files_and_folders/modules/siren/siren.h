@@ -7,10 +7,6 @@
 
 //=====[Declaration of public constants]=======================================
 
-#define SIREN_BLINKING_TIME_GAS               1000
-#define SIREN_BLINKING_TIME_OVER_TEMP          500
-#define SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP  100
-
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
@@ -18,7 +14,7 @@
 void sirenInit();
 bool sirenStateRead();
 void sirenStateWrite( bool state );
-void sirenIndicatorUpdate();
+void sirenIndicatorUpdate( int blinkTime );
 
 //=====[#include guards - end]=================================================
 

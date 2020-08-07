@@ -43,27 +43,15 @@ void sirenStateWrite( bool state )
     sirenState = state;
 }
 
-void sirenIndicatorUpdate()
+void sirenIndicatorUpdate( int blinkTime )
 {
     static int accumulatedTimeAlarm = 0;
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( sirenState ) {
-        if( gasDetectedRead() && overTemperatureDetectedRead() ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        } else if( gasDetectedRead() ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
-        } else if ( overTemperatureDetectedRead() ) {
-            if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_OVER_TEMP  ) {
-                accumulatedTimeAlarm = 0;
-                alarmLed = !alarmLed;
-            }
+        if( accumulatedTimeAlarm >= blinkTime ) {
+            accumulatedTimeAlarm = 0;
+            alarmLed = !alarmLed;
         }
     } else {
         alarmLed = OFF;
