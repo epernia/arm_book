@@ -632,8 +632,8 @@ char matrixKeypadUpdate()
 
 char matrixKeypadScan()
 {
-    int r = 0;
-    int c = 0;
+    int row = 0;
+    int col = 0;
     int i = 0; 
 
     char matrixKeypadIndexToCharArray[] = {
@@ -643,17 +643,17 @@ char matrixKeypadScan()
         '*', '0', '#', 'D',
     };
 
-    for( r=0; r<MATRIX_KEYPAD_NUMBER_OF_ROWS; r++ ) {
+    for( row=0; row<MATRIX_KEYPAD_NUMBER_OF_ROWS; row++ ) {
 
         for( i=0; i<MATRIX_KEYPAD_NUMBER_OF_ROWS; i++ ) {
             keypadRowPins[i] = ON;
         }
 
-        keypadRowPins[r] = OFF;
+        keypadRowPins[row] = OFF;
 
-        for( c=0; c<MATRIX_KEYPAD_NUMBER_OF_COLS; c++ ) {
-            if( keypadColPins[c] == OFF ) {
-                return matrixKeypadIndexToCharArray[r*MATRIX_KEYPAD_NUMBER_OF_ROWS + c];
+        for( col=0; col<MATRIX_KEYPAD_NUMBER_OF_COLS; col++ ) {
+            if( keypadColPins[col] == OFF ) {
+                return matrixKeypadIndexToCharArray[row*MATRIX_KEYPAD_NUMBER_OF_ROWS + col];
             }
         }
     }
