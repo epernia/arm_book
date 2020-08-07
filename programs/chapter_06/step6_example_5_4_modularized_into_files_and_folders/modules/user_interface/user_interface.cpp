@@ -39,6 +39,8 @@ static int numberOfCodeChars = 0;
 //=====[Declarations (prototypes) of private functions]========================
 
 static void userInterfaceMatrixKeypadUpdate();
+static void incorrectCodeIndicatorUpdate();
+static void systemBlockedIndicatorUpdate();
 
 //=====[Implementations of public functions]===================================
 
@@ -66,11 +68,6 @@ void incorrectCodeStateWrite( bool state )
     incorrectCodeState = state;
 }
 
-void incorrectCodeIndicatorUpdate()
-{
-    incorrectCodeLed = incorrectCodeStateRead();
-}
-
 bool systemBlockedStateRead()
 {
     return systemBlockedState;
@@ -79,11 +76,6 @@ bool systemBlockedStateRead()
 void systemBlockedStateWrite( bool state )
 {
     systemBlockedState = state;
-}
-
-void systemBlockedIndicatorUpdate()
-{
-    systemBlockedLed = systemBlockedState;
 }
 
 bool userInterfaceCodeCompleteRead()
@@ -126,4 +118,14 @@ static void userInterfaceMatrixKeypadUpdate()
             }
         }
     }
+}
+
+static void incorrectCodeIndicatorUpdate()
+{
+    incorrectCodeLed = incorrectCodeStateRead();
+}
+
+static void systemBlockedIndicatorUpdate()
+{
+    systemBlockedLed = systemBlockedState;
 }

@@ -490,8 +490,8 @@ void eventLogElementStateUpdate( bool lastState,
 
 void fireAlarmInit()
 {
-    gasSensorInit();
     temperatureSensorInit();
+    gasSensorInit();
 }
 
 void fireAlarmUpdate()

@@ -28,8 +28,8 @@
 
 void smartHomeSystemInit()
 {
-	sirenInit();
-	userInterfaceInit();
+    sirenInit();
+    userInterfaceInit();
     fireAlarmInit();
 }
 

@@ -47,8 +47,8 @@ static void fireAlarmDeactivate();
 
 void fireAlarmInit()
 {
+	temperatureSensorInit();
     gasSensorInit();
-    temperatureSensorInit();
 }
 
 void fireAlarmUpdate()

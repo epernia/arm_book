@@ -281,10 +281,10 @@ bool userInterfaceCodeCompleteRead();
 void userInterfaceCodeCompleteWrite( bool state );
 bool incorrectCodeStateRead();
 void incorrectCodeStateWrite( bool state );
-void incorrectCodeIndicatorUpdate();
+static void incorrectCodeIndicatorUpdate();
 bool systemBlockedStateRead();
 void systemBlockedStateWrite( bool state );
-void systemBlockedIndicatorUpdate();
+static void systemBlockedIndicatorUpdate();
 static void userInterfaceMatrixKeypadUpdate();
 
 //=====[Main function, the program entry point after power on or reset]========
@@ -482,8 +482,8 @@ static void eventLogElementStateUpdate( bool lastState,
 
 void fireAlarmInit()
 {
-    gasSensorInit();
     temperatureSensorInit();
+    gasSensorInit();
 }
 
 void fireAlarmUpdate()
@@ -1055,7 +1055,7 @@ void incorrectCodeStateWrite( bool state )
     incorrectCodeState = state;
 }
 
-void incorrectCodeIndicatorUpdate()
+static void incorrectCodeIndicatorUpdate()
 {
     incorrectCodeLed = incorrectCodeStateRead();
 }
@@ -1070,7 +1070,7 @@ void systemBlockedStateWrite( bool state )
     systemBlockedState = state;
 }
 
-void systemBlockedIndicatorUpdate()
+static void systemBlockedIndicatorUpdate()
 {
     systemBlockedLed = systemBlockedState;
 }

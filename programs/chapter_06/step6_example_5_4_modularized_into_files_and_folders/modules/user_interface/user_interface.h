@@ -18,11 +18,9 @@ void userInterfaceCodeCompleteWrite( bool state );
 
 bool incorrectCodeStateRead();
 void incorrectCodeStateWrite( bool state );
-void incorrectCodeIndicatorUpdate();
 
 bool systemBlockedStateRead();
 void systemBlockedStateWrite( bool state );
-void systemBlockedIndicatorUpdate();
 
 //=====[#include guards - end]=================================================
 
