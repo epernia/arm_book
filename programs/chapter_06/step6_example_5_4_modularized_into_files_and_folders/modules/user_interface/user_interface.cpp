@@ -17,18 +17,18 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 static bool incorrectCodeState = OFF;
 static bool systemBlockedState = OFF;
@@ -53,7 +53,7 @@ void userInterfaceInit()
 
 void userInterfaceUpdate()
 {
-	userInterfaceMatrixKeypadUpdate();
+    userInterfaceMatrixKeypadUpdate();
     incorrectCodeIndicatorUpdate();
     systemBlockedIndicatorUpdate();
 }

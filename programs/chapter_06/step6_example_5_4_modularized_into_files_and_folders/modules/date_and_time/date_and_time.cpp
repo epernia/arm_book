@@ -8,27 +8,27 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-char* dateAndTimeReadString()
+char* dateAndTimeRead()
 {
     time_t epochSeconds;
     epochSeconds = time(NULL);
     return ctime(&epochSeconds);    
 }
 
-void dateAndTimeWriteIndividualValues( int year, int month, int day, 
-                                       int hour, int minute, int second )
+void dateAndTimeWrite( int year, int month, int day, 
+                       int hour, int minute, int second )
 {
     struct tm rtcTime;
 

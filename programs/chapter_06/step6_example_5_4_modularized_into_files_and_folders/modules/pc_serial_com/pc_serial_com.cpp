@@ -23,17 +23,17 @@ typedef enum{
     PC_SERIAL_SAVE_NEW_CODE,
 } pcSerialComMode_t;
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 Serial uartUsb(USBTX, USBRX);
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
@@ -49,7 +49,7 @@ static void pcSerialComCommandUpdate( char receivedChar );
 static void availableCommands();
 static void commandShowCurrentSirenState();
 static void commandShowCurrentGasDetectorState();
-static void commandShowCurrentOverTempDetectorState();
+static void commandShowCurrentOverTemperatureDetectorState();
 static void commandEnterCodeSequence();
 static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
@@ -60,23 +60,28 @@ static void commandShowStoredEvents();
 
 //=====[Implementations of public functions]===================================
 
-char pcSerialComReadChar()
+void pcSerialComInit()
 {
-	char receivedChar = '\0';
+    availableCommands();
+}
+
+char pcSerialComCharRead()
+{
+    char receivedChar = '\0';
     if( uartUsb.readable() ) {
         receivedChar = uartUsb.getc();
     }
-	return receivedChar;
+    return receivedChar;
 }
 
-void pcSerialComWrite( const char* str )
+void pcSerialComStringWrite( const char* str )
 {
     uartUsb.printf( "%s", str );
 }
 
 void pcSerialComUpdate()
 {
-    char receivedChar = pcSerialComReadChar();
+    char receivedChar = pcSerialComCharRead();
     if( receivedChar != '\0' ) {
         switch ( pcSerialComMode ) {
             case PC_SERIAL_COMMANDS:
@@ -141,7 +146,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
     switch (receivedChar) {
         case '1': commandShowCurrentSirenState(); break;
         case '2': commandShowCurrentGasDetectorState(); break;
-        case '3': commandShowCurrentOverTempDetectorState(); break;
+        case '3': commandShowCurrentOverTemperatureDetectorState(); break;
         case '4': commandEnterCodeSequence(); break;
         case '5': commandEnterNewCode(); break;
         case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
@@ -187,9 +192,9 @@ static void commandShowCurrentGasDetectorState()
     }    
 }
 
-static void commandShowCurrentOverTempDetectorState()
+static void commandShowCurrentOverTemperatureDetectorState()
 {
-    if ( overTempDetectorStateRead() ) {
+    if ( overTemperatureDetectorStateRead() ) {
         uartUsb.printf( "Temperature is above the maximum level\r\n");
     } else {
         uartUsb.printf( "Temperature is below the maximum level\r\n");
@@ -267,20 +272,19 @@ static void commandSetDateAndTime()
         uartUsb.getc();
     }
 
-    dateAndTimeWriteIndividualValues( year, month, day, 
-                                      hour, minute, second );
+    dateAndTimeWrite( year, month, day, hour, minute, second );
 }
 
 static void commandShowDateAndTime()
 {
-    uartUsb.printf("Date and Time = %s", dateAndTimeReadString());
+    uartUsb.printf("Date and Time = %s", dateAndTimeRead());
 }
 
 static void commandShowStoredEvents()
 {
     char str[100];
     for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogReadStringAtIndex( i, str );
+        eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
 }

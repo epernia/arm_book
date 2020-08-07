@@ -20,20 +20,20 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 static bool gasDetected           = OFF;
-static bool overTempDetected      = OFF;
+static bool overTemperatureDetected      = OFF;
 static bool gasDetectorState      = OFF;
-static bool overTempDetectorState = OFF;
+static bool overTemperatureDetectorState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -47,7 +47,7 @@ static void fireAlarmDeactivate();
 
 void fireAlarmInit()
 {
-	temperatureSensorInit();
+    temperatureSensorInit();
     gasSensorInit();
 }
 
@@ -62,9 +62,9 @@ bool gasDetectorStateRead()
     return gasDetectorState;
 }
 
-bool overTempDetectorStateRead()
+bool overTemperatureDetectorStateRead()
 {
-    return overTempDetectorState;
+    return overTemperatureDetectorState;
 }
 
 bool gasDetectedRead()
@@ -72,9 +72,9 @@ bool gasDetectedRead()
     return gasDetected;
 }
 
-bool overTempDetectedRead()
+bool overTemperatureDetectedRead()
 {
-    return overTempDetected;
+    return overTemperatureDetected;
 }
 
 //=====[Implementations of private functions]==================================
@@ -84,11 +84,11 @@ static void fireAlarmActivationUpdate()
     temperatureSensorUpdate();
     gasSensorUpdate();
 
-    overTempDetectorState = temperatureSensorReadCelsius() > 
+    overTemperatureDetectorState = temperatureSensorReadCelsius() > 
                             TEMPERATURE_C_LIMIT_ALARM;
 
-    if ( overTempDetectorState ) {
-        overTempDetected = ON;
+    if ( overTemperatureDetectorState ) {
+        overTemperatureDetected = ON;
         sirenStateWrite(ON);
     }
 
@@ -112,7 +112,7 @@ static void fireAlarmDeactivationUpdate()
 
 static void fireAlarmDeactivate()
 {
-	sirenStateWrite(OFF);
-    overTempDetected = OFF;
+    sirenStateWrite(OFF);
+    overTemperatureDetected = OFF;
     gasDetected      = OFF;    
 }

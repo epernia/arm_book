@@ -90,7 +90,7 @@ typedef enum{
     PC_SERIAL_SAVE_NEW_CODE,
 } pcSerialComMode_t;
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 // Module: gas_sensor ---------------------------------
 
@@ -122,7 +122,7 @@ AnalogIn lm35(A1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 // Module: code ---------------------------------------
 
@@ -142,9 +142,9 @@ static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 // Module: fire_alarm ---------------------------------
 
 static bool gasDetected           = OFF;
-static bool overTempDetected      = OFF;
+static bool overTemperatureDetected      = OFF;
 static bool gasDetectorState      = OFF;
-static bool overTempDetectorState = OFF;
+static bool overTemperatureDetectorState = OFF;
 
 // Module: matrix_keypad ------------------------------
 
@@ -164,7 +164,7 @@ static bool sirenState = OFF;
 
 // Module: temperature_sensor -------------------------
 
-float lm35TempC = 0.0;
+float lm35TemperatureC = 0.0;
 float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
 
 // Module: user_interface -----------------------------
@@ -180,21 +180,21 @@ static int numberOfCodeChars = 0;
 // Module: code ---------------------------------------
 
 void codeWrite( char* newCodeSequence );
-bool codeMatch( char* codeToCompare );
 bool codeMatchFrom( codeOrigin_t codeOrigin );
+static bool codeMatch( char* codeToCompare );
 static void codeDeactivate();
 
 // Module: date_and_time ------------------------------
 
-char* dateAndTimeReadString();
-void dateAndTimeWriteIndividualValues( int year, int month, int day, 
-                                       int hour, int minute, int second );
+char* dateAndTimeRead();
+void dateAndTimeWrite( int year, int month, int day, 
+                       int hour, int minute, int second );
 
 // Module: event_log ----------------------------------
 
 void eventLogUpdate();
 int eventLogNumberOfStoredEvents();
-void eventLogReadStringAtIndex( int index, char* str );
+void eventLogRead( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
 static void eventLogElementStateUpdate( bool lastState,
                                         bool currentState,
@@ -205,9 +205,9 @@ static void eventLogElementStateUpdate( bool lastState,
 void fireAlarmInit();
 void fireAlarmUpdate();
 bool gasDetectorStateRead();
-bool overTempDetectorStateRead();
+bool overTemperatureDetectorStateRead();
 bool gasDetectedRead();
-bool overTempDetectedRead();
+bool overTemperatureDetectedRead();
 static void fireAlarmActivationUpdate();
 static void fireAlarmDeactivationUpdate();
 static void fireAlarmDeactivate();
@@ -227,8 +227,9 @@ static void matrixKeypadReset();
 
 // Module: pc_serial_com ------------------------------
 
-char pcSerialComReadChar();
-void pcSerialComWrite( const char* str );
+void pcSerialComInit();
+char pcSerialComCharRead();
+void pcSerialComStringWrite( const char* str );
 void pcSerialComUpdate();
 bool pcSerialComCodeCompleteRead();
 void pcSerialComCodeCompleteWrite( bool state );
@@ -238,7 +239,7 @@ static void pcSerialComCommandUpdate( char receivedChar );
 static void availableCommands();
 static void commandShowCurrentSirenState();
 static void commandShowCurrentGasDetectorState();
-static void commandShowCurrentOverTempDetectorState();
+static void commandShowCurrentOverTemperatureDetectorState();
 static void commandEnterCodeSequence();
 static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
@@ -343,11 +344,11 @@ bool codeMatchFrom( codeOrigin_t codeOrigin )
                 pcSerialComCodeCompleteWrite(false);
                 if ( codeIsCorrect ) {
                     codeDeactivate();
-                    pcSerialComWrite( "\r\nThe code is correct\r\n\r\n" );
+                    pcSerialComStringWrite( "\r\nThe code is correct\r\n\r\n" );
                 } else {
                     incorrectCodeStateWrite(ON);
                     numberOfIncorrectCodes++;
-                    pcSerialComWrite( "\r\nThe code is incorrect\r\n\r\n" );
+                    pcSerialComStringWrite( "\r\nThe code is incorrect\r\n\r\n" );
                 }
             }
 
@@ -372,15 +373,15 @@ static void codeDeactivate()
 
 // Module: date_and_time ------------------------------
 
-char* dateAndTimeReadString()
+char* dateAndTimeRead()
 {
     time_t epochSeconds;
     epochSeconds = time(NULL);
     return ctime(&epochSeconds);    
 }
 
-void dateAndTimeWriteIndividualValues( int year, int month, int day, 
-                                       int hour, int minute, int second )
+void dateAndTimeWrite( int year, int month, int day, 
+                       int hour, int minute, int second )
 {
     struct tm rtcTime;
 
@@ -408,7 +409,7 @@ void eventLogUpdate()
     eventLogElementStateUpdate( gasLastState, currentState, "GAS_DET" );
     gasLastState = currentState;
 
-    currentState = overTempDetectorStateRead();
+    currentState = overTemperatureDetectorStateRead();
     eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
     tempLastState = currentState;
 
@@ -426,7 +427,7 @@ int eventLogNumberOfStoredEvents()
     return eventsIndex;
 }
 
-void eventLogReadStringAtIndex( int index, char* str )
+void eventLogRead( int index, char* str )
 {
     str[0] = 0;
 
@@ -462,8 +463,8 @@ void eventLogWrite( bool currentState, const char* elementName )
         eventsIndex = 0;
     }
 
-    pcSerialComWrite(eventAndStateStr);
-    pcSerialComWrite("\r\n");
+    pcSerialComStringWrite(eventAndStateStr);
+    pcSerialComStringWrite("\r\n");
  
     smartphoneBleComWrite(eventAndStateStr);
     smartphoneBleComWrite("\r\n");
@@ -497,9 +498,9 @@ bool gasDetectorStateRead()
     return gasDetectorState;
 }
 
-bool overTempDetectorStateRead()
+bool overTemperatureDetectorStateRead()
 {
-    return overTempDetectorState;
+    return overTemperatureDetectorState;
 }
 
 bool gasDetectedRead()
@@ -507,9 +508,9 @@ bool gasDetectedRead()
     return gasDetected;
 }
 
-bool overTempDetectedRead()
+bool overTemperatureDetectedRead()
 {
-    return overTempDetected;
+    return overTemperatureDetected;
 }
 
 static void fireAlarmActivationUpdate()
@@ -517,11 +518,11 @@ static void fireAlarmActivationUpdate()
     temperatureSensorUpdate();
     gasSensorUpdate();
 
-    overTempDetectorState = temperatureSensorReadCelsius() > 
+    overTemperatureDetectorState = temperatureSensorReadCelsius() > 
                             TEMPERATURE_C_LIMIT_ALARM;
 
-    if ( overTempDetectorState ) {
-        overTempDetected = ON;
+    if ( overTemperatureDetectorState ) {
+        overTemperatureDetected = ON;
         sirenStateWrite(ON);
     }
 
@@ -545,8 +546,8 @@ static void fireAlarmDeactivationUpdate()
 
 static void fireAlarmDeactivate()
 {
-	sirenStateWrite(OFF);
-    overTempDetected = OFF;
+    sirenStateWrite(OFF);
+    overTemperatureDetected = OFF;
     gasDetected      = OFF;    
 }
 
@@ -666,23 +667,28 @@ static void matrixKeypadReset()
 
 // Module: pc_serial_com ------------------------------
 
-char pcSerialComReadChar()
+void pcSerialComInit()
 {
-	char receivedChar = '\0';
+    availableCommands();
+}
+
+char pcSerialComCharRead()
+{
+    char receivedChar = '\0';
     if( uartUsb.readable() ) {
         receivedChar = uartUsb.getc();
     }
-	return receivedChar;
+    return receivedChar;
 }
 
-void pcSerialComWrite( const char* str )
+void pcSerialComStringWrite( const char* str )
 {
     uartUsb.printf( "%s", str );
 }
 
 void pcSerialComUpdate()
 {
-    char receivedChar = pcSerialComReadChar();
+    char receivedChar = pcSerialComCharRead();
     if( receivedChar != '\0' ) {
         switch ( pcSerialComMode ) {
             case PC_SERIAL_COMMANDS:
@@ -745,7 +751,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
     switch (receivedChar) {
         case '1': commandShowCurrentSirenState(); break;
         case '2': commandShowCurrentGasDetectorState(); break;
-        case '3': commandShowCurrentOverTempDetectorState(); break;
+        case '3': commandShowCurrentOverTemperatureDetectorState(); break;
         case '4': commandEnterCodeSequence(); break;
         case '5': commandEnterNewCode(); break;
         case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
@@ -791,9 +797,9 @@ static void commandShowCurrentGasDetectorState()
     }    
 }
 
-static void commandShowCurrentOverTempDetectorState()
+static void commandShowCurrentOverTemperatureDetectorState()
 {
-    if ( overTempDetectorStateRead() ) {
+    if ( overTemperatureDetectorStateRead() ) {
         uartUsb.printf( "Temperature is above the maximum level\r\n");
     } else {
         uartUsb.printf( "Temperature is below the maximum level\r\n");
@@ -871,20 +877,19 @@ static void commandSetDateAndTime()
         uartUsb.getc();
     }
 
-    dateAndTimeWriteIndividualValues( year, month, day, 
-                                      hour, minute, second );
+    dateAndTimeWrite( year, month, day, hour, minute, second );
 }
 
 static void commandShowDateAndTime()
 {
-    uartUsb.printf("Date and Time = %s", dateAndTimeReadString());
+    uartUsb.printf("Date and Time = %s", dateAndTimeRead());
 }
 
 static void commandShowStoredEvents()
 {
     char str[100];
     for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogReadStringAtIndex( i, str );
+        eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
 }
@@ -912,7 +917,7 @@ void sirenIndicatorUpdate()
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( sirenState ) {
-        if( gasDetectedRead() && overTempDetectedRead() ) {
+        if( gasDetectedRead() && overTemperatureDetectedRead() ) {
             if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
@@ -922,7 +927,7 @@ void sirenIndicatorUpdate()
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
-        } else if ( overTempDetectedRead() ) {
+        } else if ( overTemperatureDetectedRead() ) {
             if( accumulatedTimeAlarm >= SIREN_BLINKING_TIME_OVER_TEMP  ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
@@ -937,15 +942,16 @@ void sirenIndicatorUpdate()
 
 void smartHomeSystemInit()
 {
-	sirenInit();
-	userInterfaceInit();
+    sirenInit();
+    userInterfaceInit();
     fireAlarmInit();
+    pcSerialComInit();
 }
 
 void smartHomeSystemUpdate()
 {
     sirenIndicatorUpdate();
-	fireAlarmUpdate();	
+    fireAlarmUpdate();    
     userInterfaceUpdate();
     pcSerialComUpdate();
     eventLogUpdate();
@@ -993,7 +999,7 @@ void temperatureSensorUpdate()
                 lm35ReadingsMovingAverage +
                 lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES-1];
 
-            lm35TempC = analogReadingScaledWithTheLM35Formula(
+            lm35TemperatureC = analogReadingScaledWithTheLM35Formula(
                             lm35ReadingsMovingAverage );
         }
         accumulatedTimeLm35 = 0;
@@ -1002,12 +1008,12 @@ void temperatureSensorUpdate()
 
 float temperatureSensorReadCelsius()
 {
-    return lm35TempC;
+    return lm35TemperatureC;
 }
 
 float temperatureSensorReadFahrenheit()
 {
-    return celsiusToFahrenheit( lm35TempC );
+    return celsiusToFahrenheit( lm35TemperatureC );
 }
 
 float celsiusToFahrenheit( float tempInCelsiusDegrees )
@@ -1040,7 +1046,7 @@ void userInterfaceInit()
 
 void userInterfaceUpdate()
 {
-	userInterfaceMatrixKeypadUpdate();
+    userInterfaceMatrixKeypadUpdate();
     incorrectCodeIndicatorUpdate();
     systemBlockedIndicatorUpdate();
 }

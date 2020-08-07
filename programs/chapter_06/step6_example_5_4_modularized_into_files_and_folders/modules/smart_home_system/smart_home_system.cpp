@@ -14,13 +14,13 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -31,12 +31,13 @@ void smartHomeSystemInit()
     sirenInit();
     userInterfaceInit();
     fireAlarmInit();
+    pcSerialComInit();
 }
 
 void smartHomeSystemUpdate()
 {
     sirenIndicatorUpdate();
-    fireAlarmUpdate();	
+    fireAlarmUpdate();    
     userInterfaceUpdate();
     pcSerialComUpdate();
     eventLogUpdate();

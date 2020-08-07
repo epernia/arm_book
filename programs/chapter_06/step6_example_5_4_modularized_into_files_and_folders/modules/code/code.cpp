@@ -16,20 +16,21 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 //=====[Declaration of external public global variables]=======================
 
 extern char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
 extern char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 static int numberOfIncorrectCodes = 0;
 static char codeSequence[CODE_NUMBER_OF_KEYS] = { '1', '8', '0', '5' };
 
 //=====[Declarations (prototypes) of private functions]========================
 
+static bool codeMatch( char* codeToCompare );
 static void codeDeactivate();
 
 //=====[Implementations of public functions]===================================
@@ -39,17 +40,6 @@ void codeWrite( char* newCodeSequence )
     for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         codeSequence[i] = newCodeSequence[i];
     }
-}
-
-bool codeMatch( char* codeToCompare )
-{
-    int i;
-    for (i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
-        if ( codeSequence[i] != codeToCompare[i] ) {
-            return false;
-        }
-    }
-    return true;
 }
 
 bool codeMatchFrom( codeOrigin_t codeOrigin )
@@ -76,11 +66,11 @@ bool codeMatchFrom( codeOrigin_t codeOrigin )
                 pcSerialComCodeCompleteWrite(false);
                 if ( codeIsCorrect ) {
                     codeDeactivate();
-                    pcSerialComWrite( "\r\nThe code is correct\r\n\r\n" );
+                    pcSerialComStringWrite( "\r\nThe code is correct\r\n\r\n" );
                 } else {
                     incorrectCodeStateWrite(ON);
                     numberOfIncorrectCodes++;
-                    pcSerialComWrite( "\r\nThe code is incorrect\r\n\r\n" );
+                    pcSerialComStringWrite( "\r\nThe code is incorrect\r\n\r\n" );
                 }
             }
 
@@ -97,6 +87,17 @@ bool codeMatchFrom( codeOrigin_t codeOrigin )
 }
 
 //=====[Implementations of private functions]==================================
+
+static bool codeMatch( char* codeToCompare )
+{
+    int i;
+    for (i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
+        if ( codeSequence[i] != codeToCompare[i] ) {
+            return false;
+        }
+    }
+    return true;
+}
 
 static void codeDeactivate()
 {

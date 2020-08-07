@@ -19,7 +19,6 @@ typedef enum{
 //=====[Declarations (prototypes) of public functions]=========================
 
 void codeWrite( char* newCodeSequence );
-bool codeMatch( char* codeToCompare );
 bool codeMatchFrom( codeOrigin_t codeOrigin );
 
 //=====[#include guards - end]=================================================

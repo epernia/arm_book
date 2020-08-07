@@ -32,7 +32,7 @@ typedef struct systemEvent {
     char typeOfEvent[EVENT_NAME_MAX_LENGTH];
 } systemEvent_t;
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn gasDetector(D2);
 
@@ -48,11 +48,11 @@ AnalogIn lm35(A1);
 DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
 DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool alarmState       = OFF;
 bool incorrectCode    = false;
-bool overTempDetector = OFF;
+bool overTemperatureDetector = OFF;
 
 int numberOfIncorrectCodes = 0;
 int keyBeingCompared       = 0;
@@ -69,11 +69,11 @@ bool tempLastState         = OFF;
 bool ICLastState           = OFF;
 bool SBLastState           = OFF;
 bool gasDetectorState      = OFF;
-bool overTempDetectorState = OFF;
+bool overTemperatureDetectorState = OFF;
 
 float lm35ReadingsMovingAverage = 0.0;
 float lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES];
-float lm35TempC                 = 0.0;
+float lm35TemperatureC                 = 0.0;
 
 int numberOfEnterButtonReleasedEvents = 0;
 
@@ -170,30 +170,30 @@ void alarmActivationUpdate()
                 lm35ReadingsMovingAverage +
                 lm35AvgReadingsArray[NUMBER_OF_AVG_SAMPLES-1];
 
-            lm35TempC = analogReadingScaledWithTheLM35Formula(
+            lm35TemperatureC = analogReadingScaledWithTheLM35Formula(
                             lm35ReadingsMovingAverage );
         }
         accumulatedTimeLm35 = 0;
     }
 
-    if ( lm35TempC > OVER_TEMP_LEVEL ) {
-        overTempDetector = ON;
+    if ( lm35TemperatureC > OVER_TEMP_LEVEL ) {
+        overTemperatureDetector = ON;
     } else {
-        overTempDetector = OFF;
+        overTemperatureDetector = OFF;
     }
 
     if( gasDetector) {
         gasDetectorState = ON;
         alarmState = ON;
     }
-    if( overTempDetector ) {
-        overTempDetectorState = ON;
+    if( overTemperatureDetector ) {
+        overTemperatureDetectorState = ON;
         alarmState = ON;
     }
     if( alarmState ) {
         accumulatedTimeAlarm = accumulatedTimeAlarm + TIME_INCREMENT_MS;
 
-        if( gasDetectorState && overTempDetectorState ) {
+        if( gasDetectorState && overTemperatureDetectorState ) {
             if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
@@ -203,7 +203,7 @@ void alarmActivationUpdate()
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
             }
-        } else if ( overTempDetectorState ) {
+        } else if ( overTemperatureDetectorState ) {
             if( accumulatedTimeAlarm >= BLINKING_TIME_OVER_TEMP_ALARM  ) {
                 accumulatedTimeAlarm = 0;
                 alarmLed = !alarmLed;
@@ -212,7 +212,7 @@ void alarmActivationUpdate()
     } else {
         alarmLed = OFF;
         gasDetectorState = OFF;
-        overTempDetectorState = OFF;
+        overTemperatureDetectorState = OFF;
     }
 }
 
@@ -276,7 +276,7 @@ void uartTask()
             break;
 
         case '3':
-            if ( overTempDetector ) {
+            if ( overTemperatureDetector ) {
                 uartUsb.printf( "Temperature is above the maximum level\r\n");
             } else {
                 uartUsb.printf( "Temperature is below the maximum level\r\n");
@@ -326,13 +326,13 @@ void uartTask()
 
         case 'c':
         case 'C':
-            uartUsb.printf( "Temperature: %.2f °C\r\n", lm35TempC );
+            uartUsb.printf( "Temperature: %.2f °C\r\n", lm35TemperatureC );
             break;
 
         case 'f':
         case 'F':
             uartUsb.printf( "Temperature: %.2f °F\r\n",
-                            celsiusToFahrenheit( lm35TempC ) );
+                            celsiusToFahrenheit( lm35TemperatureC ) );
             break;
 
         case 's':
@@ -437,8 +437,8 @@ void eventLogUpdate()
     systemElementStateUpdate( gasLastState,gasDetector, "GAS_DET" );
     gasLastState = gasDetector;
 
-    systemElementStateUpdate( tempLastState,overTempDetector, "OVER_TEMP" );
-    tempLastState = overTempDetector;
+    systemElementStateUpdate( tempLastState,overTemperatureDetector, "OVER_TEMP" );
+    tempLastState = overTemperatureDetector;
 
     systemElementStateUpdate( ICLastState,incorrectCodeLed, "LED_IC" );
     ICLastState = incorrectCodeLed;

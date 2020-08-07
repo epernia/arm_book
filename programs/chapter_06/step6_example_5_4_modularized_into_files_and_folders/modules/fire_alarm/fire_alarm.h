@@ -16,9 +16,9 @@
 void fireAlarmInit();
 void fireAlarmUpdate();
 bool gasDetectorStateRead();
-bool overTempDetectorStateRead();
+bool overTemperatureDetectorStateRead();
 bool gasDetectedRead();
-bool overTempDetectedRead();
+bool overTemperatureDetectedRead();
 
 //=====[#include guards - end]=================================================
 

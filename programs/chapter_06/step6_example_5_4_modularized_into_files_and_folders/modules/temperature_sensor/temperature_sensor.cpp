@@ -13,17 +13,17 @@
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 AnalogIn lm35(A1);
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
-float lm35TempC = 0.0;
+float lm35TemperatureC = 0.0;
 float lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
 
 //=====[Declarations (prototypes) of private functions]========================
@@ -65,7 +65,7 @@ void temperatureSensorUpdate()
                 lm35ReadingsMovingAverage +
                 lm35AvgReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES-1];
 
-            lm35TempC = analogReadingScaledWithTheLM35Formula(
+            lm35TemperatureC = analogReadingScaledWithTheLM35Formula(
                             lm35ReadingsMovingAverage );
         }
         accumulatedTimeLm35 = 0;
@@ -74,12 +74,12 @@ void temperatureSensorUpdate()
 
 float temperatureSensorReadCelsius()
 {
-    return lm35TempC;
+    return lm35TemperatureC;
 }
 
 float temperatureSensorReadFahrenheit()
 {
-    return celsiusToFahrenheit( lm35TempC );
+    return celsiusToFahrenheit( lm35TemperatureC );
 }
 
 float celsiusToFahrenheit( float tempInCelsiusDegrees )

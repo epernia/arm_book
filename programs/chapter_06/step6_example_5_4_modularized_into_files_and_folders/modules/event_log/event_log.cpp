@@ -24,13 +24,13 @@ typedef struct systemEvent {
     char typeOfEvent[EVENT_LOG_NAME_MAX_LENGTH];
 } systemEvent_t;
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 //=====[Declaration of external public global variables]=======================
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
-//=====[Declaration and intitalization of private global variables]============
+//=====[Declaration and initialization of private global variables]============
 
 static bool sirenLastState = OFF;
 static bool gasLastState   = OFF;
@@ -58,7 +58,7 @@ void eventLogUpdate()
     eventLogElementStateUpdate( gasLastState, currentState, "GAS_DET" );
     gasLastState = currentState;
 
-    currentState = overTempDetectorStateRead();
+    currentState = overTemperatureDetectorStateRead();
     eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
     tempLastState = currentState;
 
@@ -76,7 +76,7 @@ int eventLogNumberOfStoredEvents()
     return eventsIndex;
 }
 
-void eventLogReadStringAtIndex( int index, char* str )
+void eventLogRead( int index, char* str )
 {
     str[0] = 0;
 
@@ -112,8 +112,8 @@ void eventLogWrite( bool currentState, const char* elementName )
         eventsIndex = 0;
     }
 
-    pcSerialComWrite(eventAndStateStr);
-    pcSerialComWrite("\r\n");
+    pcSerialComStringWrite(eventAndStateStr);
+    pcSerialComStringWrite("\r\n");
  
     smartphoneBleComWrite(eventAndStateStr);
     smartphoneBleComWrite("\r\n");
