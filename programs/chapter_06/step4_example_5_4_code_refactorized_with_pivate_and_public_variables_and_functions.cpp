@@ -944,8 +944,8 @@ void smartHomeSystemInit()
 
 void smartHomeSystemUpdate()
 {
-    fireAlarmUpdate();	
     sirenIndicatorUpdate();
+	fireAlarmUpdate();	
     userInterfaceUpdate();
     pcSerialComUpdate();
     eventLogUpdate();
