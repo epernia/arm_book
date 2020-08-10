@@ -48,7 +48,8 @@ void temperatureSensorUpdate()
 
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
         if ( lm35SampleIndex < LM35_NUMBER_OF_AVG_SAMPLES ) {
-            lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / LM35_NUMBER_OF_AVG_SAMPLES;
+            lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / 
+                                                    LM35_NUMBER_OF_AVG_SAMPLES;
             lm35ReadingsMovingAverage = lm35ReadingsMovingAverage +
                                         lm35AvgReadingsArray[lm35SampleIndex];
             lm35SampleIndex++;

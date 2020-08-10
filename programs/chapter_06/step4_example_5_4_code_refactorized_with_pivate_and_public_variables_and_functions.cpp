@@ -138,9 +138,9 @@ static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 // Module: fire_alarm ---------------------------------
 
-static bool gasDetected           = OFF;
+static bool gasDetected                  = OFF;
 static bool overTemperatureDetected      = OFF;
-static bool gasDetectorState      = OFF;
+static bool gasDetectorState             = OFF;
 static bool overTemperatureDetectorState = OFF;
 
 // Module: matrix_keypad ------------------------------
@@ -665,7 +665,8 @@ static char matrixKeypadScan()
 
         for( col=0; col<MATRIX_KEYPAD_NUMBER_OF_COLS; col++ ) {
             if( keypadColPins[col] == OFF ) {
-                return matrixKeypadIndexToCharArray[row*MATRIX_KEYPAD_NUMBER_OF_ROWS + col];
+                return matrixKeypadIndexToCharArray[
+                    row*MATRIX_KEYPAD_NUMBER_OF_ROWS + col];
             }
         }
     }
@@ -781,7 +782,7 @@ static void availableCommands()
     uartUsb.printf( "Press '1' to get the alarm state\r\n" );
     uartUsb.printf( "Press '2' for gas detector state\r\n" );
     uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
-    uartUsb.printf( "Press '4' to enter the code sequence to deactivate the alarm\r\n" );
+    uartUsb.printf( "Press '4' to enter the code to deactivate the alarm\r\n" );
     uartUsb.printf( "Press '5' to enter a new code to deactivate the alarm\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
     uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
@@ -980,7 +981,8 @@ void temperatureSensorUpdate()
 
     if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
         if ( lm35SampleIndex < LM35_NUMBER_OF_AVG_SAMPLES ) {
-            lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / LM35_NUMBER_OF_AVG_SAMPLES;
+            lm35AvgReadingsArray[lm35SampleIndex] = lm35.read() / 
+                                                    LM35_NUMBER_OF_AVG_SAMPLES;
             lm35ReadingsMovingAverage = lm35ReadingsMovingAverage +
                                         lm35AvgReadingsArray[lm35SampleIndex];
             lm35SampleIndex++;
@@ -1091,7 +1093,7 @@ void userInterfaceCodeCompleteWrite( bool state )
 
 static void userInterfaceMatrixKeypadUpdate()
 {
-    static int numberOfHaskKeyReleased = 0;
+    static int numberOfHashKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
 
     if( keyReleased != '\0' ) {
@@ -1106,9 +1108,9 @@ static void userInterfaceMatrixKeypadUpdate()
                 }
             } else {
                 if( keyReleased == '#' ) {
-                    numberOfHaskKeyReleased++;
-                    if( numberOfHaskKeyReleased >= 2 ) {
-                        numberOfHaskKeyReleased = 0;
+                    numberOfHashKeyReleased++;
+                    if( numberOfHashKeyReleased >= 2 ) {
+                        numberOfHashKeyReleased = 0;
                         numberOfCodeChars = 0;
                         codeComplete = false;
                         incorrectCodeState = OFF;

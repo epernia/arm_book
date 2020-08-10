@@ -68,7 +68,7 @@ bool gasLastState          = OFF;
 bool tempLastState         = OFF;
 bool ICLastState           = OFF;
 bool SBLastState           = OFF;
-bool gasDetectorState      = OFF;
+bool gasDetectorState             = OFF;
 bool overTemperatureDetectorState = OFF;
 
 float lm35ReadingsMovingAverage = 0.0;

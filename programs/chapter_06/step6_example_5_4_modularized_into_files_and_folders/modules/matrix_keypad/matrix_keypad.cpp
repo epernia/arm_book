@@ -127,7 +127,8 @@ static char matrixKeypadScan()
 
         for( col=0; col<MATRIX_KEYPAD_NUMBER_OF_COLS; col++ ) {
             if( keypadColPins[col] == OFF ) {
-                return matrixKeypadIndexToCharArray[row*MATRIX_KEYPAD_NUMBER_OF_ROWS + col];
+                return matrixKeypadIndexToCharArray[
+                    row*MATRIX_KEYPAD_NUMBER_OF_ROWS + col];
             }
         }
     }

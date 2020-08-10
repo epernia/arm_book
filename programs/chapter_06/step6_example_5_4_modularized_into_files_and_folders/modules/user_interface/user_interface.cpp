@@ -92,7 +92,7 @@ void userInterfaceCodeCompleteWrite( bool state )
 
 static void userInterfaceMatrixKeypadUpdate()
 {
-    static int numberOfHaskKeyReleased = 0;
+    static int numberOfHashKeyReleased = 0;
     char keyReleased = matrixKeypadUpdate();
 
     if( keyReleased != '\0' ) {
@@ -107,9 +107,9 @@ static void userInterfaceMatrixKeypadUpdate()
                 }
             } else {
                 if( keyReleased == '#' ) {
-                    numberOfHaskKeyReleased++;
-                    if( numberOfHaskKeyReleased >= 2 ) {
-                        numberOfHaskKeyReleased = 0;
+                    numberOfHashKeyReleased++;
+                    if( numberOfHashKeyReleased >= 2 ) {
+                        numberOfHashKeyReleased = 0;
                         numberOfCodeChars = 0;
                         codeComplete = false;
                         incorrectCodeState = OFF;
