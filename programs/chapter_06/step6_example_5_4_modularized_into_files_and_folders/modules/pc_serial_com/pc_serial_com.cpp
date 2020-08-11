@@ -19,7 +19,7 @@
 
 typedef enum{
     PC_SERIAL_COMMANDS,
-    PC_SERIAL_SAVE_CODE,
+    PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
 } pcSerialComMode_t;
 
@@ -41,7 +41,7 @@ static int numberOfCodeChars = 0;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static void pcSerialComSaveCodeUpdate( char receivedChar );
+static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 
 static void pcSerialComCommandUpdate( char receivedChar );
@@ -88,8 +88,8 @@ void pcSerialComUpdate()
                 pcSerialComCommandUpdate( receivedChar );
             break;
 
-            case PC_SERIAL_SAVE_CODE:
-                pcSerialComSaveCodeUpdate( receivedChar );
+            case PC_SERIAL_GET_CODE:
+                pcSerialComGetCodeUpdate( receivedChar );
             break;
 
             case PC_SERIAL_SAVE_NEW_CODE:
@@ -114,7 +114,7 @@ void pcSerialComCodeCompleteWrite( bool state )
 
 //=====[Implementations of private functions]==================================
 
-static void pcSerialComSaveCodeUpdate( char receivedChar )
+static void pcSerialComGetCodeUpdate( char receivedChar )
 {
     codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
     uartUsb.printf( "*" );
@@ -206,7 +206,7 @@ static void commandEnterCodeSequence()
     if( sirenStateRead() ) {
         uartUsb.printf( "Please enter the four digits numeric code " );
         uartUsb.printf( "to deactivate the alarm.\r\n" );
-        pcSerialComMode = PC_SERIAL_SAVE_CODE;
+        pcSerialComMode = PC_SERIAL_GET_CODE;
         codeComplete = false;
         numberOfCodeChars = 0;
     } else {
