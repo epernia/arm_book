@@ -5,7 +5,7 @@
 
 //=====[Libraries]=============================================================
 
-//=====[Declaration of public constants]=======================================
+//=====[Declaration of public defines]=======================================
 
 #define SYSTEM_TIME_INCREMENT_MS   10
 

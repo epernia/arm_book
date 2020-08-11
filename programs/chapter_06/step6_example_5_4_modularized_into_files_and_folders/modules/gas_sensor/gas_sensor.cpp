@@ -4,7 +4,7 @@
 
 #include "gas_sensor.h"
 
-//=====[Declaration of private constants]======================================
+//=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 

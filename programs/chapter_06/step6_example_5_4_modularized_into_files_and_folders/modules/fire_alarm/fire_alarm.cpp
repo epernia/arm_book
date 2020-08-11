@@ -13,7 +13,7 @@
 #include "gas_sensor.h"
 #include "matrix_keypad.h"
 
-//=====[Declaration of private constants]======================================
+//=====[Declaration of private defines]======================================
 
 #define TEMPERATURE_C_LIMIT_ALARM               50.0
 #define GAS_CONCENTRATION_LIMIT_ALARM            0.0 // TODO: Ver que valor de umbral poner

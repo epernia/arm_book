@@ -4,7 +4,7 @@
 
 #include "date_and_time.h"
 
-//=====[Declaration of private constants]======================================
+//=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 

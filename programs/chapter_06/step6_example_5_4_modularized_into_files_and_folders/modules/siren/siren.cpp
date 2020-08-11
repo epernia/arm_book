@@ -8,7 +8,7 @@
 #include "smart_home_system.h"
 #include "fire_alarm.h"
 
-//=====[Declaration of private constants]======================================
+//=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 

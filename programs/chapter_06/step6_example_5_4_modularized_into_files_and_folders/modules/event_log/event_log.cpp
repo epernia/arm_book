@@ -12,7 +12,7 @@
 #include "pc_serial_com.h"
 #include "smartphone_ble_com.h"
 
-//=====[Declaration of private constants]======================================
+//=====[Declaration of private defines]======================================
 
 #define EVENT_LOG_MAX_STORAGE       100
 #define EVENT_LOG_NAME_MAX_LENGTH    15

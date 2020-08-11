@@ -13,7 +13,7 @@
 #include "gas_sensor.h"
 #include "matrix_keypad.h"
 
-//=====[Declaration of private constants]======================================
+//=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 

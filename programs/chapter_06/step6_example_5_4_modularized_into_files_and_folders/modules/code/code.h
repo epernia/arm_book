@@ -5,7 +5,7 @@
 
 //=====[Libraries]=============================================================
 
-//=====[Declaration of public constants]=======================================
+//=====[Declaration of public defines]=======================================
 
 #define CODE_NUMBER_OF_KEYS   4
 
