@@ -301,7 +301,8 @@ int main()
 
 void codeWrite( char* newCodeSequence )
 {
-    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
+    int i;
+    for (i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         codeSequence[i] = newCodeSequence[i];
     }
 }
@@ -900,7 +901,8 @@ void commandShowDateAndTime()
 void commandShowStoredEvents()
 {
     char str[100];
-    for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
+    int i;
+    for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }

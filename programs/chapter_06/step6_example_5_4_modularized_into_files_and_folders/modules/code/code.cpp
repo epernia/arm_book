@@ -37,7 +37,8 @@ static void codeDeactivate();
 
 void codeWrite( char* newCodeSequence )
 {
-    for ( int i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
+    int i;
+    for (i = 0; i < CODE_NUMBER_OF_KEYS; i++) {
         codeSequence[i] = newCodeSequence[i];
     }
 }

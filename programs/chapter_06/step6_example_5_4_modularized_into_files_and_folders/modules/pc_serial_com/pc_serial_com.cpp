@@ -283,7 +283,8 @@ static void commandShowDateAndTime()
 static void commandShowStoredEvents()
 {
     char str[100];
-    for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
+    int i;
+    for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
