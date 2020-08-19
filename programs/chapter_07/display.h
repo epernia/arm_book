@@ -79,6 +79,7 @@ typedef enum {
 typedef enum {
      DISPLAY_ERR_0,
      DISPLAY_ERR_1,
+     DISPLAY_NO_ERR,
 } displayError_t;
 
 typedef struct {                   //  Char   Graphic

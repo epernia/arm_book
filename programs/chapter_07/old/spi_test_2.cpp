@@ -7,6 +7,8 @@
 
 #include "mbed.h"
 #include "arm_book_lib.h"
+#include "bitmap.h"
+
 
 /* setup below is as follows
  * A5 ---------> SCLK (EN)
@@ -25,9 +27,11 @@
 #define RST_PIN GPIO_PIN_0
 #define RST_PORT GPIOB
 */
-SPI spi(SPI_MOSI, SPI_MISO, SPI_SCK,SPI_CS); // mosi, miso, sclk
-DigitalOut resetSpi(D9);
+SPI spi(SPI_MOSI, SPI_MISO, SPI_SCK); // mosi, miso, sclk
+DigitalOut spiSS(SPI_CS);
+DigitalOut spiReset(D8);
 DigitalOut LD1(LED1);
+Serial uartUsb(USBTX, USBRX);
 
 
 uint8_t image[(128 * 64)/8];
@@ -46,9 +50,11 @@ void ST7920_SendCmd (uint8_t cmd)
 {
 
     spi.lock();
+    spiSS = 1;
 	spi.write(0xf8+(0<<1));  // send the SYNC + RS(0)
 	spi.write(cmd&0xf0);  // send the higher nibble first
 	spi.write((cmd<<4)&0xf0);  // send the lower nibble
+    spiSS = 0;
     spi.unlock();
 
 
@@ -58,9 +64,11 @@ void ST7920_SendData (uint8_t data)
 {
 
     spi.lock();
+    spiSS = 1;
 	spi.write(0xf8+(1<<1));  // send the SYNC + RS(1)
 	spi.write(data&0xf0);  // send the higher nibble first
 	spi.write((data<<4)&0xf0);  // send the lower nibble
+    spiSS = 0;
 	spi.unlock();
 }
 
@@ -191,9 +199,9 @@ void ST7920_Clear()
 
 void ST7920_Init (void)
 {
-	resetSpi = OFF;  // RESET=0
+	spiReset = OFF;  // RESET=0
 	delay(10);   // wait for 10ms
-	resetSpi = ON;  // RESET=1
+	spiReset = ON;  // RESET=1
 
 	delay(50);   //wait for >40 ms
 
@@ -210,15 +218,16 @@ void ST7920_Init (void)
 	ST7920_SendCmd(0x01);  // clear screen
 	delay(12);  // >10 ms delay
 
-
 	ST7920_SendCmd(0x06);  // cursor increment right no shift
 	delay(1);  // 1ms delay
 
+    //initialization end
+
 	ST7920_SendCmd(0x0C);  // D=1, C=0, B=0
-    delay(1);  // 1ms delay
+    delay(3);  // 1ms delay
 
 	ST7920_SendCmd(0x02);  // return to home
-	delay(1);  // 1ms delay
+	delay(3);  // 1ms delay
 
 }
 
@@ -501,18 +510,78 @@ void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
 int main(void)
 {
     int timeCount = 0;
+    spi.format(8,3);
+    spi.frequency(10000);
+
+    char string_a[] = "First line";
+    char string_b[] = "Second line";
+    char string_c[] = "Third line";
+    char string_d[] = "Forth line";
+
+    delay(10000);
+
+    ST7920_Init();
 
     while(1) {
+
         ST7920_Init();
 
-        ST7920_SendString(0,0, "HELLO WORLD");
-        ST7920_SendString(1,0, "FROM");
-        ST7920_SendString(2,0, "CONTROLLERSTECH");
-        ST7920_SendString(3,0, "1234567890!@#$%^");  
+        ST7920_GraphicMode(0);
+
+        //ST7920_Init();
+        ST7920_Clear();
+        ST7920_SendString(0,0, string_a);
+        delay(1000);
+        
+        ST7920_SendString(1,0, string_b);
+        delay(1000);
+        ST7920_Clear();
+        
+        ST7920_SendString(2,0, string_c);
+        delay(1000);
+        
+        ST7920_SendString(3,0, string_d);
+        delay(1000);
+
+        //ST7920_Init();
+
+        ST7920_Clear();
+
+        ST7920_GraphicMode(1);
+        
+        DrawCircle(110, 31, 12);
+
+        DrawCircle(110, 31, 16);
+
+        DrawLine(3, 60, 127, 33);
+
+        ST7920_Update(); 
 
         delay(2000);
 
+        //ST7920_Init();
+
         ST7920_Clear();
+
+        ST7920_DrawBitmap(bitmap);
+
+        delay(2000);
+
+        //ST7920_Init();
+
+        ST7920_Clear();
+
+        ST7920_DrawBitmap(logo);
+
+        delay(2000);
+
+        //DrawRectangle (100, 12, 20, 14);
+
+        //ST7920_Update();
+
+        //ST7920_Clear();
+
+        //ST7920_Clear();
         LD1 = OFF;
 
         delay(500);
