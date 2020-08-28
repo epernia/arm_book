@@ -56,8 +56,13 @@ static int numberOfCodeChars = 0;
 static void userInterfaceMatrixKeypadUpdate();
 static void incorrectCodeIndicatorUpdate();
 static void systemBlockedIndicatorUpdate();
+
 static void userInterfaceDisplayInit();
 static void userInterfaceDisplayUpdate();
+static void userInterfaceDisplayReportStateInit();
+static void userInterfaceDisplayReportStateUpdate();
+static void userInterfaceDisplayAlarmStateInit();
+static void userInterfaceDisplayAlarmStateUpdate();
 
 //=====[Implementations of public functions]===================================
 
@@ -139,13 +144,16 @@ static void userInterfaceMatrixKeypadUpdate()
     }
 }
 
-static void userInterfaceDisplayTextInit()
+static void userInterfaceDisplayReportStateInit()
 {
+    displayState = DISPLAY_REPORT_STATE;
+    displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
+    
     displayModeWrite( DISPLAY_MODE_CHAR );
 
     displayCommandWrite(DISPLAY_CMD_CLEAR);
     delay(2);
-    
+
     displayCharPositionWrite ( 0,0 );
     displayStringWrite( "Temperature:" );
 
@@ -156,20 +164,78 @@ static void userInterfaceDisplayTextInit()
     displayStringWrite( "Alarm:" );
 }
 
+static void userInterfaceDisplayReportStateUpdate()
+{
+    char temperatureString[2];
+    
+    sprintf(temperatureString, "%.0f", temperatureSensorReadCelsius());
+    displayCharPositionWrite ( 12,0 );
+    displayStringWrite( temperatureString );
+    displayCharPositionWrite ( 14,0 );
+    displayStringWrite( "'C" );
+
+    displayCharPositionWrite ( 4,1 );
+
+    if ( gasDetectorStateRead() ) {
+        displayStringWrite( "Detected    " );
+    } else {
+        displayStringWrite( "Not Detected" );
+    }
+    displayCharPositionWrite ( 6,2 );
+    displayStringWrite( "OFF" );
+}
+
+static void userInterfaceDisplayAlarmStateInit()
+{
+    displayState = DISPLAY_ALARM_STATE;
+    displayRefreshTimeMs = DISPLAY_REFRESH_TIME_ALARM_MS;
+
+    displayCommandWrite(DISPLAY_CMD_CLEAR);
+    delay(2);
+
+    displayModeWrite( DISPLAY_MODE_GRAPHIC );
+   
+    displayAlarmGraphicSequence = 0;
+}
+
+static void userInterfaceDisplayAlarmStateUpdate()
+{
+    switch( displayAlarmGraphicSequence ){
+        case 0:
+            displayBitmapWrite( GLCD_fire_alarm_0 );
+            displayAlarmGraphicSequence++;
+        break;
+        case 1:
+            displayBitmapWrite( GLCD_fire_alarm_1 );
+            displayAlarmGraphicSequence++;
+        break;
+        case 2:
+            displayBitmapWrite( GLCD_fire_alarm_2 );
+            displayAlarmGraphicSequence++;
+        break;
+        case 3:
+            displayBitmapWrite( GLCD_fire_alarm_3 );
+            displayAlarmGraphicSequence = 0;
+        break;
+        default:
+            displayBitmapWrite( GLCD_fire_alarm_0 );
+            displayAlarmGraphicSequence = 1;
+        break;                   
+    }
+}
+
 static void userInterfaceDisplayInit()
 {
     displayInit( DISPLAY_TYPE_GLCD_ST7920, DISPLAY_CONNECTION_SPI,
                         16, 4,
                         8, 16,
                         128, 64 );
-    userInterfaceDisplayTextInit();
+    userInterfaceDisplayReportStateInit();
 }
-
 
 static void userInterfaceDisplayUpdate()
 {
     static int accumulatedDisplayTime = 0;
-    char temperatureString[4];
     
     if( accumulatedDisplayTime >=
         displayRefreshTimeMs ) {
@@ -178,83 +244,30 @@ static void userInterfaceDisplayUpdate()
 
         switch ( displayState ) {
             case DISPLAY_REPORT_STATE:
-                sprintf(temperatureString, "%.0f", temperatureSensorReadCelsius());
-                displayCharPositionWrite ( 12,0 );
-                displayStringWrite( temperatureString );
-                displayCharPositionWrite ( 14,0 );
-                displayStringWrite( " C" );
-
-                displayCharPositionWrite ( 4,1 );
-
-                if ( gasDetectorStateRead() ) {
-                    displayStringWrite( "Detected    " );
-                } else {
-                    displayStringWrite( "Not Detected" );
-                }
-                displayCharPositionWrite ( 6,2 );
-                displayStringWrite( "OFF" );
+                userInterfaceDisplayReportStateUpdate();
 
                 if ( sirenStateRead() ) {
-                    displayState = DISPLAY_ALARM_STATE;
-                    displayCommandWrite(DISPLAY_CMD_CLEAR);
-                    delay(2);
-                    displayModeWrite( DISPLAY_MODE_GRAPHIC );
-                    displayAlarmGraphicSequence = 0;
-                    displayRefreshTimeMs = DISPLAY_REFRESH_TIME_ALARM_MS;
+                    userInterfaceDisplayAlarmStateInit();
                 }
-
             break;
 
             case DISPLAY_ALARM_STATE:
-                switch( displayAlarmGraphicSequence ){
-                    case 0:
-                        displayBitmapWrite( GLCD_fire_alarm_0 );
-                        displayAlarmGraphicSequence++;
-                    break;
-                    case 1:
-                        displayCommandWrite(DISPLAY_CMD_CLEAR);
-                        delay(2);
-                        displayAlarmGraphicSequence++;
-                    break;
-                    case 2:
-                        displayBitmapWrite( GLCD_fire_alarm_1 );
-                        displayAlarmGraphicSequence++;
-                    break;
-                    case 3:
-                        displayCommandWrite(DISPLAY_CMD_CLEAR);
-                        delay(2);
-                        displayAlarmGraphicSequence++;
-                    break;
-                    case 4:
-                        displayBitmapWrite( GLCD_fire_alarm_2 );
-                        displayAlarmGraphicSequence++;
-                    break;
-                    case 5:
-                        displayCommandWrite(DISPLAY_CMD_CLEAR);
-                        delay(2);
-                        displayAlarmGraphicSequence = 0;
-                    break;
-                }
-                
+                userInterfaceDisplayAlarmStateUpdate();
 
                 if ( !sirenStateRead() ) {
-                    displayState = DISPLAY_REPORT_STATE;
-                    userInterfaceDisplayTextInit();
-                    displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
+                    userInterfaceDisplayReportStateInit();
                 }
-                
             break;
 
             default:
-                displayState = DISPLAY_REPORT_STATE;
+                userInterfaceDisplayReportStateInit();
             break;
         }
 
-    } else {
+   } else {
         accumulatedDisplayTime =
             accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;        
     }
-    
 }
 
 static void incorrectCodeIndicatorUpdate()
