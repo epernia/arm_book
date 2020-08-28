@@ -134,53 +134,56 @@ static void userInterfaceDisplayInit()
                         16, 4,
                         8, 16,
                         128, 64 );
+    
     displayModeWrite( DISPLAY_MODE_CHAR );
+    
     displayCharPositionWrite ( 0,0 );
-    displayStringWrite( "Temperature" );
+    displayStringWrite( "Temperature:" );
 
     displayCharPositionWrite ( 0,1 );
-    displayStringWrite( "Gas" );
+    displayStringWrite( "Gas:" );
     
     displayCharPositionWrite ( 0,2 );
-    displayStringWrite( "Alarm" );
+    displayStringWrite( "Alarm:" );
 }
 
 
 static void userInterfaceDisplayUpdate()
 {
     static int accumulatedDisplayTime = 0;
-    char temperatureString[4];
+    char temperatureString[2];
     
     if( accumulatedDisplayTime >=
         DISPLAY_REFRESH_TIME_MS ) {
 
         accumulatedDisplayTime = 0;
 
-        sprintf(temperatureString, "%.1f", temperatureSensorReadCelsius());
-        displayCharPositionWrite ( 13,0 );
+        sprintf(temperatureString, "%.0f", temperatureSensorReadCelsius());
+        displayCharPositionWrite ( 12,0 );
         displayStringWrite( temperatureString );
+        displayCharPositionWrite ( 14,0 );
+        displayStringWrite( "'C" );
 
-        displayCharPositionWrite ( 6,1 );
+        displayCharPositionWrite ( 4,1 );
 
         if ( gasDetectorStateRead() ) {
-            displayStringWrite( "Det  " );
+            displayStringWrite( "Detected    " );
         } else {
-            displayStringWrite( "N/Det" );
+            displayStringWrite( "Not Detected" );
         }
 
-        displayCharPositionWrite ( 8,2 );
+        displayCharPositionWrite ( 6,2 );
         
         if ( sirenStateRead() ) {
-            displayStringWrite( "Act  " );
+            displayStringWrite( "ON " );
         } else {
-            displayStringWrite( "N/Act" );
+            displayStringWrite( "OFF" );
         }
 
     } else {
         accumulatedDisplayTime =
             accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;        
-    }
-    
+    } 
 }
 
 static void incorrectCodeIndicatorUpdate()
