@@ -42,7 +42,7 @@ char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
 //=====[Declaration and initialization of private global variables]============
 
 static displayState_t displayState = DISPLAY_REPORT_STATE;
-static int displayAlarmGraphicSequence;
+static int displayAlarmGraphicSequence = 0;
 static int displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
 
 static bool incorrectCodeState = OFF;
