@@ -1,0 +1,9 @@
+{
+    "target_overrides": {
+        "*": {
+            "platform.stdio-convert-newlines": 1,
+            "target.features_add": ["STORAGE"],
+            "target.components_add": ["SD"]
+        }
+    }
+}
