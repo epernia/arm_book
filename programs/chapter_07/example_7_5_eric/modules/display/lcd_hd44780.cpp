@@ -2,31 +2,51 @@
 
 #include "mbed.h"
 #include "arm_book_lib.h"
-#include "display.h"
+
+#include "lcd_hd44780.h"
 
 //=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 
-//=====[Declaration and initialization of public global objects]===============
+typedef struct {
+   void* connection;
 
-SPI spi(SPI_MOSI, SPI_MISO, SPI_SCK);
-DigitalOut spiSS(SPI_CS);
-DigitalOut spiReset(D8); // TODO: Cambiar, este pin esta ocupaso por el gas sensor
+   uint32_t charsPerLine;
+   uint32_t charLines;
+
+   uint32_t positionX;
+   uint32_t positionY;
+
+   uint32_t charPixelWidth;
+   uint32_t charPixelHeight;
+} charLcd_t;
+
+//=====[Declaration and initialization of public global objects]===============
 
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
-uint8_t image[(128 * 64)/8];
-
 //=====[Declaration and initialization of private global variables]============
 
-//=====[Declarations (prototypes) of private functions]========================
 
-uint8_t startRow, startCol, endRow, endCol; // coordinates of the dirty rectangle
-uint8_t numRows = 64;
-uint8_t numCols = 128;
+
+
+static charLcd_t charLcd = {
+   .connection      = 0;
+
+   .charsPerLine    = 0;
+   .charLines       = 0;
+
+   .positionX       = 0;
+   .positionY       = 0;
+
+   .charPixelWidth  = 0;
+   .charPixelHeight = 0;
+};
+
+//=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 

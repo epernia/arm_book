@@ -6,7 +6,6 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
-#include "display_commands.h"
 
 //=====[Declaration of public defines]=======================================
 
@@ -18,9 +17,9 @@ typedef enum {
 } displayType_t;
 
 typedef enum {
-     DISPLAY_CONNECTION_GPIO_8BITS,
-     DISPLAY_CONNECTION_GPIO_4BITS,
-     DISPLAY_CONNECTION_I2C,
+        DISPLAY_CONNECTION_GPIO_8BITS,
+        DISPLAY_CONNECTION_GPIO_4BITS,
+        DISPLAY_CONNECTION_I2C,
      DISPLAY_CONNECTION_SPI
 } displayConnection_t;
 
@@ -63,16 +62,6 @@ typedef struct {                   //  Char   Graphic
 } display_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
-
-// Display low level API ---------------------------------------------
-
-displayStatus_t displayCommandWrite( displayCommand_t command );
-
-uint8_t displayCommandRead( displayCommand_t command );
-
-displayStatus_t displayDataWrite( uint8_t data );
-
-// Display high level API --------------------------------------------
 
 displayStatus_t displayInit( displayType_t type,
                              displayConnection_t connection,
