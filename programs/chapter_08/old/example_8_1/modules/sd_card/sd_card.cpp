@@ -19,8 +19,18 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-SPI spiB(D22, D25, D23);
-SDBlockDevice sd( D22, D25, D23, D7 );
+//SPI spiB(D22, D25, D23, D9);
+/* 
+SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI,
+                 MBED_CONF_SD_SPI_MISO,
+                 MBED_CONF_SD_SPI_CLK,
+                 MBED_CONF_SD_SPI_CS);*/
+
+SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI,
+                 MBED_CONF_SD_SPI_MISO,
+                 MBED_CONF_SD_SPI_CLK,
+                 D9);
+//SDBlockDevice sd( PB_5, PB_4, PB_3, D9 );
                  
 FATFileSystem fs("sd", &sd);
 

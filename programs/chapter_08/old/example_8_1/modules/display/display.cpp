@@ -9,12 +9,12 @@
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
-
-SPI spi(SPI_MOSI, SPI_MISO, SPI_SCK);
-DigitalOut spiSS(SPI_CS);
-//SPI spi(D22, D25, D23);
-//DigitalOut spiSS(D7);
-//DigitalOut spiReset(D8);
+SPI spiDisplay(SPI_MOSI, SPI_MISO, SPI_SCK);
+//SPI spiDisplay(D22, D25, D23);
+DigitalOut spiDisplaySS(SPI_CS);
+//SPI spiDisplay(D22, D25, D23);
+//DigitalOut spiDisplaySS(D7);
+DigitalOut spiDisplayReset(D8);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -35,13 +35,13 @@ uint8_t numCols = 128;
 displayStatus_t displayCommandWrite( uint8_t command )
 {
     
-    spi.lock();
-    spiSS = 1;
-	spi.write(0xf8+(0<<1));  // send the SYNC + RS(0)
-	spi.write(command&0xf0);  // send the higher nibble first
-	spi.write((command<<4)&0xf0);  // send the lower nibble
-    spiSS = 0;
-    spi.unlock();
+    spiDisplay.lock();
+    spiDisplaySS = 1;
+	spiDisplay.write(0xf8+(0<<1));  // send the SYNC + RS(0)
+	spiDisplay.write(command&0xf0);  // send the higher nibble first
+	spiDisplay.write((command<<4)&0xf0);  // send the lower nibble
+    spiDisplaySS = 0;
+    spiDisplay.unlock();
     
     return DISPLAY_NO_ERR;
 }
@@ -49,13 +49,13 @@ displayStatus_t displayCommandWrite( uint8_t command )
 
 displayStatus_t displayDataWrite( uint8_t data )
 {
-    spi.lock();
-    spiSS = 1;
-	spi.write(0xf8+(1<<1));  // send the SYNC + RS(1)
-	spi.write(data&0xf0);  // send the higher nibble first
-	spi.write((data<<4)&0xf0);  // send the lower nibble
-    spiSS = 0;
-	spi.unlock();
+    spiDisplay.lock();
+    spiDisplaySS = 1;
+	spiDisplay.write(0xf8+(1<<1));  // send the SYNC + RS(1)
+	spiDisplay.write(data&0xf0);  // send the higher nibble first
+	spiDisplay.write((data<<4)&0xf0);  // send the lower nibble
+    spiDisplaySS = 0;
+	spiDisplay.unlock();
     
     return DISPLAY_NO_ERR;
 }
@@ -66,11 +66,11 @@ displayStatus_t displayInit( displayType_t type, displayConnection_t connection,
                             int glcdPixelWidth, int glcdPixelHeight ) 
 {
     
-    spi.format(8,3);
-    spi.frequency(1000000);
-    //spiReset = OFF;  // RESET=0
+    spiDisplay.format(8,3);
+    spiDisplay.frequency(1000000);
+    //spiDisplayReset = OFF;  // RESET=0
 	delay(10);   // wait for 10ms
-	//spiReset = ON;  // RESET=1
+	//spiDisplayReset = ON;  // RESET=1
 
 	delay(50);   //wait for >40 ms
 
