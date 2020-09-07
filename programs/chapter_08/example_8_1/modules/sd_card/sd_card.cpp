@@ -29,12 +29,6 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-/*SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI,
-                 MBED_CONF_SD_SPI_MISO,
-                 MBED_CONF_SD_SPI_CLK,
-                 MBED_CONF_SD_SPI_CS);*/
-
-// Use SPI_3
 SDBlockDevice sd( SPI3_MOSI, SPI3_MISO, SPI3_SCK, SPI3_CS );
 
 FATFileSystem fs("sd", &sd);
@@ -48,7 +42,7 @@ FATFileSystem fs("sd", &sd);
 //=====[Declarations (prototypes) of private functions]========================
 
 static void return_error(int ret_val);
-static void errno_error(void *ret_val);
+static int errno_error(void *ret_val);
 
 //=====[Implementations of public functions]===================================
 
@@ -58,8 +52,8 @@ void sdCardInit()
 
     pcSerialComStringWrite("Mounting the filesystem... \r\n");
     error = fs.mount(&sd);
-    
-    if (error) {
+
+    if ( error == FR_NO_FILESYSTEM ) {
         // Reformat if we can't mount the filesystem
         // this should only happen on the first boot
         pcSerialComStringWrite("No filesystem found, formatting... \r\n");
@@ -68,43 +62,28 @@ void sdCardInit()
     }
 }
 
-void sdMount()
-{
-    int error = 0;
-    pcSerialComStringWrite("Welcome to the filesystem example.\r\n");
-
-    // Try to mount the filesystem
-    printf("Mounting the filesystem... \r\n");
-
-    error = fs.mount(&sd);
-    if (error) {
-        // Reformat if we can't mount the filesystem
-        // this should only happen on the first boot
-        printf("No filesystem found, formatting... \r\n");
-        error = fs.reformat(&sd);
-        return_error(error);
-    }
-}
-
 void sdWrite()
 {
-
-    char fileName[40];
+    char fileName[80];
+    char timeStr[20];
     char eventStr[100];
     int i;
+    
     time_t seconds;
 
-    strncat( fileName, "log | ", strlen("log | ") );
-
-    strncat( fileName, ctime(&seconds),
-             strlen(ctime(&seconds)) );
-
+    seconds = time(NULL);
+    fileName[0] = 0;
+    strncat( fileName, "/sd/", strlen("/sd/") );
+    strftime(timeStr, 20, "%Y_%m_%d_%H_%M_%S", localtime(&seconds));
+    strncat( fileName, timeStr, strlen(timeStr) );
+    
     strncat( fileName, ".txt", strlen(".txt") );
 
+    pcSerialComStringWrite(fileName);
+    pcSerialComStringWrite("\r\n");
+
     pcSerialComStringWrite("Creating log file...\r\n");
-
     FILE *fd = fopen(fileName, "w+");
-
     errno_error(fd);
 
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
@@ -119,23 +98,30 @@ void sdWrite()
     pcSerialComStringWrite(" done.\r\n");
 }
 
-void sdRead()
+void sdReadFile( char * fileName)
 {
-    printf("Re-opening file read-only.");
-    FILE *fd = fopen("/sd/log.txt", "r");
-    errno_error(fd);
-
-    printf("Dumping file to screen.\n");
-    char buff[16] = {0};
-    while (!feof(fd)) {
-        int size = fread(&buff[0], 1, 15, fd);
-        fwrite(&buff[0], 1, size, stdout);
+    char fileNameSD[80];
+    fileNameSD[0] = 0;
+    strncat( fileNameSD, "/sd/", strlen("/sd/") );
+    strncat( fileNameSD, fileName, strlen(fileName) );
+    
+    FILE *fd = fopen(fileNameSD, "r");
+    
+    if ( !errno_error(fd) ) {
+        printf( "Opening file: %s\r\n", fileNameSD );
+        printf( "Dumping file to screen.\r\n");
+        char buff[16] = {0};
+        while (!feof(fd)) {
+            int size = fread(&buff[0], 1, 15, fd);
+            fwrite(&buff[0], 1, size, stdout);
+        }
+        printf("EOF.\n");
+        printf("Closing file.");
+        fclose(fd);
+        printf(" done.\n");
+    } else {
+        pcSerialComStringWrite("File not found\r\n");
     }
-    printf("EOF.\n");
-
-    printf("Closing file.");
-    fclose(fd);
-    printf(" done.\n");
 }
 
 void sdDir()
@@ -143,8 +129,7 @@ void sdDir()
     int error = 0;
     printf("Opening root directory.");
     DIR *dir = opendir("/sd/");
-    
-
+ 
     struct dirent *de;
     printf("Printing all filenames:\n");
     while ((de = readdir(dir)) != NULL) {
@@ -171,14 +156,17 @@ void return_error(int ret_val)
     }
 }
 
-void errno_error(void *ret_val)
+int errno_error(void *ret_val)
 {
     if (ret_val == NULL) {
         printf(" Failure. %d \n", errno);
         //while (true) {
         //    __WFI();
         //}
+        return errno;
     } else {
         printf(" done.\n");
+        return 0;
     }
+    
 }

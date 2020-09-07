@@ -19,6 +19,7 @@
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
+    PC_SERIAL_GET_FILE_NAME,
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
@@ -36,14 +37,18 @@ char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
 //=====[Declaration and initialization of private global variables]============
 
+char fileName[40];
+
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
+static int numberOfFileNameChar = 0;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
+static void pcSerialComGetFileName( char receivedChar );
 
 static void pcSerialComCommandUpdate( char receivedChar );
 
@@ -51,6 +56,7 @@ static void availableCommands();
 static void commandShowCurrentSirenState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTemperatureDetectorState();
+static void commandGetFileName();
 static void commandEnterCodeSequence();
 static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
@@ -62,6 +68,7 @@ static void commandSdMount();
 static void commandSdWrite();
 static void commandSdRead();
 static void commandSdDir();
+
 
 //=====[Implementations of public functions]===================================
 
@@ -89,6 +96,9 @@ void pcSerialComUpdate()
     char receivedChar = pcSerialComCharRead();
     if( receivedChar != '\0' ) {
         switch ( pcSerialComMode ) {
+            case PC_SERIAL_GET_FILE_NAME:
+                pcSerialComGetFileName( receivedChar );
+            break;
             case PC_SERIAL_COMMANDS:
                 pcSerialComCommandUpdate( receivedChar );
             break;
@@ -156,9 +166,8 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case '5': commandEnterNewCode(); break;
         case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
         case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
-        case 'm': case 'M': commandSdMount(); break;
         case 'w': case 'W': commandSdWrite(); break;
-        case 'r': case 'R': commandSdRead(); break;
+        case 'o': case 'O': commandGetFileName(); break;
         case 'd': case 'D': commandSdDir(); break;
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
@@ -223,6 +232,13 @@ static void commandEnterCodeSequence()
     }
 }
 
+static void commandGetFileName()
+{
+    uartUsb.printf( "Please enter the file name \r\n" );
+    pcSerialComMode = PC_SERIAL_GET_FILE_NAME ;
+    numberOfFileNameChar = 0;
+}
+
 static void commandEnterNewCode()
 {
     uartUsb.printf( "Please enter the new four digits numeric code " );
@@ -244,16 +260,8 @@ static void commandShowCurrentTemperatureInFahrenheit()
                     temperatureSensorReadFahrenheit() );    
 }
 
-static void commandSdMount(){
-    sdMount();
-}
-
 static void commandSdWrite(){
     sdWrite();
-}
-
-static void commandSdRead(){
-    sdRead();
 }
 
 static void commandSdDir(){
@@ -312,5 +320,18 @@ static void commandShowStoredEvents()
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
+    }
+}
+
+static void pcSerialComGetFileName( char receivedChar )
+{
+   if ( receivedChar == '\r' ) {
+        pcSerialComMode = PC_SERIAL_COMMANDS;
+        numberOfFileNameChar = 0;
+        sdReadFile( fileName );
+    } else {
+    fileName[numberOfFileNameChar] = receivedChar;
+    uartUsb.printf( "%c", receivedChar );
+    numberOfFileNameChar++;
     }
 }

@@ -15,6 +15,7 @@ void sdCardInit();
 void sdMount();
 void sdWrite();
 void sdRead();
+void sdReadFile( char * fileName);
 void sdDir();
 
 //=====[#include guards - end]=================================================
