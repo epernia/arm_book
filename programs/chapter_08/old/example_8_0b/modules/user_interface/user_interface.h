@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _USER_INTERFACE_H_
+#define _USER_INTERFACE_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,12 +11,17 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void userInterfaceInit();
+void userInterfaceUpdate();
+bool userInterfaceCodeCompleteRead();
+void userInterfaceCodeCompleteWrite( bool state );
+
+bool incorrectCodeStateRead();
+void incorrectCodeStateWrite( bool state );
+
+bool systemBlockedStateRead();
+void systemBlockedStateWrite( bool state );
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _USER_INTERFACE_H_

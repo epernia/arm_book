@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _TEMPERATURE_SENSOR_H_
+#define _TEMPERATURE_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,12 +11,12 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void temperatureSensorInit();
+void temperatureSensorUpdate();
+float temperatureSensorReadCelsius();
+float temperatureSensorReadFahrenheit();
+float celsiusToFahrenheit( float tempInCelsiusDegrees );
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _TEMPERATURE_SENSOR_H_

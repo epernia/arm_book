@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _SIREN_H_
+#define _SIREN_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,12 +11,11 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void sirenInit();
+bool sirenStateRead();
+void sirenStateWrite( bool state );
+void sirenIndicatorUpdate( int blinkTime );
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _SIREN_H_

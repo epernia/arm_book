@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _MATRIX_KEYPAD_H_
+#define _MATRIX_KEYPAD_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,12 +11,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void matrixKeypadInit( int updateTime_ms );
+char matrixKeypadUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _MATRIX_KEYPAD_H_

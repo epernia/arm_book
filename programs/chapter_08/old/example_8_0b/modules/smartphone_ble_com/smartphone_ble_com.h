@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _SMARTPHONE_BLE_COM_H_
+#define _SMARTPHONE_BLE_COM_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,12 +11,8 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void smartphoneBleComWrite( const char* str );
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _SMARTPHONE_BLE_COM_H_

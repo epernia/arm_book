@@ -1,22 +1,26 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _CODE_H_
+#define _CODE_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
+#define CODE_NUMBER_OF_KEYS   4
+
 //=====[Declaration of public data types]======================================
+
+typedef enum{
+    CODE_KEYPAD,
+    CODE_PC_SERIAL,
+} codeOrigin_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void codeWrite( char* newCodeSequence );
+bool codeMatchFrom( codeOrigin_t codeOrigin );
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _CODE_H_

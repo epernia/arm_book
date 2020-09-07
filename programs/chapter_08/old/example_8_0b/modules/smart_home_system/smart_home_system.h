@@ -1,22 +1,21 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _SMART_HOME_SYSTEM_H_
+#define _SMART_HOME_SYSTEM_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
+#define SYSTEM_TIME_INCREMENT_MS   10
+
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void smartHomeSystemInit();
+void smartHomeSystemUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _SMART_HOME_SYSTEM_H_

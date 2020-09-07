@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _EVENT_LOG_H_
+#define _EVENT_LOG_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,12 +11,11 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void eventLogUpdate();
+int eventLogNumberOfStoredEvents();
+void eventLogRead( int index, char* str );
+void eventLogWrite( bool currentState, const char* elementName );
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _EVENT_LOG_H_

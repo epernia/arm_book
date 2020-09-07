@@ -1,15 +1,12 @@
 //=====[Libraries]=============================================================
 
+#include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "smart_home_system.h"
-
 #include "siren.h"
-#include "user_interface.h"
+
+#include "smart_home_system.h"
 #include "fire_alarm.h"
-#include "pc_serial_com.h"
-#include "event_log.h"
-#include "sd_card.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -17,31 +14,49 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
+DigitalOut alarmLed(LED1);
+
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
+static bool sirenState = OFF;
+
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void smartHomeSystemInit()
+void sirenInit()
 {
-    userInterfaceInit();
-    fireAlarmInit();
-    pcSerialComInit();
-    sdCardInit();
+    alarmLed = OFF;
 }
 
-void smartHomeSystemUpdate()
+bool sirenStateRead()
 {
-    userInterfaceUpdate();
-    fireAlarmUpdate();    
-    pcSerialComUpdate();
-    eventLogUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    return sirenState;
+}
+
+void sirenStateWrite( bool state )
+{
+    sirenState = state;
+}
+
+void sirenIndicatorUpdate( int blinkTime )
+{
+    static int accumulatedTimeAlarm = 0;
+    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
+    
+    if( sirenState ) {
+        if( accumulatedTimeAlarm >= blinkTime ) {
+            accumulatedTimeAlarm = 0;
+            alarmLed = !alarmLed;
+        }
+    } else {
+        alarmLed = OFF;
+    }
 }
 
 //=====[Implementations of private functions]==================================
+

@@ -1,22 +1,25 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _FIRE_ALARM_H_
+#define _FIRE_ALARM_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
+
+
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
-void sdMount();
-void sdWrite();
-void sdRead();
-void sdDir();
+void fireAlarmInit();
+void fireAlarmUpdate();
+bool gasDetectorStateRead();
+bool overTemperatureDetectorStateRead();
+bool gasDetectedRead();
+bool overTemperatureDetectedRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _FIRE_ALARM_H_
