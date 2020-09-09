@@ -7,10 +7,7 @@
 
 #include "FATFileSystem.h"
 #include "SDBlockDevice.h"
-#include <stdio.h>
-#include <errno.h>
-// mbed_retarget.h is included after errno.h so symbols are mapped to
-// consistent values for all toolchains
+
 #include "platform/mbed_retarget.h"
 
 #include "event_log.h"
@@ -46,85 +43,89 @@ static int errno_error(void *ret_val);
 
 //=====[Implementations of public functions]===================================
 
-void sdCardInit()
+bool sdCardInit()
 {
     int error = 0;
 
     pcSerialComStringWrite("Mounting the filesystem... \r\n");
     error = fs.mount(&sd);
 
-    if ( error == FR_NO_FILESYSTEM ) {
-        // Reformat if we can't mount the filesystem
-        // this should only happen on the first boot
-        pcSerialComStringWrite("No filesystem found, formatting... \r\n");
-        error = fs.reformat(&sd);
-        return_error(error);
+    if ( error == FR_OK ) {
+        pcSerialComStringWrite("Filesystem mounted... \r\n");
+        return true;
+
+    } else {
+        switch (error) {
+            case FR_INVALID_DRIVE:
+                pcSerialComStringWrite("Invalid Drive... \r\n");
+            break;
+            case FR_DISK_ERR:
+                pcSerialComStringWrite("Disk Error... \r\n");
+            break;
+            case FR_NOT_READY:
+                pcSerialComStringWrite("Not Ready... \r\n");
+            break;
+            case FR_NOT_ENABLED:
+                pcSerialComStringWrite("Not enabled.. \r\n");
+            break;
+            case FR_NO_FILESYSTEM:
+                pcSerialComStringWrite("No file system... \r\n");
+            break;
+        }
+        return false;
     }
 }
 
-void sdWrite()
+bool sdCardWriteFile( const char* fileName, const char* writeBuffer )
 {
-    char fileName[80];
-    char timeStr[20];
-    char eventStr[100];
+    char fileNameSD[80];
     int i;
+    int error;
     
-    time_t seconds;
+    fileNameSD[0] = 0;
+    strncat( fileNameSD, "/sd/", strlen("/sd/") );
+    strncat( fileNameSD, fileName, strlen(fileName) );
 
-    seconds = time(NULL);
-    fileName[0] = 0;
-    strncat( fileName, "/sd/", strlen("/sd/") );
-    strftime(timeStr, 20, "%Y_%m_%d_%H_%M_%S", localtime(&seconds));
-    strncat( fileName, timeStr, strlen(timeStr) );
+    pcSerialComStringWrite( fileNameSD );
+    pcSerialComStringWrite( "\r\n" );
     
-    strncat( fileName, ".txt", strlen(".txt") );
+    FILE *fd = fopen( fileNameSD, "w+" );
+    error = errno_error( fd );
 
-    pcSerialComStringWrite(fileName);
-    pcSerialComStringWrite("\r\n");
-
-    pcSerialComStringWrite("Creating log file...\r\n");
-    FILE *fd = fopen(fileName, "w+");
-    errno_error(fd);
-
-    for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogRead( i, eventStr );
-        fprintf(fd, "%s", eventStr );                       
+    if (!error) {
+        fprintf( fd, "%s", writeBuffer );                       
+        fclose( fd );
     }
-
-    pcSerialComStringWrite("Writing logs to file done.\r\n");
-
-    pcSerialComStringWrite("Closing file.\r\n");
-    fclose(fd);
-    pcSerialComStringWrite(" done.\r\n");
+    return true;
 }
 
-void sdReadFile( char * fileName)
+void sdCardReadFile( const char * fileName, const char * readBuffer )
 {
     char fileNameSD[80];
     fileNameSD[0] = 0;
     strncat( fileNameSD, "/sd/", strlen("/sd/") );
     strncat( fileNameSD, fileName, strlen(fileName) );
     
-    FILE *fd = fopen(fileNameSD, "r");
+    FILE *fd = fopen( fileNameSD, "r" );
     
-    if ( !errno_error(fd) ) {
+    if ( !errno_error( fd ) ) {
         printf( "Opening file: %s\r\n", fileNameSD );
         printf( "Dumping file to screen.\r\n");
         char buff[16] = {0};
         while (!feof(fd)) {
-            int size = fread(&buff[0], 1, 15, fd);
-            fwrite(&buff[0], 1, size, stdout);
+            int size = fread( &buff[0], 1, 15, fd );
+            fwrite( &buff[0], 1, size, stdout );
         }
-        printf("EOF.\n");
-        printf("Closing file.");
-        fclose(fd);
-        printf(" done.\n");
+        printf( "EOF.\n" );
+        printf( "Closing file." );
+        fclose( fd );
+        printf( "done.\n" );
     } else {
-        pcSerialComStringWrite("File not found\r\n");
+        pcSerialComStringWrite( "File not found\r\n" );
     }
 }
 
-void sdDir()
+bool sdCardListFiles()
 {
     int error = 0;
     printf("Opening root directory.");
@@ -133,13 +134,15 @@ void sdDir()
     struct dirent *de;
     printf("Printing all filenames:\n");
     while ((de = readdir(dir)) != NULL) {
-        printf("  %s\n", &(de->d_name)[0]);
+        pcSerialComStringWrite ( &(de->d_name)[0]);
+        pcSerialComStringWrite("\r\n");
     }
 
     printf("Closing root directory. ");
     error = closedir(dir);
     return_error(error);
-    printf("Filesystem Demo complete.\n");
+
+    return true;
 }
 
 //=====[Implementations of private functions]==================================

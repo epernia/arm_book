@@ -65,7 +65,7 @@ static void commandSetDateAndTime();
 static void commandShowDateAndTime();
 static void commandShowStoredEvents();
 static void commandSdMount();
-static void commandSdWrite();
+static void commandEventLogSaveToSdCard();
 static void commandSdRead();
 static void commandSdDir();
 
@@ -166,7 +166,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case '5': commandEnterNewCode(); break;
         case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
         case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
-        case 'w': case 'W': commandSdWrite(); break;
+        case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'o': case 'O': commandGetFileName(); break;
         case 'd': case 'D': commandSdDir(); break;
         case 's': case 'S': commandSetDateAndTime(); break;
@@ -260,12 +260,12 @@ static void commandShowCurrentTemperatureInFahrenheit()
                     temperatureSensorReadFahrenheit() );    
 }
 
-static void commandSdWrite(){
-    sdWrite();
+static void commandEventLogSaveToSdCard(){
+    eventLogSaveToSdCard();
 }
 
 static void commandSdDir(){
-    sdDir();
+    sdCardListFiles();
 }
 
 static void commandSetDateAndTime()
@@ -325,10 +325,14 @@ static void commandShowStoredEvents()
 
 static void pcSerialComGetFileName( char receivedChar )
 {
+   char readBuffer[200];
+   
    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         numberOfFileNameChar = 0;
-        sdReadFile( fileName );
+        sdCardReadFile( fileName, readBuffer );
+        pcSerialComStringWrite( readBuffer );
+        pcSerialComStringWrite( "\r\n" );
     } else {
     fileName[numberOfFileNameChar] = receivedChar;
     uartUsb.printf( "%c", receivedChar );

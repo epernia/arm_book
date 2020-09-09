@@ -11,6 +11,7 @@
 #include "date_and_time.h"
 #include "pc_serial_com.h"
 #include "smartphone_ble_com.h"
+#include "sd_card.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -119,6 +120,33 @@ void eventLogWrite( bool currentState, const char* elementName )
     smartphoneBleComWrite("\r\n");
 }
 
+bool eventLogSaveToSdCard()
+{
+    char fileName[40];
+    char eventStr[20];
+
+    time_t seconds;
+    int i;
+
+    seconds = time(NULL);
+    fileName[0] = 0;
+
+    strftime( fileName, 20, "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
+    strncat( fileName, ".txt", strlen(".txt") );
+
+    pcSerialComStringWrite(fileName);
+    pcSerialComStringWrite("\r\n");
+
+    pcSerialComStringWrite("Creating log file...\r\n");
+    
+    for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
+        eventLogRead( i, eventStr );
+        sdCardWriteFile( fileName, eventStr );
+    }
+
+    pcSerialComStringWrite("file successfully created...\r\n");
+    return true;
+}
 //=====[Implementations of private functions]==================================
 
 static void eventLogElementStateUpdate( bool lastState,

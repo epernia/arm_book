@@ -15,6 +15,7 @@ void eventLogUpdate();
 int eventLogNumberOfStoredEvents();
 void eventLogRead( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
+bool eventLogSaveToSdCard();
 
 //=====[#include guards - end]=================================================
 

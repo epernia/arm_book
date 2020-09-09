@@ -11,11 +11,11 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void sdCardInit();
+bool sdCardInit();
 void sdMount();
-void sdWrite();
-void sdRead();
-void sdReadFile( char * fileName);
+bool sdCardWriteFile( const char* fileName, const char* writeBuffer );
+void sdCardReadFile( const char * fileName, const char * readBuffer );
+bool sdCardListFiles();
 void sdDir();
 
 //=====[#include guards - end]=================================================
