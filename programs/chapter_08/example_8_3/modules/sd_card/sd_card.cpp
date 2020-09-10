@@ -14,7 +14,6 @@
 #include "date_and_time.h"
 #include "pc_serial_com.h"
 
-
 //=====[Declaration of private defines]========================================
 
 // SPI_3
@@ -39,8 +38,6 @@ FATFileSystem fs("sd", &sd);
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static int errno_error(void *ret_val);
-
 //=====[Implementations of public functions]===================================
 
 bool sdCardInit()
@@ -48,7 +45,7 @@ bool sdCardInit()
     pcSerialComStringWrite("Mounting the filesystem... \r\n");
     fs.mount(&sd);
     DIR *dir = opendir("/sd/");
-    if ( !errno_error( dir ) ) {
+    if ( dir != NULL ) {
         pcSerialComStringWrite("Filesystem mounted... \r\n");
         closedir(dir);
         return true;
@@ -71,7 +68,7 @@ bool sdCardWriteFile( const char* fileName, const char* writeBuffer )
     
     FILE *fd = fopen( fileNameSD, "a" );
 
-    if (!errno_error( fd )) {
+    if ( fd != NULL ) {
         fprintf( fd, "%s", writeBuffer );                       
         fclose( fd );
         return true;
@@ -91,7 +88,7 @@ bool sdCardReadFile( const char * fileName, const char * readBuffer )
     
     FILE *fd = fopen( fileNameSD, "r" );
     
-    if ( !errno_error( fd ) ) {
+    if ( fd != NULL ) {
         pcSerialComStringWrite( "Opening file: " );
         pcSerialComStringWrite( fileNameSD );
         pcSerialComStringWrite( "\r\n" );
@@ -112,9 +109,11 @@ bool sdCardReadFile( const char * fileName, const char * readBuffer )
 bool sdCardListFiles()
 {
     int error = 0;
+    struct dirent *de;
+
     DIR *dir = opendir("/sd/");
-    if ( !errno_error( dir ) ) {
-        struct dirent *de;
+
+    if ( dir != NULL ) {
         pcSerialComStringWrite("Printing all filenames:\r\n");
         while ((de = readdir(dir)) != NULL) {
             pcSerialComStringWrite ( &(de->d_name)[0]);
@@ -126,17 +125,4 @@ bool sdCardListFiles()
         pcSerialComStringWrite("Directory not found...\r\n");
         return false;
     }
-
-    
-}
-
-//=====[Implementations of private functions]==================================
-
-int errno_error(void *ret_val)
-{
-    if (ret_val == NULL) {
-        return errno;
-    } else {
-        return 0;
-    }  
 }

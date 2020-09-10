@@ -10,6 +10,7 @@
 #include "pc_serial_com.h"
 #include "event_log.h"
 #include "sd_card.h"
+#include "ff.h"
 
 //=====[Declaration of private defines]======================================
 
