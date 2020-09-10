@@ -14,6 +14,7 @@
 #include "date_and_time.h"
 #include "pc_serial_com.h"
 
+
 //=====[Declaration of private defines]========================================
 
 // SPI_3
@@ -38,40 +39,21 @@ FATFileSystem fs("sd", &sd);
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static void return_error(int ret_val);
 static int errno_error(void *ret_val);
 
 //=====[Implementations of public functions]===================================
 
 bool sdCardInit()
 {
-    int error = 0;
-
     pcSerialComStringWrite("Mounting the filesystem... \r\n");
-    error = fs.mount(&sd);
-
-    if ( error == FR_OK ) {
+    fs.mount(&sd);
+    DIR *dir = opendir("/sd/");
+    if ( !errno_error( dir ) ) {
         pcSerialComStringWrite("Filesystem mounted... \r\n");
+        closedir(dir);
         return true;
-
     } else {
-        switch (error) {
-            case FR_INVALID_DRIVE:
-                pcSerialComStringWrite("Invalid Drive... \r\n");
-            break;
-            case FR_DISK_ERR:
-                pcSerialComStringWrite("Disk Error... \r\n");
-            break;
-            case FR_NOT_READY:
-                pcSerialComStringWrite("Not Ready... \r\n");
-            break;
-            case FR_NOT_ENABLED:
-                pcSerialComStringWrite("Not enabled.. \r\n");
-            break;
-            case FR_NO_FILESYSTEM:
-                pcSerialComStringWrite("No file system... \r\n");
-            break;
-        }
+        pcSerialComStringWrite("Filesystem not mounted... \r\n");
         return false;
     }
 }
@@ -79,8 +61,6 @@ bool sdCardInit()
 bool sdCardWriteFile( const char* fileName, const char* writeBuffer )
 {
     char fileNameSD[80];
-    int i;
-    int error;
     
     fileNameSD[0] = 0;
     strncat( fileNameSD, "/sd/", strlen("/sd/") );
@@ -89,19 +69,22 @@ bool sdCardWriteFile( const char* fileName, const char* writeBuffer )
     pcSerialComStringWrite( fileNameSD );
     pcSerialComStringWrite( "\r\n" );
     
-    FILE *fd = fopen( fileNameSD, "w+" );
-    error = errno_error( fd );
+    FILE *fd = fopen( fileNameSD, "a" );
 
-    if (!error) {
+    if (!errno_error( fd )) {
         fprintf( fd, "%s", writeBuffer );                       
         fclose( fd );
+        return true;
+    } else {
+        return false;
     }
-    return true;
 }
 
-void sdCardReadFile( const char * fileName, const char * readBuffer )
+bool sdCardReadFile( const char * fileName, const char * readBuffer )
 {
     char fileNameSD[80];
+    char buff[16] = {0};
+    
     fileNameSD[0] = 0;
     strncat( fileNameSD, "/sd/", strlen("/sd/") );
     strncat( fileNameSD, fileName, strlen(fileName) );
@@ -109,67 +92,51 @@ void sdCardReadFile( const char * fileName, const char * readBuffer )
     FILE *fd = fopen( fileNameSD, "r" );
     
     if ( !errno_error( fd ) ) {
-        printf( "Opening file: %s\r\n", fileNameSD );
-        printf( "Dumping file to screen.\r\n");
-        char buff[16] = {0};
+        pcSerialComStringWrite( "Opening file: " );
+        pcSerialComStringWrite( fileNameSD );
+        pcSerialComStringWrite( "\r\n" );
+        pcSerialComStringWrite( "Dumping file to screen.\r\n");
+
         while (!feof(fd)) {
-            int size = fread( &buff[0], 1, 15, fd );
-            fwrite( &buff[0], 1, size, stdout );
+           fread( &buff[0], 1, 1, fd );
+           pcSerialComStringWrite(buff);
         }
-        printf( "EOF.\n" );
-        printf( "Closing file." );
         fclose( fd );
-        printf( "done.\n" );
+        return true;
     } else {
         pcSerialComStringWrite( "File not found\r\n" );
+        return false;
     }
 }
 
 bool sdCardListFiles()
 {
     int error = 0;
-    printf("Opening root directory.");
     DIR *dir = opendir("/sd/");
- 
-    struct dirent *de;
-    printf("Printing all filenames:\n");
-    while ((de = readdir(dir)) != NULL) {
-        pcSerialComStringWrite ( &(de->d_name)[0]);
-        pcSerialComStringWrite("\r\n");
+    if ( !errno_error( dir ) ) {
+        struct dirent *de;
+        pcSerialComStringWrite("Printing all filenames:\r\n");
+        while ((de = readdir(dir)) != NULL) {
+            pcSerialComStringWrite ( &(de->d_name)[0]);
+            pcSerialComStringWrite("\r\n");
+        }
+        closedir(dir);
+        return true;
+    } else {
+        pcSerialComStringWrite("Directory not found...\r\n");
+        return false;
     }
 
-    printf("Closing root directory. ");
-    error = closedir(dir);
-    return_error(error);
-
-    return true;
+    
 }
 
 //=====[Implementations of private functions]==================================
 
-void return_error(int ret_val)
-{
-    if (ret_val) {
-        printf("Failure. %d\n", ret_val);
-        //while (true) {
-         //   __WFI();
-        //}
-    } else {
-        printf("done.\n");
-    }
-}
-
 int errno_error(void *ret_val)
 {
     if (ret_val == NULL) {
-        printf(" Failure. %d \n", errno);
-        //while (true) {
-        //    __WFI();
-        //}
         return errno;
     } else {
-        printf(" done.\n");
         return 0;
-    }
-    
+    }  
 }
