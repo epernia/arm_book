@@ -20,7 +20,7 @@
 #define SPI3_MOSI   D47   // PC_12
 #define SPI3_MISO   D46   // PC_11
 #define SPI3_SCK    D45   // PC_10
-#define SPI3_CS     PA_4_ALT0
+#define SPI3_CS     D24   // PA_4_ALT0
 
 //=====[Declaration of private data types]=====================================
 
