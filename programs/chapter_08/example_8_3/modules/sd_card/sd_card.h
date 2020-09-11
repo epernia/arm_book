@@ -13,7 +13,7 @@
 
 bool sdCardInit();
 bool sdCardWriteFile( const char* fileName, const char* writeBuffer );
-bool sdCardReadFile( const char * fileName, const char * readBuffer );
+bool sdCardReadFile( const char * fileName, char * readBuffer );
 bool sdCardListFiles();
 
 //=====[#include guards - end]=================================================

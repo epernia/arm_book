@@ -15,14 +15,12 @@
 
 //=====[Declaration of private defines]======================================
 
-#define EVENT_LOG_MAX_STORAGE       100
-#define EVENT_LOG_NAME_MAX_LENGTH    15
-
 //=====[Declaration of private data types]=====================================
 
 typedef struct systemEvent {
     time_t seconds;
     char typeOfEvent[EVENT_LOG_NAME_MAX_LENGTH];
+    bool storedInSd;
 } systemEvent_t;
 
 //=====[Declaration and initialization of public global objects]===============
@@ -112,6 +110,8 @@ void eventLogWrite( bool currentState, const char* elementName )
     } else {
         eventsIndex = 0;
     }
+    
+    arrayOfStoredEvents[eventsIndex].storedInSd = false;
 
     pcSerialComStringWrite(eventAndStateStr);
     pcSerialComStringWrite("\r\n");
@@ -122,8 +122,9 @@ void eventLogWrite( bool currentState, const char* elementName )
 
 bool eventLogSaveToSdCard()
 {
-    char fileName[40];
-    char eventStr[EVENT_LOG_MAX_STORAGE];
+    char fileName[21];
+    char eventStr[EVENT_STR_LENGTH];
+    bool eventsStored = false;
 
     time_t seconds;
     int i;
@@ -134,17 +135,27 @@ bool eventLogSaveToSdCard()
     strftime( fileName, 20, "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
     strncat( fileName, ".txt", strlen(".txt") );
 
-    pcSerialComStringWrite(fileName);
-    pcSerialComStringWrite("\r\n");
-
-    pcSerialComStringWrite("Creating log file...\r\n");
-    
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogRead( i, eventStr );
-        sdCardWriteFile( fileName, eventStr );
+        if ( !arrayOfStoredEvents[i].storedInSd ) {
+            eventLogRead( i, eventStr );
+            if ( sdCardWriteFile( fileName, eventStr ) ){
+                arrayOfStoredEvents[i].storedInSd = true;
+                pcSerialComStringWrite("Storing event ");
+                pcSerialComIntWrite(i);
+                pcSerialComStringWrite(" in file  ");
+                pcSerialComStringWrite(fileName);
+                pcSerialComStringWrite("\r\n");
+                eventsStored = true;
+            }
+        }
     }
 
-    pcSerialComStringWrite("file successfully created...\r\n");
+    if ( eventsStored ) {
+        pcSerialComStringWrite("New events successfully stored in SD card\r\n");
+    } else {
+        pcSerialComStringWrite("No new events to store in SD card\r\n");
+    }
+
     return true;
 }
 //=====[Implementations of private functions]==================================

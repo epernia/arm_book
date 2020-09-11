@@ -91,6 +91,11 @@ void pcSerialComStringWrite( const char* str )
     uartUsb.printf( "%s", str );
 }
 
+void pcSerialComIntWrite( int number )
+{
+    uartUsb.printf( "%d", number );
+}
+
 void pcSerialComUpdate()
 {
     char receivedChar = pcSerialComCharRead();
@@ -315,7 +320,7 @@ static void commandShowDateAndTime()
 
 static void commandShowStoredEvents()
 {
-    char str[100];
+    char str[EVENT_STR_LENGTH];
     int i;
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
@@ -325,7 +330,7 @@ static void commandShowStoredEvents()
 
 static void pcSerialComGetFileName( char receivedChar )
 {
-   char readBuffer[200];
+   char readBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
    
    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
