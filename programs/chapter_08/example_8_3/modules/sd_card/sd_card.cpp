@@ -78,7 +78,6 @@ bool sdCardReadFile( const char * fileName, char * readBuffer )
 {
     char fileNameSD[80];
     int i;
-    char newChar;
     
     fileNameSD[0] = 0;
     strncat( fileNameSD, "/sd/", strlen("/sd/") );
@@ -90,12 +89,10 @@ bool sdCardReadFile( const char * fileName, char * readBuffer )
         pcSerialComStringWrite( "Opening file: " );
         pcSerialComStringWrite( fileNameSD );
         pcSerialComStringWrite( "\r\n" );
-        pcSerialComStringWrite( "Dumping file to screen.\r\n");
 
         i = 0;
         while (!feof(fd)) {
-           fread( &newChar, 1, 1, fd );
-           readBuffer[i] = newChar;
+           fread( &readBuffer[i], 1, 1, fd );
            i++;
         }
         fclose( fd );
@@ -106,20 +103,28 @@ bool sdCardReadFile( const char * fileName, char * readBuffer )
     }
 }
 
-bool sdCardListFiles()
+bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize )
 {
-    int error = 0;
+    int bufferNumberUsedBytes = 0;
     struct dirent *de;
 
     DIR *dir = opendir("/sd/");
 
     if ( dir != NULL ) {
         pcSerialComStringWrite("Printing all filenames:\r\n");
-        while ((de = readdir(dir)) != NULL) {
-            pcSerialComStringWrite ( &(de->d_name)[0]);
-            pcSerialComStringWrite("\r\n");
+        de = readdir(dir);
+        
+        while ( ( de != NULL ) && 
+                ( bufferNumberUsedBytes + strlen(de->d_name) < 
+                    fileNamesBufferSize) ) {
+            strncat( fileNamesBuffer, de->d_name, strlen(de->d_name) );
+            strncat( fileNamesBuffer, "\r\n", strlen("\r\n") );
+            bufferNumberUsedBytes = bufferNumberUsedBytes + strlen(de->d_name);
+            de = readdir(dir);
         }
+        
         closedir(dir);
+        
         return true;
     } else {
         pcSerialComStringWrite("Directory not found...\r\n");

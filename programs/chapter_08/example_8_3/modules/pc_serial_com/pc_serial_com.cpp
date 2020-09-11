@@ -16,6 +16,8 @@
 
 //=====[Declaration of private defines]======================================
 
+#define SD_CARD_MAX_LIST_FILES 1
+
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
@@ -30,6 +32,8 @@ typedef enum{
 Serial uartUsb(USBTX, USBRX);
 
 //=====[Declaration of external public global variables]=======================
+
+extern char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 //=====[Declaration and initialization of public global variables]=============
 
@@ -49,6 +53,7 @@ static int numberOfFileNameChar = 0;
 static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 static void pcSerialComGetFileName( char receivedChar );
+static void pcSerialComShowSdCardFile( char * readBuffer ) ;
 
 static void pcSerialComCommandUpdate( char receivedChar );
 
@@ -173,7 +178,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'o': case 'O': commandGetFileName(); break;
-        case 'd': case 'D': commandSdDir(); break;
+        case 'l': case 'L': commandSdDir(); break;
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
         case 'e': case 'E': commandShowStoredEvents(); break;
@@ -265,12 +270,18 @@ static void commandShowCurrentTemperatureInFahrenheit()
                     temperatureSensorReadFahrenheit() );    
 }
 
-static void commandEventLogSaveToSdCard(){
+static void commandEventLogSaveToSdCard()
+{
     eventLogSaveToSdCard();
 }
 
-static void commandSdDir(){
-    sdCardListFiles();
+static void commandSdDir()
+{
+    systemBuffer[0] = NULL;
+    sdCardListFiles( systemBuffer, 
+                     sizeof(systemBuffer) );
+    pcSerialComStringWrite( systemBuffer );
+    pcSerialComStringWrite( "\r\n" );
 }
 
 static void commandSetDateAndTime()
@@ -330,17 +341,25 @@ static void commandShowStoredEvents()
 
 static void pcSerialComGetFileName( char receivedChar )
 {
-   char readBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
-   
    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
+        fileName[numberOfFileNameChar] = NULL;
         numberOfFileNameChar = 0;
-        sdCardReadFile( fileName, readBuffer );
-        pcSerialComStringWrite( readBuffer );
-        pcSerialComStringWrite( "\r\n" );
-    } else {
+        pcSerialComShowSdCardFile( fileName );
+   } else {
     fileName[numberOfFileNameChar] = receivedChar;
     uartUsb.printf( "%c", receivedChar );
     numberOfFileNameChar++;
     }
+}
+
+static void pcSerialComShowSdCardFile( char * fileName ) 
+{
+    systemBuffer[0] = NULL;
+    pcSerialComStringWrite( "\r\n" );
+    if ( sdCardReadFile( fileName, systemBuffer ) ) {
+        pcSerialComStringWrite( "Dumping file to screen.\r\n");
+        pcSerialComStringWrite( systemBuffer );
+        pcSerialComStringWrite( "\r\n" );
+    };
 }

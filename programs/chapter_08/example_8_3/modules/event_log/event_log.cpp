@@ -122,7 +122,7 @@ void eventLogWrite( bool currentState, const char* elementName )
 
 bool eventLogSaveToSdCard()
 {
-    char fileName[21];
+    char fileName[SD_CARD_FILENAME_MAX_LENGTH];
     char eventStr[EVENT_STR_LENGTH];
     bool eventsStored = false;
 
@@ -132,7 +132,7 @@ bool eventLogSaveToSdCard()
     seconds = time(NULL);
     fileName[0] = 0;
 
-    strftime( fileName, 20, "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
+    strftime( fileName, SD_CARD_FILENAME_MAX_LENGTH, "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
     strncat( fileName, ".txt", strlen(".txt") );
 
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
@@ -142,7 +142,7 @@ bool eventLogSaveToSdCard()
                 arrayOfStoredEvents[i].storedInSd = true;
                 pcSerialComStringWrite("Storing event ");
                 pcSerialComIntWrite(i);
-                pcSerialComStringWrite(" in file  ");
+                pcSerialComStringWrite(" in file ");
                 pcSerialComStringWrite(fileName);
                 pcSerialComStringWrite("\r\n");
                 eventsStored = true;
@@ -151,9 +151,9 @@ bool eventLogSaveToSdCard()
     }
 
     if ( eventsStored ) {
-        pcSerialComStringWrite("New events successfully stored in SD card\r\n");
+        pcSerialComStringWrite("New events successfully stored in SD card\r\n\r\n");
     } else {
-        pcSerialComStringWrite("No new events to store in SD card\r\n");
+        pcSerialComStringWrite("No new events to store in SD card\r\n\r\n");
     }
 
     return true;

@@ -5,6 +5,8 @@
 
 //=====[Libraries]=============================================================
 
+#define SD_CARD_FILENAME_MAX_LENGTH 32
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================
@@ -14,7 +16,8 @@
 bool sdCardInit();
 bool sdCardWriteFile( const char* fileName, const char* writeBuffer );
 bool sdCardReadFile( const char * fileName, char * readBuffer );
-bool sdCardListFiles();
+bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize );
+
 
 //=====[#include guards - end]=================================================
 
