@@ -42,15 +42,17 @@ FATFileSystem fs("sd", &sd);
 
 bool sdCardInit()
 {
-    pcSerialComStringWrite("Mounting the filesystem... \r\n");
+    pcSerialComStringWrite("Looking for a filesystem... \r\n");
     fs.mount(&sd);
     DIR *dir = opendir("/sd/");
     if ( dir != NULL ) {
-        pcSerialComStringWrite("Filesystem mounted... \r\n");
+        pcSerialComStringWrite("Filesystem mounted. \r\n");
         closedir(dir);
         return true;
     } else {
-        pcSerialComStringWrite("Filesystem not mounted... \r\n");
+        pcSerialComStringWrite("Filesystem not mounted. \r\n");
+        pcSerialComStringWrite("Insert an SD card and ");
+        pcSerialComStringWrite("reset the board.\r\n");
         return false;
     }
 }
@@ -127,7 +129,8 @@ bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize )
         
         return true;
     } else {
-        pcSerialComStringWrite("Directory not found...\r\n");
+        pcSerialComStringWrite("Insert an SD card and ");
+        pcSerialComStringWrite("reset the board.\r\n");
         return false;
     }
 }

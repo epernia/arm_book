@@ -358,7 +358,7 @@ static void pcSerialComShowSdCardFile( char * fileName )
     systemBuffer[0] = NULL;
     pcSerialComStringWrite( "\r\n" );
     if ( sdCardReadFile( fileName, systemBuffer ) ) {
-        pcSerialComStringWrite( "Dumping file to screen.\r\n");
+        pcSerialComStringWrite( "The file content is:\r\n");
         pcSerialComStringWrite( systemBuffer );
         pcSerialComStringWrite( "\r\n" );
     };
