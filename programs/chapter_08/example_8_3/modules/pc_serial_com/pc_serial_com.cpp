@@ -69,11 +69,8 @@ static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
 static void commandShowDateAndTime();
 static void commandShowStoredEvents();
-static void commandSdMount();
 static void commandEventLogSaveToSdCard();
-static void commandSdRead();
-static void commandSdDir();
-
+static void commandsdCardListFiles();
 
 //=====[Implementations of public functions]===================================
 
@@ -176,12 +173,12 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case '5': commandEnterNewCode(); break;
         case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
         case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
-        case 'w': case 'W': commandEventLogSaveToSdCard(); break;
-        case 'o': case 'O': commandGetFileName(); break;
-        case 'l': case 'L': commandSdDir(); break;
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
         case 'e': case 'E': commandShowStoredEvents(); break;
+        case 'w': case 'W': commandEventLogSaveToSdCard(); break;
+        case 'o': case 'O': commandGetFileName(); break;
+        case 'l': case 'L': commandsdCardListFiles(); break;
         default: availableCommands(); break;
     } 
 }
@@ -199,6 +196,9 @@ static void availableCommands()
     uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
     uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
     uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
+    uartUsb.printf( "Press 'w' or 'W' to store new events in SD Card\r\n" );
+    uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
+    uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -275,7 +275,7 @@ static void commandEventLogSaveToSdCard()
     eventLogSaveToSdCard();
 }
 
-static void commandSdDir()
+static void commandsdCardListFiles()
 {
     systemBuffer[0] = NULL;
     sdCardListFiles( systemBuffer, 
