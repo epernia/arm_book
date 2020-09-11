@@ -111,7 +111,7 @@ extern "C" {
 # define D21   PC_7
 # define D22   PB_5
 # define D23   PB_3
-# define D24   PA_4
+# define D24   PA_4_ALT0
 # define D25   PB_4
 
 // CN10
