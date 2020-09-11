@@ -21,7 +21,6 @@
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
-    PC_SERIAL_GET_FILE_NAME,
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
@@ -41,19 +40,17 @@ char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
 //=====[Declaration and initialization of private global variables]============
 
-static char fileName[40];
+
 
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
-static int numberOfFileNameChar = 0;
+
 
 //=====[Declarations (prototypes) of private functions]========================
 
 static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
-static void pcSerialComGetFileName( char receivedChar );
-static void pcSerialComShowSdCardFile( char * readBuffer ) ;
 
 static void pcSerialComCommandUpdate( char receivedChar );
 
@@ -61,7 +58,6 @@ static void availableCommands();
 static void commandShowCurrentSirenState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTemperatureDetectorState();
-static void commandGetFileName();
 static void commandEnterCodeSequence();
 static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
@@ -103,9 +99,6 @@ void pcSerialComUpdate()
     char receivedChar = pcSerialComCharRead();
     if( receivedChar != '\0' ) {
         switch ( pcSerialComMode ) {
-            case PC_SERIAL_GET_FILE_NAME:
-                pcSerialComGetFileName( receivedChar );
-            break;
             case PC_SERIAL_COMMANDS:
                 pcSerialComCommandUpdate( receivedChar );
             break;
@@ -177,7 +170,6 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 't': case 'T': commandShowDateAndTime(); break;
         case 'e': case 'E': commandShowStoredEvents(); break;
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
-        case 'o': case 'O': commandGetFileName(); break;
         case 'l': case 'L': commandsdCardListFiles(); break;
         default: availableCommands(); break;
     } 
@@ -197,7 +189,6 @@ static void availableCommands()
     uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
     uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
     uartUsb.printf( "Press 'w' or 'W' to store new events in SD Card\r\n" );
-    uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
     uartUsb.printf( "\r\n" );
 }
@@ -240,13 +231,6 @@ static void commandEnterCodeSequence()
     } else {
         uartUsb.printf( "Alarm is not activated.\r\n" );
     }
-}
-
-static void commandGetFileName()
-{
-    uartUsb.printf( "Please enter the file name \r\n" );
-    pcSerialComMode = PC_SERIAL_GET_FILE_NAME ;
-    numberOfFileNameChar = 0;
 }
 
 static void commandEnterNewCode()
@@ -337,29 +321,4 @@ static void commandShowStoredEvents()
         eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
-}
-
-static void pcSerialComGetFileName( char receivedChar )
-{
-   if ( receivedChar == '\r' ) {
-        pcSerialComMode = PC_SERIAL_COMMANDS;
-        fileName[numberOfFileNameChar] = NULL;
-        numberOfFileNameChar = 0;
-        pcSerialComShowSdCardFile( fileName );
-   } else {
-    fileName[numberOfFileNameChar] = receivedChar;
-    uartUsb.printf( "%c", receivedChar );
-    numberOfFileNameChar++;
-    }
-}
-
-static void pcSerialComShowSdCardFile( char * fileName ) 
-{
-    systemBuffer[0] = NULL;
-    pcSerialComStringWrite( "\r\n" );
-    if ( sdCardReadFile( fileName, systemBuffer ) ) {
-        pcSerialComStringWrite( "The file content is:\r\n");
-        pcSerialComStringWrite( systemBuffer );
-        pcSerialComStringWrite( "\r\n" );
-    };
 }

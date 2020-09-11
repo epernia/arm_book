@@ -20,7 +20,7 @@
 typedef struct systemEvent {
     time_t seconds;
     char typeOfEvent[EVENT_LOG_NAME_MAX_LENGTH];
-    bool storedInSd;
+
 } systemEvent_t;
 
 //=====[Declaration and initialization of public global objects]===============
@@ -111,8 +111,6 @@ void eventLogWrite( bool currentState, const char* elementName )
         eventsIndex = 0;
     }
     
-    arrayOfStoredEvents[eventsIndex].storedInSd = false;
-
     pcSerialComStringWrite(eventAndStateStr);
     pcSerialComStringWrite("\r\n");
  
@@ -132,28 +130,26 @@ bool eventLogSaveToSdCard()
     seconds = time(NULL);
     fileName[0] = 0;
 
-    strftime( fileName, SD_CARD_FILENAME_MAX_LENGTH, "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
+    strftime( fileName, SD_CARD_FILENAME_MAX_LENGTH, 
+              "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
     strncat( fileName, ".txt", strlen(".txt") );
 
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        if ( !arrayOfStoredEvents[i].storedInSd ) {
-            eventLogRead( i, eventStr );
-            if ( sdCardWriteFile( fileName, eventStr ) ){
-                arrayOfStoredEvents[i].storedInSd = true;
-                pcSerialComStringWrite("Storing event ");
-                pcSerialComIntWrite(i+1);
-                pcSerialComStringWrite(" in file ");
-                pcSerialComStringWrite(fileName);
-                pcSerialComStringWrite("\r\n");
-                eventsStored = true;
-            }
+        eventLogRead( i, eventStr );
+        if ( sdCardWriteFile( fileName, eventStr ) ){
+            pcSerialComStringWrite("Storing event ");
+            pcSerialComIntWrite(i+1);
+            pcSerialComStringWrite(" in file ");
+            pcSerialComStringWrite(fileName);
+            pcSerialComStringWrite("\r\n");
+            eventsStored = true;
         }
     }
 
     if ( eventsStored ) {
-        pcSerialComStringWrite("New events successfully stored in SD card\r\n\r\n");
+        pcSerialComStringWrite("File successfully written\r\n\r\n");
     } else {
-        pcSerialComStringWrite("No new events to store in SD card\r\n\r\n");
+        pcSerialComStringWrite("No events to store\r\n\r\n");
     }
 
     return true;

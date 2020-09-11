@@ -11,7 +11,6 @@
 #include "event_log.h"
 #include "sd_card.h"
 
-
 //=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
@@ -21,8 +20,6 @@
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
-
-char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 //=====[Declaration and initialization of private global variables]============
 
