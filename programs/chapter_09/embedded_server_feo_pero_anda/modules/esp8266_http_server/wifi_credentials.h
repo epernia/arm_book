@@ -7,3 +7,15 @@
 #define WIFI_PASSWORD              "miPassWifi" // Setear password
 
 #endif
+
+/*
+<html>
+    <head>
+        <title>Titulo de la ernb que aparece en la pestaña</title>
+    </head>
+    <body>
+        contenido que se ve en pantalla
+    </body>
+
+</html>
+*/
