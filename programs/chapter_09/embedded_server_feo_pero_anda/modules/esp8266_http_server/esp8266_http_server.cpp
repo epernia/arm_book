@@ -435,7 +435,7 @@ static void ExcecuteHttpServerFsm(void)
             esp8266UartStringWrite( WifiName );
             esp8266UartStringWrite( "\",\"" );
             esp8266UartStringWrite( WifiPass );
-            esp8266UartStringWrite( "\"" );
+            esp8266UartStringWrite( "\"\r\n" );
             Esp8266ResponseToWait = Response_CWJAP_1;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_CWJAP_SET_1);
