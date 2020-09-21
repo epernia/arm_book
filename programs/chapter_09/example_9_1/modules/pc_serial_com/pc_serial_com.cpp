@@ -13,6 +13,7 @@
 #include "gas_sensor.h"
 #include "event_log.h"
 #include "sd_card.h"
+#include "esp8266_http_server.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -71,6 +72,8 @@ static void commandShowDateAndTime();
 static void commandShowStoredEvents();
 static void commandEventLogSaveToSdCard();
 static void commandsdCardListFiles();
+static void commandSendATCommand();
+static void commandGetESPStatus();
 
 //=====[Implementations of public functions]===================================
 
@@ -184,8 +187,20 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'o': case 'O': commandGetFileName(); break;
         case 'l': case 'L': commandsdCardListFiles(); break;
+        case 'a': case 'A': commandSendATCommand(); break;
+        case 'p': case 'P': commandGetESPStatus(); break;
         default: availableCommands(); break;
     } 
+}
+
+static void commandSendATCommand() 
+{
+    esp8266UartSendAT();
+}
+
+static void commandGetESPStatus() 
+{
+    pcSerialComIntWrite( getEsp8622Status() );
 }
 
 static void availableCommands()

@@ -206,12 +206,14 @@ void esp8266UartStringWrite( char const* str )
     esp8266Uart.printf( "%s", str );
 }
 
-
+void esp8266UartSendAT( )
+{
+    esp8266UartStringWrite( "AT\r\n" );
+}
 /*==================[declaraciones de funciones internas]====================*/
 
 static bool IsWaitedResponse();
 static void SetEsp8622Status( Esp8266Status_t status );
-static void ExcecuteHttpServerFsm();
 
 /*==================[declaraciones de funciones externas]====================*/
 
@@ -274,7 +276,7 @@ bool esp8266InitHttpServer( char const* wifiName, char const* wifiPass )
 // @return TRUE si se recibio una peticion, FALSE caso contrario.
 bool esp8266ReadHttpServer()
 {
-   ExcecuteHttpServerFsm();
+   //ExcecuteHttpServerFsm();
    return (Esp8266Status == ESP_SEND_CIPSEND);
 }
 
@@ -302,10 +304,11 @@ bool esp8266WriteHttpServer( char const* webHttpHeader,
       PointerOfHttpBody   = webHttpBody;
       PointerOfHttpEnd    = webHttpEnd;
    }
-   ExcecuteHttpServerFsm();
+   //ExcecuteHttpServerFsm();
 
    return (Esp8266Status == ESP_SEND_CIPCLOSE);
 }
+
 
 /*==================[definiciones de funciones internas]=====================*/
 
@@ -313,7 +316,7 @@ bool esp8266WriteHttpServer( char const* webHttpHeader,
 // Desde aca se manejan los comandos a enviar, los tiempos a esperar y
 // las respuestas a recibir.
 // Automaticamente cambia de estados en funcion de los eventos que ocurran.
-static void ExcecuteHttpServerFsm(void)
+void ExcecuteHttpServerFsm(void)
 {
    uint16_t lenghtOfHttpLines;
    static uint8_t auxIndex;
@@ -324,18 +327,12 @@ static void ExcecuteHttpServerFsm(void)
    switch (Esp8266Status) {
 
       case ESP_INIT:
-         //uartConfig(ESP8266_UART, ESP8266_BAUD_RATE);
-         if (Esp8266DebugBaudRate > 0) {
-//            uartConfig(Esp8266DebugUart, Esp8266DebugBaudRate);
-            esp8266UartInit();
-         }
          delayConfig(&Esp8266Delay, ESP8266_PAUSE);
          SetEsp8622Status(ESP_SEND_AT);
       break;
 
       case ESP_SEND_AT:
          if (delayRead(&Esp8266Delay)) {
-//            stdioPrintf(ESP8266_UART, "AT\r\n");
             esp8266UartStringWrite( "AT\r\n" );
             Esp8266ResponseToWait = Response_OK;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
@@ -725,6 +722,12 @@ static bool IsWaitedResponse(void)
 static void SetEsp8622Status( Esp8266Status_t status )
 {
     Esp8266Status = status;
+}
+
+uint8_t getEsp8622Status(  )
+{
+
+   return Esp8266Status;
 }
 
 /*==================[fin del archivo]========================================*/

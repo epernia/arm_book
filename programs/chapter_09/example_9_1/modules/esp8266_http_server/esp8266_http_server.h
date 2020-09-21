@@ -71,7 +71,10 @@ bool esp8266WriteHttpServer( char const* webHttpHeader,
 char * esp8266GetIpAddress();
 char * esp8266GetWifiName();
 char * esp8266GetWifiPass();
+void ExcecuteHttpServerFsm();
 uint8_t esp8266GetConnectionId();
+void esp8266UartSendAT( );
+uint8_t getEsp8622Status( );
 
 /*==================[c++]====================================================*/
 #ifdef __cplusplus
