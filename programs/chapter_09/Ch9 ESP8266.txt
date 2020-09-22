@@ -1,0 +1,89 @@
+Chapter 9 - Embedded Web Server
+
+Temas teóricos:
+    ESP Modo cliente, modo servidor. Comandos AT.
+    Conexión TCP, UDP. Servidor Web.Servidor Web Embebido.
+    HTML.
+    Javascript.    
+    Prueba del módulo Wi-Fi. 
+        Enviar y recibir comandos AT, como recibir de la uart.
+Examples:
+    Ejemplo 1. Ejemplo básico, web simple con html.
+    Ejemplo 2. Ejemplo con un gráfico con javascript.    
+    Ejemplo 3. Cambiar Setpoint de temperatura.    
+    Ejemplo 4. Retornar el log que iba a la SD en un JSON a la PC (se baja a la PC).
+
+---------------------------------------------------------------
+
+Chapter 10 web client
+----------------------
+
+Ejemplo 1. Pedir fecha y hora a algun servidor web?
+Más adelante:
+  - Servidor en la nube, mandar datos encriptados!
+  - Ver sensores conectados al sistema principal por Wi-Fi (con su modulo ESP8266).
+
+-------------------------------------------------------------------------------
+
+Si timeout = 0 es infinito
+
+- command parser - funciones que reciban cierto patron o sale por timeout
+    scanf, no bloqueante y con timeout.
+- Driver del esp - funciones del esp que devuelve si pudo hacer algo o no, usa al driver "command parser"
+- fsm de la aplicacion - que usa el driver del esp
+
+
+-------------------------------------------------------------------------------
+
+Contenido de la web:
+--------------------
+
+Dibujo del sistema.
+   Estado de la alarma.
+
+Temperatura
+   Gráfico (gráfico en el tiempo).
+   Valor actual (gauge).
+   
+Gas detected o no.
+
+Código de activación.
+   Ver de cambiarlo o no.
+
+Fecha y hora.
+   Ver si se cambia.
+
+Log de eventos.
+   Mostrar en pantalla a medida que se generan.
+   Bajar en JSON
+
+
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+
+Image a vector de C
+-------------------
+
+https://www.youtube.com/watch?v=5EGb_dGRI_c&t=877
+
+Resize 12x64
+Guardar como BMP monochrome
+Abrir LCD Asistant
+
+Básicamente primero Eric generó los png de 128x64. Luego los pasé a bmp monocromo con el paint y luego con la herramienta de esta web:
+http://en.radzio.dxp.pl/bitmap_converter/
+
+Aquí hay otro tutorial de sparkfun que menciona también a esa herramienta: https://learn.sparkfun.com/tutorials/graphic-lcd-hookup-guide/all
+
+El seteo para nuestro display es:
+Vertical
+W: 128
+H: 64
+Endianness: Big
+Pixels/byte: 8
+
+Aquí también hay una demo completa: https://youtu.be/5EGb_dGRI_c?t=877   
