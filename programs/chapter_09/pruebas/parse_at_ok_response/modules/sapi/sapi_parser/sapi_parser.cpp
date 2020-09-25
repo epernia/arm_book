@@ -115,18 +115,19 @@ parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
 
    switch( instance->state ) {
 
+   // Initial state
    case PARSER_STOPPED:
       break;
 
    case PARSER_START:
-      parserUartRxFlush();// instance->uart );
+      parserUartRxFlush();
       delayInit( &(instance->delay), instance->timeout );
       instance->stringIndex = 0;
       instance->state = PARSER_RECEIVING;
       break;
 
    case PARSER_RECEIVING:
-      if( parserUartByteRead( /*instance->uart,*/ &receiveByte ) ) {          
+      if( parserUartByteRead( &receiveByte ) ) {
          if( (instance->stringPattern)[(instance->stringIndex)] == receiveByte ) {
             (instance->stringIndex)++;
             if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
@@ -139,9 +140,10 @@ parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
       }
       break;
 
+   // Final states
    case PARSER_RECEIVED_OK:
    case PARSER_TIMEOUT:
-      //instance->state = PARSER_START; // Eso hacia que se autolance el parser
+      //instance->state = PARSER_START; // Eso hacia que se autolance el parser, ahora lo controlo de afuera
       break;
 
    default:
@@ -164,6 +166,7 @@ parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout(
 
    switch( instance->state ) {
 
+   // Initial state
    case PARSER_STOPPED:
       break;
 
@@ -204,10 +207,11 @@ parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout(
 
       break;
 
+   // Final states
    case PARSER_RECEIVED_OK:
    case PARSER_TIMEOUT:
    case PARSER_FULL_BUFFER:
-      //instance->state = PARSER_START; // Eso hacia que se autolance el parser
+      //instance->state = PARSER_START; // Eso hacia que se autolance el parser, ahora lo controlo de afuera
       break;
 
    default:
