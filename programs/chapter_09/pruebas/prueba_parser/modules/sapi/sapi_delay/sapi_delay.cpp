@@ -32,82 +32,77 @@
 
 // File creation date: 2015-09-23
 
-#ifndef _SAPI_DATATYPES_H_
-#define _SAPI_DATATYPES_H_
-
 //==================[inclusions]===============================================
 
-#include "mbed.h"
-//#include <sapi_register_access.h>
+#include <sapi_delay.h>
 
-//==================[macros]===================================================
+//==================[external data definition]=================================
 
-// Functional states
-#ifndef OFF
-#define OFF    0
-#endif
-#ifndef ON
-#define ON     (!OFF)
-#endif
+extern tick_t tickRateMS;
 
-// Electrical states
-#ifndef LOW
-#define LOW    0
-#endif
-#ifndef HIGH
-#define HIGH   (!LOW)
-#endif
+//==================[external functions definition]============================
 
-// Logical states
+// ---- Inaccurate Blocking Delay ----
 
-#ifndef FALSE
-#define FALSE  0
-#endif
-#ifndef TRUE
-#define TRUE   (!FALSE)
-#endif
+void delayInaccurateMs(tick_t delay_ms)
+{
+   volatile tick_t i;
+   volatile tick_t delay;
+   delay = INACCURATE_TO_MS * delay_ms;
+   for( i=delay; i>0; i-- );
+}
 
-#ifndef false
-#define false  0
-#endif
-#ifndef true
-#define true   (!false)
-#endif
+void delayInaccurateUs( tick_t delay_us )
+{
+   volatile tick_t i;
+   volatile tick_t delay;
+   delay = (INACCURATE_TO_US_x10 * delay_us) / 10;
+   for( i=delay; i>0; i-- );
+}
 
-//==================[typedef]==================================================
+void delayInaccurateNs( tick_t delay_ns )
+{
+   volatile tick_t i;
+   volatile float delayF = (float)delay_ns / INACCURATE_MIN_NS;
+   for( i=(tick_t)round(delayF); i>0; i-- );
+}
 
-// Define Boolean Data Type
-typedef uint8_t bool_t;
+// ---- Blocking Delay --------
 
-// Define real Data Types (floating point)
-typedef float  real32_t;
-typedef double real64_t;
-    
-typedef float  float32_t;
-typedef double float64_t; // In LPC4337 float = double (Floating Point single precision, 32 bits)
+void delay( tick_t duration_ms )
+{
+   tick_t startTime = tickRead();
+   while ( (tick_t)(tickRead() - startTime) < duration_ms / tickRateMS );
+}
 
-// Define Tick Data Type
-typedef uint64_t tick_t;
+// ---- Non Blocking Delay ----
 
-// Function Pointer definition
-// --------------------------------------
-// param:  void * - For passing arguments
-// return: bool_t - For Error Reports
-typedef bool_t (*sAPI_FuncPtr_t)(void *);
+void delayInit( delay_t * delay, tick_t duration_ms )
+{
+   delay->duration = duration_ms / tickRateMS;
+   delay->running = 0;
+}
 
-// Function Pointer definition
-// --------------------------------------
-// param:  void
-// return: void
-typedef void (*callBackFuncPtr_t)(void *);
+bool delayRead( delay_t * delay )
+{
+   bool timeArrived = 0;
 
-//==================[external functions declaration]===========================
+   if( !delay->running ) {
+      delay->startTime = tickRead();
+      delay->running = 1;
+   } else {
+      if ( (tick_t)(tickRead() - delay->startTime) >= delay->duration ) {
+         timeArrived = 1;
+         delay->running = 0;
+      }
+   }
 
-// Null Function Pointer definition
-// --------------------------------------
-// param:  void * - Not used
-// return: bool_t - Return always true
-bool sAPI_NullFuncPtr( void* ptr );
+   return timeArrived;
+}
+
+void delayWrite( delay_t * delay, tick_t duration_ms )
+{
+   delay->duration = duration_ms / tickRateMS;
+}
 
 //==================[end of file]==============================================
-#endif // _SAPI_DATATYPES_H_

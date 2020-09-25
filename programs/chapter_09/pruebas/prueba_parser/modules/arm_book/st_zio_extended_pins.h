@@ -1,7 +1,5 @@
-/* Copyright 2015, Eric Pernia.
+/* Copyright 2020, Eric Pernia, Pablo Gomez and Ariel Lutemberg.
  * All rights reserved.
- *
- * This file is part sAPI library for microcontrollers.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,14 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2015-09-23
-
-#ifndef _SAPI_REGISTER_ACCESS_H_
-#define _SAPI_REGISTER_ACCESS_H_
+#ifndef _ST_ZIO_EXTENDED_PINS_H_
+#define _ST_ZIO_EXTENDED_PINS_H_
 
 //==================[inclusions]===============================================
 
-#include <stdint.h>
+#include <cstdint>
 #include <mbed.h>
 
 //==================[c++]======================================================
@@ -45,29 +41,78 @@
 extern "C" {
 #endif
 
-//==================[macros]===================================================
+//=====[Declaration of public defines]=========================================
 
-// Register direct access definitions
-// From: https://es.coursera.org/lecture/embedded-software-hardware/9-register-definition-files-6pqVq
+// ST Zio connector names to extend Mbed OS library ----------
 
-//  __I Defines 'read only' permissions: volatile const
-//  __O Defines 'write only' permissions: volatile
-// __IO Defines 'read / write' permissions: volatile
+// Nota: tenemos que hablar en el libro de este archivo!!
 
-#define HW_REG_8_R(x)     (*((__I  uint8_t *)(x)))
-#define HW_REG_16_R(x)    (*((__I uint16_t *)(x)))
-#define HW_REG_32_R(x)    (*((__I uint32_t *)(x)))
+// CN7
+# define D16   PC_6
+# define D17   PB_15
+# define D18   PB_13
+# define D19   PB_12
+# define D20   PA_15
+# define D21   PC_7
+# define D22   PB_5
+# define D23   PB_3
+# define D24   PA_4
+# define D25   PB_4
 
-#define HW_REG_8_W(x)     (*((__O  uint8_t *)(x)))
-#define HW_REG_16_W(x)    (*((__O uint16_t *)(x)))
-#define HW_REG_32_W(x)    (*((__O uint32_t *)(x)))
+// CN10
+# define D26   PB_6
+# define D27   PB_2
+# define D28   PD_13
+# define D29   PD_12
+# define D30   PD_11
+# define D31   PE_2
+# define D32   PA_0
+# define D33   PB_0
+# define D34   PE_0
+# define D35   PB_11
+# define D36   PB_10
+# define D37   PE_15
+# define D38   PE_14
+# define D39   PE_12
+# define D40   PE_10
+# define D41   PE_7
+# define D42   PE_8
 
-#define HW_REG_8_RW(x)    (*((__IO  uint8_t *)(x)))
-#define HW_REG_16_RW(x)   (*((__IO uint16_t *)(x)))
-#define HW_REG_32_RW(x)   (*((__IO uint32_t *)(x)))
+// CN8
+# define D43   PC_8
+# define D44   PC_9
+# define D45   PC_10
+# define D46   PC_11
+# define D47   PC_12
+# define D48   PD_1
+# define D49   PG_2
+# define D50   PG_3
 
-// Example:
-//#define REG_NAME   (HW_REG_32_RW(0x4544555))
+// CN9
+# define D51   PD_7
+# define D52   PD_6
+# define D53   PD_5
+# define D54   PD_4
+# define D55   PD_3
+# define D56   PE_2
+# define D57   PE_4
+# define D58   PE_5
+# define D59   PE_6
+# define D60   PE_3
+# define D61   PF_8
+# define D62   PF_7
+# define D63   PF_9
+# define D64   PG_1
+# define D65   PG_0
+# define D66   PD_1
+# define D67   PD_0
+# define D68   PF_0
+# define D69   PF_1
+# define D70   PF_2
+# define D71   PA_7
+# define D72   NC
+
+//=====[Declaration of public data types]======================================
 
 //==================[c++]======================================================
 #ifdef __cplusplus
@@ -75,4 +120,4 @@ extern "C" {
 #endif
 
 //==================[end of file]==============================================
-#endif // _SAPI_REGISTER_ACCESS_H_
+#endif

@@ -1,4 +1,4 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,58 +30,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+#ifndef _SAPI_H_
+#define _SAPI_H_
 
 /*==================[inclusions]=============================================*/
 
-#include <sapi_datatypes.h>
-#include <sapi_delay.h>
-#include <mbed.h>
+#include "sapi_datatypes.h"
 
-/*==================[macros]=================================================*/
+// Peripheral Drivers
 
-/*==================[typedef]================================================*/
+#include "sapi_tick.h"
 
-typedef enum{
-   PARSER_RECEIVING   =  3,
-   PARSER_STOPPED     =  2,
-   PARSER_START       =  1,
-   PARSER_RECEIVED_OK =  0,
-   PARSER_TIMEOUT     = -1,
-   PARSER_FULL_BUFFER = -2,
-} parserStatus_t;
+// High Level drivers
 
-typedef struct{
-   parserStatus_t state;
-   char*    stringPattern;
-   uint16_t stringPatternLen;
-   uint16_t stringIndex;
-   tick_t   timeout;
-   delay_t  delay;
-   //Serial   uart;
-} parser_t;
+#include "sapi_parser.h"
+#include "sapi_convert.h"
+#include "sapi_delay.h"
 
-/*==================[external functions declaration]=========================*/
+// External Peripheral Drivers
 
-void parserInit( parser_t* instance, //Serial* uart,
-                 char* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+//#include "sapi_esp8266.h"
 
-void parserStart( parser_t* instance );
+/*==================[c++]====================================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void parserStop( parser_t* instance );
-
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance );
-
-// Store bytes until receive a given pattern
-parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
-    parser_t* instance,
-    char* receiveBuffer,
-    uint32_t* receiveBufferSize );
+/*==================[c++]====================================================*/
+#ifdef __cplusplus
+}
+#endif
 
 /*==================[end of file]============================================*/
-#endif
+#endif /* _SAPI_H_ */

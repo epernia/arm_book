@@ -11,13 +11,8 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void pcSerialComInit();
-char pcSerialComCharRead();
-void pcSerialComCharWrite( char c );
-void pcSerialComStringWrite( const char* str );
-void pcSerialComUpdate();
-bool pcSerialComCodeCompleteRead();
-void pcSerialComCodeCompleteWrite( bool state );
+void embeddedServerInit();
+void embeddedServerUpdate();
 
 //=====[#include guards - end]=================================================
 

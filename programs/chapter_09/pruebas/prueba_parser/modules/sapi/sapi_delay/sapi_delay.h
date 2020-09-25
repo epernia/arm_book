@@ -1,4 +1,4 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,58 +30,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+#ifndef _SAPI_DELAY_H_
+#define _SAPI_DELAY_H_
 
-/*==================[inclusions]=============================================*/
+//==================[inclusions]===============================================
 
-#include <sapi_datatypes.h>
-#include <sapi_delay.h>
-#include <mbed.h>
+#include <sapi_tick.h>
 
-/*==================[macros]=================================================*/
+//==================[macros]===================================================
 
-/*==================[typedef]================================================*/
+// NOTA: ARREGLAR PARA LA NUCLEO ESTOS TIEMPOS
 
-typedef enum{
-   PARSER_RECEIVING   =  3,
-   PARSER_STOPPED     =  2,
-   PARSER_START       =  1,
-   PARSER_RECEIVED_OK =  0,
-   PARSER_TIMEOUT     = -1,
-   PARSER_FULL_BUFFER = -2,
-} parserStatus_t;
+// Fclk = 204 MHz ==> 4.9019607843137254901960784313725 ns
+#define INACCURATE_TO_MS       20400   // Number of cycles for 1 ms
+#define INACCURATE_TO_US_x10   204     // Number of cycles for 10 ns
+#define INACCURATE_MIN_NS      4.901960849761962890625f
+
+//==================[typedef]==================================================
 
 typedef struct{
-   parserStatus_t state;
-   char*    stringPattern;
-   uint16_t stringPatternLen;
-   uint16_t stringIndex;
-   tick_t   timeout;
-   delay_t  delay;
-   //Serial   uart;
-} parser_t;
+   tick_t startTime;
+   tick_t duration;
+   bool running;
+} delay_t;
 
-/*==================[external functions declaration]=========================*/
+//==================[external functions declaration]===========================
 
-void parserInit( parser_t* instance, //Serial* uart,
-                 char* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+// ---- Inaccurate Delay ------
 
-void parserStart( parser_t* instance );
+void delayInaccurateMs( tick_t delay_ms );
+void delayInaccurateUs( tick_t delay_us );
+void delayInaccurateNs( tick_t delay_ns ); // Resolution ~5 ns
 
-void parserStop( parser_t* instance );
+// ---- Blocking Delay --------
 
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance );
+void delay( tick_t duration_ms );
 
-// Store bytes until receive a given pattern
-parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
-    parser_t* instance,
-    char* receiveBuffer,
-    uint32_t* receiveBufferSize );
+// ---- Non Blocking Delay ----
 
-/*==================[end of file]============================================*/
+void delayInit( delay_t* delay, tick_t duration_ms );
+bool delayRead( delay_t* delay );
+void delayWrite( delay_t* delay, tick_t duration_ms );
+
+//==================[end of file]==============================================
 #endif

@@ -1,7 +1,5 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2020, Eric Pernia, Pablo Gomez and Ariel Lutemberg.
  * All rights reserved.
- *
- * This file is part sAPI library for microcontrollers.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,58 +28,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+#ifndef _ARM_BOOK_LIBRARY_H_
+#define _ARM_BOOK_LIBRARY_H_
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
-
-/*==================[inclusions]=============================================*/
+//==================[inclusions]===============================================
 
 #include <sapi_datatypes.h>
-#include <sapi_delay.h>
-#include <mbed.h>
+#include <st_zio_extended_pins.h>
 
-/*==================[macros]=================================================*/
+//==================[c++]======================================================
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[typedef]================================================*/
+//=====[Declaration of public defines]=========================================
 
-typedef enum{
-   PARSER_RECEIVING   =  3,
-   PARSER_STOPPED     =  2,
-   PARSER_START       =  1,
-   PARSER_RECEIVED_OK =  0,
-   PARSER_TIMEOUT     = -1,
-   PARSER_FULL_BUFFER = -2,
-} parserStatus_t;
+// #define delay(ms)      thread_sleep_for( ms )
 
-typedef struct{
-   parserStatus_t state;
-   char*    stringPattern;
-   uint16_t stringPatternLen;
-   uint16_t stringIndex;
-   tick_t   timeout;
-   delay_t  delay;
-   //Serial   uart;
-} parser_t;
+//=====[Declaration of public data types]======================================
 
-/*==================[external functions declaration]=========================*/
+//==================[c++]======================================================
+#ifdef __cplusplus
+}
+#endif
 
-void parserInit( parser_t* instance, //Serial* uart,
-                 char* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
-
-void parserStart( parser_t* instance );
-
-void parserStop( parser_t* instance );
-
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance );
-
-// Store bytes until receive a given pattern
-parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
-    parser_t* instance,
-    char* receiveBuffer,
-    uint32_t* receiveBufferSize );
-
-/*==================[end of file]============================================*/
+//==================[end of file]==============================================
 #endif

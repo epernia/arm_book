@@ -30,12 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-12-11
+// File creation date: 2016-06-05
 
 //==================[inclusions]===============================================
 
-#include "sapi.h"     // <= sAPI header
-#include <string.h>
+#include <sapi_datatypes.h>
 
 //==================[macros and definitions]===================================
 
@@ -51,79 +50,38 @@
 
 //==================[external functions definition]============================
 
-// C++ version 0.4 char* style "itoa":
-// Written by Lukás Chmela
-// Released under GPLv3.
-char* itoa(int value, char* result, int base) {
-   // check that the base if valid
-   if (base < 2 || base > 36) { *result = '\0'; return result; }
-
-   char* ptr = result, *ptr1 = result, tmp_char;
-   int tmp_value;
-
-   do {
-      tmp_value = value;
-      value /= base;
-      *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
-   } while ( value );
-
-   // Apply negative sign
-   if (tmp_value < 0) *ptr++ = '-';
-   *ptr-- = '\0';
-   while(ptr1 < ptr) {
-      tmp_char = *ptr;
-      *ptr--= *ptr1;
-      *ptr1++ = tmp_char;
-   }
-   return result;
+// Null Function Pointer definition
+// --------------------------------------
+// param:  void * - Not used
+// return: bool_t - Return always true
+bool sAPI_NullFuncPtr( void* ptr )
+{
+   return 1;
 }
 
-
-// FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET.
-int main(void){
-
-   // ------------- INICIALIZACIONES -------------
-
-   // Inicializar la placa
-   boardInit();
-
-   // Inicializar UART_USB a 115200 baudios
-   uartInit( UART_USB, 115200 );
-
-   char miTexto[] = "hola como le va";
-
-   bool_t received = FALSE;
-
-   uartWriteString( UART_USB, "Se espera a que el usuario escriba \"hola como le va\",\r\n" );
-   uartWriteString( UART_USB, "o sale por timeout (10 segundos) y vuelve a esperar\r\n" );
-   uartWriteString( UART_USB, "a que se escriba el mensaje.\r\n" );
-
-   // ------------- REPETIR POR SIEMPRE -------------
-   while(1) {
-
-      received = waitForReceiveStringOrTimeoutBlocking(
-                    UART_USB,
-                    miTexto,
-                    strlen(miTexto),
-                    10000
-                 );
-
-      // Si recibe el string almacenado en miTexto indica que llego el
-      // mensaje esperado.
-      if( received ){
-         uartWriteString( UART_USB, "\r\nLlego el mensaje esperado\r\n" );
-      }
-      // Si no lo recibe indica que salio de la funcion
-      // waitForReceiveStringOrTimeoutBlocking  por timeout.
-      else{
-         uartWriteString( UART_USB, "\r\nSalio por timeout\r\n" );
-      }
-
-   }
-
-   // NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
-   // por ningun S.O.
-   return 0;
-}
+//==================[ISR external functions definition]========================
 
 //==================[end of file]==============================================
+
+// EASTER EGG FUNCTION POINTER VECTOR EXAMPLE
+
+/*
+// Fuinction to avoid NULL pointer
+void dummy(void){
+    return;
+}
+
+// Function pointer typedef definition
+typedef void (*voidFunctionPointer_t)(void);
+
+// Function pointer array variable definition initialized with dummy (NULL)
+voidFunctionPointer_t voidFunctionPointer[2] = {dummy, dummy};
+
+// Execute the funcion
+(* voidFunctionPointer[0] )();
+(* voidFunctionPointer[1] )();
+
+// Asign a function on each array position
+voidFunctionPointer[0] = ledB;
+voidFunctionPointer[1] = led1;
+*/

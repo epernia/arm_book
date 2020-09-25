@@ -1,4 +1,6 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015-2018, Eric Pernia.
+ * Copyright 2018, Martin Ribelotta.
+ * Copyright 2018, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,58 +32,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+//=====[#include guards - begin]===============================================
 
-/*==================[inclusions]=============================================*/
+#ifndef _SAPI_TICK_H_
+#define _SAPI_TICK_H_
+
+//=====[Libraries]=============================================================
 
 #include <sapi_datatypes.h>
-#include <sapi_delay.h>
-#include <mbed.h>
 
-/*==================[macros]=================================================*/
+//=====[Declarations (prototypes) of public functions]=========================
 
-/*==================[typedef]================================================*/
+// Tick Initialization and rate configuration from 1 to 1000 ms
+bool tickInit( tick_t tickRateMSvalue );
 
-typedef enum{
-   PARSER_RECEIVING   =  3,
-   PARSER_STOPPED     =  2,
-   PARSER_START       =  1,
-   PARSER_RECEIVED_OK =  0,
-   PARSER_TIMEOUT     = -1,
-   PARSER_FULL_BUFFER = -2,
-} parserStatus_t;
+// Read Tick Counter
+tick_t tickRead( void );
 
-typedef struct{
-   parserStatus_t state;
-   char*    stringPattern;
-   uint16_t stringPatternLen;
-   uint16_t stringIndex;
-   tick_t   timeout;
-   delay_t  delay;
-   //Serial   uart;
-} parser_t;
+// Write Tick Counter
+void tickWrite( tick_t ticks );
 
-/*==================[external functions declaration]=========================*/
+// Tick interrupt callback
+bool tickCallbackSet( callBackFuncPtr_t tickCallback, void* tickCallbackParams );
 
-void parserInit( parser_t* instance, //Serial* uart,
-                 char* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+// Enable or disable the peripheral energy and clock
+void tickPowerSet( bool power );
 
-void parserStart( parser_t* instance );
+//=====[#include guards - end]=================================================
 
-void parserStop( parser_t* instance );
-
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance );
-
-// Store bytes until receive a given pattern
-parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
-    parser_t* instance,
-    char* receiveBuffer,
-    uint32_t* receiveBufferSize );
-
-/*==================[end of file]============================================*/
 #endif
