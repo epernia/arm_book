@@ -28,79 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ARM_BOOK_LIBRARY_H_
-#define _ARM_BOOK_LIBRARY_H_
+#ifndef _ST_ZIO_EXTENDED_PINS_H_
+#define _ST_ZIO_EXTENDED_PINS_H_
 
-/*==================[inclusions]=============================================*/
+//==================[inclusions]===============================================
 
 #include <cstdint>
 #include <mbed.h>
 
-/*==================[c++]====================================================*/
+//==================[c++]======================================================
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*==================[macros]=================================================*/
+//=====[Declaration of public defines]=========================================
 
-// Functional states
-#ifndef OFF
-#define OFF    0
-#endif
-#ifndef ON
-#define ON     (!OFF)
-#endif
+// ST Zio connector names to extend Mbed OS library ----------
 
-// Electrical states
-#ifndef LOW
-#define LOW    0
-#endif
-#ifndef HIGH
-#define HIGH   (!LOW)
-#endif
-
-// Logical states
-
-#ifndef FALSE
-#define FALSE  0
-#endif
-#ifndef TRUE
-#define TRUE   (!FALSE)
-#endif
-
-#ifndef false
-#define false  0
-#endif
-#ifndef true
-#define true   (!false)
-#endif
-
-//  __I Defines 'read only' permissions: volatile const
-//  __O Defines 'write only' permissions: volatile
-// __IO Defines 'read / write' permissions: volatile
-
-#define HW_REG_8_R(x)     (*((__I  uint8_t *)(x)))
-#define HW_REG_16_R(x)    (*((__I uint16_t *)(x)))
-#define HW_REG_32_R(x)    (*((__I uint32_t *)(x)))
-
-#define HW_REG_8_W(x)     (*((__O  uint8_t *)(x)))
-#define HW_REG_16_W(x)    (*((__O uint16_t *)(x)))
-#define HW_REG_32_W(x)    (*((__O uint32_t *)(x)))
-
-#define HW_REG_8_RW(x)    (*((__IO  uint8_t *)(x)))
-#define HW_REG_16_RW(x)   (*((__IO uint16_t *)(x)))
-#define HW_REG_32_RW(x)   (*((__IO uint32_t *)(x)))
-
-// Example:
-// #define REG_NAME   (HW_REG_32_RW(0x4544555))
-
-/*==================[Function-like macros]===================================*/
-
-#define delay(ms)      thread_sleep_for( ms )
-
-/*==================[typedef]================================================*/
-
-// ST Zio connector names to extend Mbed OS library
+// Nota: tenemos que hablar en el libro de este archivo!!
 
 // CN7
 # define D16   PC_6
@@ -111,7 +56,7 @@ extern "C" {
 # define D21   PC_7
 # define D22   PB_5
 # define D23   PB_3
-# define D24   PA_4_ALT0
+# define D24   PA_4
 # define D25   PB_4
 
 // CN10
@@ -167,10 +112,12 @@ extern "C" {
 # define D71   PA_7
 # define D72   NC
 
-/*==================[c++]====================================================*/
+//=====[Declaration of public data types]======================================
+
+//==================[c++]======================================================
 #ifdef __cplusplus
 }
 #endif
 
-/*==================[end of file]============================================*/
-#endif // _ARM_BOOK_LIBRARY_H_
+//==================[end of file]==============================================
+#endif
