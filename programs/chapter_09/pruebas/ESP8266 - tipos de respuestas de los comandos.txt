@@ -1,0 +1,135 @@
+-------------------------------------------------------------------------------
+RESPONSES
+-------------------------------------------------------------------------------
+
+Response: "OK\r\n"
+
+AT
+AT+RST
+AT+CWMODE=<mode>
+AT+CWQAP - Disconnects from the AP
+AT+CIPCLOSE - Closes TCP/UDP/SSL Connection
+AT+CIPMUX=<mode> - Set connection type (single or multiple)
+AT+CIPSERVER=<mode>[,<port>] - Deletes/Creates TCP Server
+
+AT+CIPMODE=<mode> - Set the Transmission Mode (este comando no esta ver si lo agrego en modulo esp8266_module.c/h, el ejemplo original que anda no lo usa)
+
+Estos comandos se implementan asi:
+    esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
+    return esp8266CheckOkResponse();
+
+-------------------------------------------------------------------------------
+
+Response: Algo con parámetro(s) para guardar e identificar luego y termina en "\r\nOK\r\n"
+
+AT+CWMODE?
+    +CWMODE:<mode>
+    OK
+
+AT+CWLAP
+    +CWLAP:<ecn>,<ssid>,<rssi>,<mac>,<ch>
+    OK
+
+AT+CIPMUX? - Query connection type (single or multiple)
+    +CIPMUX:<mode>
+    OK
+
+AT+CIPMODE? - Query the Transmission Mode
+    +CIPMODE:<mode>
+    OK
+
+AT+CWJAP?
+    +CWJAP:<ssid>,<bssid>,<channel>,<rssi>
+    OK
+
+-------------------------------------------------------------------------------
+
+2 possible responses: 
+    - Algo con parámetro(s) para guardar e identificar luego y termina en "\r\nOK\r\n"
+    - "ERROR\r\n": 
+
+AT+CWLAP=<ssid>[,<mac>,<ch>]
+    +CWLAP:<ecn>,<ssid>,<rssi>,<mac>,<ch>
+    OK
+  or
+    ERROR
+
+AT+CWJAP=<ssid>,<pwd>[,<bssid>]
+    OK
+  or
+    +CWJAP:<error code>
+    ERROR
+
+-------------------------------------------------------------------------------
+
+3 possible responses:
+
+AT+CIPSTART... - Establishes TCP, UDP or SSL Connection
+    OK
+  or
+    ERROR
+  If TCP is already connected, the response is:
+    ALREADY	CONNECT
+
+-------------------------------------------------------------------------------
+Other responses: 
+-------------------------------------------------------------------------------
+
+AT+CIPSTATUS - Gets the Connection Status
+    STATUS:<stat>
+    +CIPSTATUS:<link ID>,<type>,<remote	IP>,<remote	port>,<local port>,<tetype>
+
+-------------------------------------------------------------------------------
+
+AT+CIPSEND... - Sends Data (ver respuesta compleja, pagina 31):
+
+  Function: to configure the data length in normal transmission mode.
+
+    1. Single connection: (+CIPMUX=0)
+        AT+CIPSEND=<length>
+    2. Multiple connections: (+CIPMUX=1)
+        AT+CIPSEND=<link ID>,<length>
+    3. Remote IP and ports can be set in UDP transmission:
+    AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]
+    
+    Response:
+      Send data of designated length.
+      Wrap return > after the set command. Begin receiving serial data. When the requirement of data length is met, the transmission of data starts.
+      If the connection cannot be established or gets disrupted during data transmission, the system returns:
+        ERROR
+      If data is transmitted successfully, the system returns:
+        SEND OK
+    
+  Function: to start sending data in transparent transmission mode.
+
+    AT+CIPSEND
+
+    Response:
+      Wrap return > after executing this command.
+      Enter transparent transmission, with a 20-ms interval between each packet, and a maximum of 2048 bytes per packet.
+      When a single packet containing +++ is received, ESP32 returns to normal command mode. Please wait for at least one second before sending the next AT command.
+      This command can only be used in transparent transmission mode which requires single connection.
+      For UDP transparent transmission, the value of <UDP mode> has to be 0 when using AT+CIPSTART.
+
+-------------------------------------------------------------------------------
+
++IPD - Receives Network Data (ver pagina 38)
+
+    OJOOO ESTO LO RECIBO ESPONTANEAMENTE DEDE EL ESP !!!
+
+    The command is valid in normal command mode. When the module receives network data, it will send the data through the serial port using the +IPD command.
+    
+    Command:    
+     - Single connection: 
+       (+CIPMUX=0)+IPD,<len>[,<remote IP>,<remote port>]:<data>
+     - Multiple connections:
+       (+CIPMUX=1)+IPD,<link ID>,<len>[,<remote IP>,<remote	port>]:<data>
+    
+    Parameters:
+     - [<remote	IP>]: remote IP, enabled by command AT+CIPDINFO=1.
+     - [<remote	port>]: remote port, enabled by command AT+CIPDINFO=1.
+     - <link ID>: ID number of connection.
+     - <len>: data length.
+     - <data>: data received.
+
+-------------------------------------------------------------------------------
