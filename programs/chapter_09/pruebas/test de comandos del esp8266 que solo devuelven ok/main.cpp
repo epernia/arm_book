@@ -25,10 +25,15 @@
 //   esp8266CreateTCPServer(ESP8266_SERVER_DEFAULT_PORT)
 //   esp8266CreateTCPServer(80)
 
+
 // Test fail sometimes:
+//   esp8266CreateTCPServer(ESP8266_SERVER_DEFAULT_PORT)
+//   esp8266CreateTCPServer(80)
+//      TODO: Parece que andan estos 2 solo cuando antes llamo a
+//            esp8266ConnectionsModeSet(ESP8266_MULTIPLE_CONNECTIONS)
 //   esp8266CloseConnection(ESP8266_CLOSE_ALL_CONNECTIONS) 
-//      TODO: Ver que devuelve cuando no esta conectado a nada! Porque me da que sale por timeout
-//            Parece que anda solo cuando el server esta creado
+//      TODO: Parece que anda solo cuando el server esta creado
+//            Ver que devuelve cuando no esta el server. Porque me da que sale por timeout
 
 /*==================[internal data definition]===============================*/
 
