@@ -78,13 +78,15 @@ void parserStart( parser_t* instance );
 void parserStop( parser_t* instance );
 
 // Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance );
-
+parserStatus_t parserPatternMatchOrTimeout(
+    parser_t* instance, char const receivedChar )
+/*
 // Store bytes until receive a given pattern
 parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
     parser_t* instance,
     char* receiveBuffer,
-    uint32_t* receiveBufferSize );
-
+    uint32_t* receiveBufferSize,
+    char const receivedChar );
+*/
 /*==================[end of file]============================================*/
 #endif

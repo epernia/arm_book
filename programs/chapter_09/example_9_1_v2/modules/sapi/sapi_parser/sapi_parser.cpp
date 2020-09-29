@@ -51,7 +51,7 @@ void parserInit( parser_t* instance,
     instance->timeout = timeout;    
 }
 
-void parserStart( parser_t* instance, char const receivedChar )
+void parserStart( parser_t* instance )
 {
     instance->state = PARSER_START;
 }
@@ -62,7 +62,8 @@ void parserStop( parser_t* instance )
 }
 
 // Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
+parserStatus_t parserPatternMatchOrTimeout(
+    parser_t* instance, char const receivedChar )
 {
    switch( instance->state ) {
 
@@ -104,6 +105,7 @@ parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
    return instance->state;
 }
 
+/*
 // Store bytes until receive a given pattern
 parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
     parser_t* instance,
@@ -171,7 +173,7 @@ parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout(
 
    return instance->state;
 }
-
+*/
 //==================[internal functions definition]============================
 
 //==================[end of file]==============================================
