@@ -13,9 +13,11 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
+//static Serial uartEsp8266( USBTX, USBRX );
+
 // D42 = PE_8 = UART7_TX
 // D41 = PE_7 = UART7_RX
-//Serial esp8266Uart( D42, D41 );
+static Serial uartEsp8266( D42, D41 );
 
 //=====[Declaration of external public global variables]=======================
 
@@ -27,29 +29,84 @@ static bool flagStartParser = true;
 static parser_t parser;
 static parserStatus_t parserStatus;
 
+
 static esp8266Status_t esp8266Status;
-esp8266SendingATStatus_t esp8266SendingATStatus;
+
+static bool esp8266ATCommandsPendingToSend = false;
+static esp8266SendingATStatus_t esp8266SendingATStatus;
+
 static esp8266ReceivingStatus_t esp8266ReceivingStatus;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 /*
-static void esp8266UartInit();
 static bool esp8266UartCharRead( char* receivedChar );
 static void esp8266UartCharWrite( char c );
+static void esp8266UartInit();
 static void esp8266UartStringWrite( char const* str );
 */
+
+// Anwer true if there is an AT command pending to send
+static bool esp8266AreAnATCommandPendingToSend();
 
 // Send commands that response "OK\r\n"
 static void esp8266SendCommandWithOkResponse( char const* cmd );
 
 // Check response for previously sended commands that only response "OK\r\n"
-static esp8266Status_t esp8266CheckOkResponse();
+static esp8266SendingATStatus_t esp8266CheckOkResponse();
 
 // Check response for previously sended commands that response parameter(s) and "\r\nOK\r\n"
-static esp8266Status_t esp8266CheckParametersAndOkResponse();
+static esp8266SendingATStatus_t esp8266CheckParametersAndOkResponse();
 
 //=====[Implementations of public functions]===================================
+
+
+// UART used for the ESP8266 --------------------------------------------------
+
+void esp8266UartInit( int baudrate )
+{
+    uartEsp8266.baud(baudrate);
+}
+
+void esp8266UartReceptorFlush()
+{
+    while( esp8266UartDataReceived() ) {
+        esp8266UartDataRead();
+    }
+}
+
+bool esp8266UartDataReceived()
+{
+    return uartEsp8266.readable();
+}
+
+uint8_t esp8266UartDataRead()
+{
+    return uartEsp8266.getc();
+}
+
+bool esp8266UartByteRead( uint8_t* receivedByte )
+{
+    if( esp8266UartDataReceived() ) {
+        *receivedByte = esp8266UartDataRead();
+        return true;
+    }
+    return false;
+}
+
+void esp8266UartByteWrite( uint8_t sendedByte )
+{
+    uartEsp8266.putc( (char)(sendedByte) );
+    // TODO: Ver si se atora la uart con put C o como hace para no atorarse
+}
+
+void esp8266UartStringWrite( char const* str )
+{
+    while ( *str != NULL ) {
+        parserUartByteWrite( (uint8_t)*str );
+        str++;
+    }
+}
 
 // FSM Initialization and Update ----------------------------------------------
 
@@ -57,28 +114,22 @@ esp8266Status_t esp8266Init() /* uartMap_t uartConnectedToEsp,
                              uartMap_t uartForConsoleInfo,
                              int baudRateForBothUarts );*/
 {
-    parserUartInit( ESP8266_BAUDRATE );
-    return ESP8266_OK;
+    esp8266UartInit( ESP8266_BAUDRATE );
+    esp8266SendingATStatus = ESP8266_AT_WAITING;
+    esp8266ReceivingStatus = ESP8266_RECEIVE_WAITING;
+    esp8266Status = ESP8266_IDLE;
+    return esp8266Status;
 }
 
 
 
 // Notas para mi:
 
-// el modulo ESP tiene que manejar la UART, decidiendo cuandor ecibe y cuando parsea respuestas. 
+// el modulo ESP tiene que manejar la UART, decidiendo cuando recibe y cuando parsea respuestas. 
 
 // Debo entonces pasarle caracteres y actualizar el parser con cada caracter que le doy de comer.
 
 // 
-
-
-static bool esp8266AreATCommandsPendingToSend();
-
-static bool esp8266AreATCommandsPendingToSend()
-{
-    return false;
-}
-
 
 esp8266Status_t esp8266Update() 
 {
@@ -89,7 +140,7 @@ esp8266Status_t esp8266Update()
         case ESP8266_IDLE:
             if( uart data is available ) {
                 esp8266Status = ESP8266_RECEIVING_DATA;
-            } else if( esp8266AreATCommandsPendingToSend() ) {
+            } else if( esp8266AreAnATCommandPendingToSend() ) {
                 esp8266Status = ESP8266_SENDING_AT_COMMAND;
             }
         break;
@@ -159,7 +210,7 @@ esp8266ReceivingStatus_t esp8266ReceiveDataUpdate()
         break;
 
         default:
-            esp8266ReceivingStatus = ESP8266_AT_WAITING;
+            esp8266ReceivingStatus = ESP8266_RECEIVE_WAITING;
         break;
     }
     return esp8266ReceivingStatus;
@@ -168,7 +219,7 @@ esp8266ReceivingStatus_t esp8266ReceiveDataUpdate()
 // Tests AT startup. ----------------------------------------------------------
 
 // "AT\r\n"
-esp8266Status_t esp8266TestAT()
+esp8266SendingATStatus_t esp8266TestAT()
 {
     esp8266SendCommandWithOkResponse( "AT\r\n" );
     return esp8266CheckOkResponse();
@@ -177,7 +228,7 @@ esp8266Status_t esp8266TestAT()
 // Restarts the ESP8266 module. -----------------------------------------------
 
 // "AT+RST\r\n"
-esp8266Status_t esp8266Reset()
+esp8266SendingATStatus_t esp8266Reset()
 {
     esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
     return esp8266CheckOkResponse();
@@ -186,7 +237,7 @@ esp8266Status_t esp8266Reset()
 // Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------
 
 // "AT+CWMODE=3\r\n"
-esp8266Status_t esp8266WiFiModeSet( esp8266WiFiMode_t mode )
+esp8266SendingATStatus_t esp8266WiFiModeSet( esp8266WiFiMode_t mode )
 {
     // "AT+CWMODE=" + mode +  "\r\n"  (debo concatenar estos 3 strings)
     esp8266SendCommandWithOkResponse( "AT+CWMODE=3\r\n" ); // FIXME: Hacer comando con mode variable
@@ -196,7 +247,7 @@ esp8266Status_t esp8266WiFiModeSet( esp8266WiFiMode_t mode )
 // Query the current Wi-Fi mode of ESP32 (Station/AP/Station+AP). -------------
 
 // "AT+CWMODE?"
-esp8266Status_t esp8266WiFiModeGet( esp8266WiFiMode_t* responseMode )
+esp8266SendingATStatus_t esp8266WiFiModeGet( esp8266WiFiMode_t* responseMode )
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
@@ -204,7 +255,7 @@ esp8266Status_t esp8266WiFiModeGet( esp8266WiFiMode_t* responseMode )
 // Lists available APs. -------------------------------------------------------
  
 // "AT+CWLAP\r\n"
-esp8266Status_t esp8266ListAPs( char* listOfAPs, int listOfAPsMaxLen )
+esp8266SendingATStatus_t esp8266ListAPs( char* listOfAPs, int listOfAPsMaxLen )
 {
     // FIXME: It can be improved
     return ESP8266_OK; // TODO: Falta implementar
@@ -213,7 +264,7 @@ esp8266Status_t esp8266ListAPs( char* listOfAPs, int listOfAPsMaxLen )
 // Disconnects from the AP. ---------------------------------------------------
 
 // "AT+CWQAP\r\n"
-esp8266Status_t esp8266DisconnectFromAP()
+esp8266SendingATStatus_t esp8266DisconnectFromAP()
 {
     esp8266SendCommandWithOkResponse( "AT+CWQAP\r\n" );
     return esp8266CheckOkResponse();
@@ -222,16 +273,16 @@ esp8266Status_t esp8266DisconnectFromAP()
 // Connects to an AP. ---------------------------------------------------------
 
 // AT+CWJAP=<ssid>,<pwd>
-esp8266Status_t esp8266ConnectToAP( char const* ssid, 
-                                    char const* pwd )
+esp8266SendingATStatus_t esp8266ConnectToAP( char const* ssid, 
+                                             char const* pwd )
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
 
 // AT+CWJAP=<ssid>,<pwd>[,<bssid>]                        
-esp8266Status_t esp8266ConnectToAPWithMAC( char const* ssid, 
-                                           char const* pwd , 
-                                           char const* bssid )
+esp8266SendingATStatus_t esp8266ConnectToAPWithMAC( char const* ssid, 
+                                                    char const* pwd , 
+                                                    char const* bssid )
 {
     // Examples:
     // 
@@ -250,8 +301,8 @@ esp8266Status_t esp8266ConnectToAPWithMAC( char const* ssid,
 // Query the AP to which the ESP32 Station is already connected. --------------
 
 // AT+CWJAP?
-esp8266Status_t esp8266WhichAPIsConnected( char* response, 
-                                           int responseMaxLen )
+esp8266SendingATStatus_t esp8266WhichAPIsConnected( char* response, 
+                                                    int responseMaxLen )
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
@@ -259,13 +310,15 @@ esp8266Status_t esp8266WhichAPIsConnected( char* response,
 // Configures the multiple connections mode. ----------------------------------
 
 // "AT+CIPMUX?\r\n"
-esp8266Status_t esp8266ConnectionsModeGet( esp8266ConnectionsMode_t* respose )
+esp8266SendingATStatus_t esp8266ConnectionsModeGet( 
+   esp8266ConnectionsMode_t* respose )
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
 
 // "AT+CIPMUX=1\r\n"
-esp8266Status_t esp8266ConnectionsModeSet( esp8266ConnectionsMode_t mode )
+esp8266SendingATStatus_t esp8266ConnectionsModeSet( 
+   esp8266ConnectionsMode_t mode )
 {
     // - The default mode is single connection mode.
     // - This mode can only be changed after all connections are disconnected, use:
@@ -288,7 +341,7 @@ esp8266Status_t esp8266ConnectionsModeSet( esp8266ConnectionsMode_t mode )
 // Deletes/Creates TCP server. ------------------------------------------------
 
 // "AT+CIPSERVER=1,80\r\n"
-esp8266Status_t esp8266CreateTCPServer( int port )
+esp8266SendingATStatus_t esp8266CreateTCPServer( int port )
 {
     // Example
     // "AT+CIPSERVER=1,80\r\n"
@@ -317,7 +370,7 @@ esp8266Status_t esp8266CreateTCPServer( int port )
 }
 
 // "AT+CIPSERVER=0\r\n"
-esp8266Status_t esp8266DeleteTCPServer()
+esp8266SendingATStatus_t esp8266DeleteTCPServer()
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
@@ -325,8 +378,8 @@ esp8266Status_t esp8266DeleteTCPServer()
 // Gets the local IP address. -------------------------------------------------
 
 // "AT+CIFSR\r\n"
-esp8266Status_t esp8266GetLocalIPAddress( char* softAP_IPaddress,
-                                          char* station_IPaddress )
+esp8266SendingATStatus_t esp8266GetLocalIPAddress( char* softAP_IPaddress,
+                                                   char* station_IPaddress )
 {    
     return ESP8266_OK; // TODO: Falta implementar
 }
@@ -334,7 +387,8 @@ esp8266Status_t esp8266GetLocalIPAddress( char* softAP_IPaddress,
 // Gets the connection status. ------------------------------------------------
 
 // "AT+CIPSTATUS\r\n"
-esp8266Status_t esp8266GetConnectionStatus( esp8266ConnectionStatus_t* result )
+esp8266SendingATStatus_t esp8266GetConnectionStatus( 
+   esp8266ConnectionStatus_t* result )
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
@@ -344,17 +398,20 @@ esp8266Status_t esp8266GetConnectionStatus( esp8266ConnectionStatus_t* result )
 // ---------------> Implementada en ejemplo!
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"
-esp8266Status_t esp8266SendTCPOrSSLData(
+esp8266SendingATStatus_t esp8266SendTCPOrSSLData(
     int linkID,  // ID of the connection (0~4), for multiple connections.
                  // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
-    int length,  // Data length, MAX: 2048 bytes.
+    int length,  // Data length, MAX: 2048 bytes. 
+                 // If the number of sent bytes is bigger than the size defined
+                 // as n, the response will be BUSY. After sending the first n 
+                 // number of bytes, SEND OK will be returned.
     char* data ) // Data to send (String NULL terminated).
 {
     return ESP8266_OK; // TODO: Falta implementar
 }
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"
-esp8266Status_t esp8266SendUDPData(
+esp8266SendingATStatus_t esp8266SendUDPData(
     int linkID, // ID of the connection (0~4), for multiple connections.
                 // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
     int length,          // Data length, MAX: 2048 bytes.
@@ -379,7 +436,7 @@ esp8266Status_t esp8266SendUDPData(
 // Closes TCP/UDP/SSL connection. ---------------------------------------------
 
 // "AT+CIPCLOSE=" + linkID + "\r\n"
-esp8266Status_t esp8266CloseConnection( int linkID )
+esp8266SendingATStatus_t esp8266CloseConnection( int linkID )
     // linkID: ID number of connections to be closed;
     // when ID = 5, all connections will be closed.
     // Remember to use ESP8266_CLOSE_ALL_CONNECTIONS for linkID=5
@@ -392,7 +449,7 @@ esp8266Status_t esp8266CloseConnection( int linkID )
 
 // AT+CIPSTART="TCP","iot.espressif.cn",8000
 // AT+CIPSTART="TCP","192.168.101.110",1000
-esp8266Status_t esp8266EstablishTCPConnection( 
+esp8266SendingATStatus_t esp8266EstablishTCPConnection( 
    int linkID, // ID of network connection (0~4), used for multiple connections.
                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
    char* remoteIP, // String parameter indicating the remote IP address.
@@ -418,7 +475,7 @@ esp8266Status_t esp8266EstablishTCPConnection(
 // Establishes UDP transmission -----------------------------------------------
 
 // AT+CIPSTART="UDP","192.168.101.110",1000,1002,2
-esp8266Status_t esp8266EstablishUDPTransmission( 
+esp8266SendingATStatus_t esp8266EstablishUDPTransmission( 
    int linkID, // ID of network connection (0~4), used for multiple connections.
                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
    char* remoteIP,    // String parameter indicating the remote IP address.
@@ -443,7 +500,7 @@ esp8266Status_t esp8266EstablishUDPTransmission(
 // Establishes SSL connection. ------------------------------------------------
 
 // AT+CIPSTART="SSL","iot.espressif.cn",8443
-esp8266Status_t esp8266EstablishSSLConnection( 
+esp8266SendingATStatus_t esp8266EstablishSSLConnection( 
    int linkID, // ID of network connection (0~4), used for multiple connections
                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
    char* remoteIP,   // String parameter indicating the remote IP address.
@@ -469,31 +526,10 @@ esp8266Status_t esp8266EstablishSSLConnection(
 
 //=====[Implementations of private functions]==================================
 
-/*
-static void esp8266UartInit()
+static bool esp8266AreAnATCommandPendingToSend()
 {
-    esp8266Uart.baud(ESP8266_BAUDRATE);
+    return esp8266AreAnATCommandPendingToSend;
 }
-
-static bool esp8266UartCharRead( char* receivedChar )
-{
-    if( esp8266Uart.readable() ) {
-        *receivedChar = esp8266Uart.getc();
-        return true;
-    }
-    return false;
-}
-
-static void esp8266UartCharWrite( char c )
-{
-    esp8266Uart.putc(c);
-}
-
-static void esp8266UartStringWrite( char const* str )
-{
-    esp8266Uart.printf( "%s", str );
-}
-*/
 
 // Send commands that response "OK\r\n"
 static void esp8266SendCommandWithOkResponse( char const* cmd )
@@ -509,20 +545,21 @@ static void esp8266SendCommandWithOkResponse( char const* cmd )
 }
 
 // Check response for previously sended commands that only response "OK\r\n"
-static esp8266Status_t esp8266CheckOkResponse()
+static esp8266SendingATStatus_t esp8266CheckOkResponse()
 {
+    
     // Update parser status
-    parserStatus = parserPatternMatchOrTimeout( &parser );
+    parserStatus = parserPatternMatchOrTimeout( &parser,  );
 
     // Chech parser response
     switch( parserStatus ) {
         case PARSER_TIMEOUT:
             flagStartParser = true;
-            return ESP8266_RESPONSE_TIMEOUT;
+            return ESP8266_TIMEOUT_WAITING_RESPONSE;
         break;
         case PARSER_PATTERN_MATCH:
             flagStartParser = true;
-            return ESP8266_OK;
+            return ESP8266_RESPONSED;
         break;
         default:
             flagStartParser = false;
@@ -532,7 +569,7 @@ static esp8266Status_t esp8266CheckOkResponse()
 }
 
 // Check response for previously sended commands that response parameter(s) and "\r\nOK\r\n"
-static esp8266Status_t esp8266CheckParametersAndOkResponse()
+static esp8266SendingATStatus_t esp8266CheckParametersAndOkResponse()
 {
-    return ESP8266_OK; // TODO: Implement
+    return ESP8266_RESPONSED; // TODO: Implement
 }

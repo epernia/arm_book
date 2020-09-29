@@ -63,26 +63,9 @@ typedef struct{
    uint16_t       stringIndex;
    tick_t         timeout;
    delay_t        delay;
-   //Serial   uart;
-   //int      baudrate;
 } parser_t;
 
 /*==================[external functions declaration]=========================*/
-
-// UART used for the parser ---------------------------------------------------
-
-void parserUartInit( int baudrate );
-
-//static bool parserUartReadByte( Serial uart, uint8_t* receivedByte );
-bool parserUartByteRead( uint8_t* receivedByte );
-
-void parserUartRxFlush(); //Serial uart );
-
-//void parserUartByteWrite( Serial uart, uint8_t sendedByte );
-void parserUartByteWrite( uint8_t sendedByte );
-
-void parserUartStringWrite( char const* str );
-
 
 // Parser over UART reception functions ---------------------------------------
 

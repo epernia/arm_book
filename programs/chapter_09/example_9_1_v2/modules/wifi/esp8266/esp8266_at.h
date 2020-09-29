@@ -89,15 +89,23 @@ typedef struct{
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+// UART used for the ESP8266 --------------------------------------------------
+
+void esp8266UartInit( int baudrate );
+
+void esp8266UartReceptorFlush();
+bool esp8266UartDataReceived();
+uint8_t esp8266UartDataRead();
+
+bool esp8266UartByteRead( uint8_t* receivedByte );
+void esp8266UartByteWrite( uint8_t sendedByte );
+void esp8266UartStringWrite( char const* str );
+
 // FSM Initialization and Update ----------------------------------------------
 
 esp8266Status_t esp8266Init();
 
 esp8266Status_t esp8266Update();
-
-// Initialization -------------------------------------------------------------
-
-esp8266Status_t esp8266Init();
 
 // Tests AT startup. ----------------------------------------------------------
 
@@ -193,10 +201,13 @@ esp8266Status_t esp8266GetConnectionStatus(esp8266ConnectionStatus_t* result);
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"
 esp8266Status_t esp8266SendTCPOrSSLData(
-    int linkID, // ID of the connection (0~4), for multiple connections.
-                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
-    int length, // Data length, MAX: 2048 bytes.
-    char* data  // Data to send (String NULL terminated).
+    int linkID,  // ID of the connection (0~4), for multiple connections.
+                 // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
+    int length,  // Data length, MAX: 2048 bytes. 
+                 // If the number of sent bytes is bigger than the size defined
+                 // as n, the response will be BUSY. After sending the first n 
+                 // number of bytes, SEND OK will be returned.
+    char* data ) // Data to send (String NULL terminated).
 );
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"

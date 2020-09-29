@@ -39,66 +39,19 @@
 
 //==================[internal functions declaration]===========================
 
-//static Serial uartParser( USBTX, USBRX );
-
-// D42 = PE_8 = UART7_TX
-// D41 = PE_7 = UART7_RX
-static Serial uartParser( D42, D41 );
-
 //==================[external functions definition]============================
 
-// UART used for the parser ---------------------------------------------------
-
-void parserUartInit( int baudrate )
-{
-    uartParser.baud(baudrate);
-}
-
-//static bool parserUartReadByte( Serial uart, uint8_t* receivedByte );
-bool parserUartByteRead( uint8_t* receivedByte )
-{
-    if( uartParser.readable() ) {
-        *receivedByte = uartParser.getc();
-        return true;
-    }
-    return false;
-}
-
-void parserUartRxFlush() //Serial uart )
-{
-    while( uartParser.readable() ) {
-        uartParser.getc();
-    }
-}
-
-//void parserUartByteWrite( Serial uart, uint8_t sendedByte );
-void parserUartByteWrite( uint8_t sendedByte )
-{
-    uartParser.putc( (char)(sendedByte) );
-}
-
-void parserUartStringWrite( char const* str )
-{
-    while ( *str != NULL ) {
-        parserUartByteWrite( (uint8_t)*str );
-        str++;
-    }
-}
-
-// Parser over UART reception functions ---------------------------------------
-
-void parserInit( parser_t* instance, //Serial* uart,
+void parserInit( parser_t* instance,
                  char const* stringPattern, uint16_t stringPatternLen, 
                  tick_t timeout )
 {
     instance->state = PARSER_STOPPED;
-    //instance->uart = uart;
     instance->stringPattern =  stringPattern;
     instance->stringPatternLen = stringPatternLen;
     instance->timeout = timeout;    
 }
 
-void parserStart( parser_t* instance )
+void parserStart( parser_t* instance, char const receivedChar )
 {
     instance->state = PARSER_START;
 }
@@ -111,8 +64,6 @@ void parserStop( parser_t* instance )
 // Check for Receive a given pattern
 parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
 {
-   uint8_t receiveByte;
-
    switch( instance->state ) {
 
    // Initial state
@@ -120,15 +71,14 @@ parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
       break;
 
    case PARSER_START:
-      parserUartRxFlush();
       delayInit( &(instance->delay), instance->timeout );
       instance->stringIndex = 0;
       instance->state = PARSER_RECEIVING;
       break;
 
    case PARSER_RECEIVING:
-      if( parserUartByteRead( &receiveByte ) ) {
-         if( (instance->stringPattern)[(instance->stringIndex)] == receiveByte ) {
+      if( receivedChar != NULL ) {
+         if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
             (instance->stringIndex)++;
             if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
                instance->state = PARSER_PATTERN_MATCH;
@@ -158,10 +108,9 @@ parserStatus_t parserPatternMatchOrTimeout( parser_t* instance )
 parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
     parser_t* instance,
     char* receiveBuffer,
-    uint32_t* receiveBufferSize )
+    uint32_t* receiveBufferSize,
+    char const receivedChar )
 {
-
-   uint8_t receiveByte;
    static uint32_t i = 0;
 
    switch( instance->state ) {
@@ -171,7 +120,6 @@ parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout(
       break;
 
    case PARSER_START:
-      parserUartRxFlush();// instance->uart );
       delayInit( &(instance->delay), instance->timeout );
       instance->stringIndex = 0;
       i = 0;
@@ -179,17 +127,19 @@ parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout(
       break;
 
    case PARSER_RECEIVING:
-      if( parserUartByteRead( /*instance->uart,*/ &receiveByte ) ) {
-         if( i < *receiveBufferSize ) {
-            receiveBuffer[i] = receiveByte;
-            i++;
-         } else {
-            instance->state = PARSER_FULL_BUFFER;
-            *receiveBufferSize = i;
-            i = 0;
-            return instance->state;
+      if( receivedChar != NULL ) {
+         if( receiveBufferSize > 0 ) {
+            if( i < *receiveBufferSize ) {
+               receiveBuffer[i] = receivedChar;
+               i++;
+            } else {
+               instance->state = PARSER_FULL_BUFFER;
+               *receiveBufferSize = i;
+               i = 0;
+               return instance->state;
+            }
          }
-         if( (instance->stringPattern)[(instance->stringIndex)] == receiveByte ) {
+         if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
             (instance->stringIndex)++;
             if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
                instance->state = PARSER_PATTERN_MATCH;
