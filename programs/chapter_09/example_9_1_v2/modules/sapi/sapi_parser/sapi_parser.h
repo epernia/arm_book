@@ -79,7 +79,7 @@ void parserStop( parser_t* instance );
 
 // Check for Receive a given pattern
 parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar )
+    parser_t* instance, char const receivedChar );
 /*
 // Store bytes until receive a given pattern
 parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 

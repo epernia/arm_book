@@ -48,7 +48,7 @@ void parserInit( parser_t* instance,
     instance->state = PARSER_STOPPED;
     instance->stringPattern =  stringPattern;
     instance->stringPatternLen = stringPatternLen;
-    instance->timeout = timeout;    
+    instance->timeout = timeout;
 }
 
 void parserStart( parser_t* instance )
@@ -78,12 +78,10 @@ parserStatus_t parserPatternMatchOrTimeout(
       break;
 
    case PARSER_RECEIVING:
-      if( receivedChar != NULL ) {
-         if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
-            (instance->stringIndex)++;
-            if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
-               instance->state = PARSER_PATTERN_MATCH;
-            }
+      if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
+         (instance->stringIndex)++;
+         if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
+            instance->state = PARSER_PATTERN_MATCH;
          }
       }
       if( delayRead( &(instance->delay) ) ) {

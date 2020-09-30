@@ -25,31 +25,32 @@
 typedef enum{   
     ESP8266_IDLE = 0, // Waiting for send and AT command to ESP8266 or
                       // receive data spontaniously from ESP8266
-    ESP8266_SENDING_AT_COMMAND = 1, // Sending AT command to ESP8266
+    ESP8266_PROCESSING_AT_COMMAND = 1, // Sending AT command to ESP8266
     ESP8266_RECEIVING_DATA     = 2, // Receive data sponaniously form ESP8266
-}esp8266Status_t;
+}esp8266ModuleState_t;
 
 // Receiving data status
 typedef enum{
-    ESP8266_RECEIVED        =  2, // Module already receive all data.
-    ESP8266_RECEIVING       =  1, // Module is receiving data.
-    ESP8266_RECEIVE_WAITING =  0, // Module waiting to receive data.
+    ESP8266_DATA_RECEIVED        =  2, // Module already receive all data.
+    ESP8266_DATA_RECEIVING       =  1, // Module is receiving data.
+    ESP8266_DATA_RECEIVE_IDLE    =  0, // Module waiting to receive data.
 }esp8266ReceivingStatus_t;
 
 // Sending AT command status
 typedef enum{
-    ESP8266_RESPONSED                =  2, // Module already response.
-    ESP8266_PENDING_RESPONSE         =  1, // Waiting module response.
-    ESP8266_AT_WAITING               =  0, // Module waiting to send AT command.    
-    ESP8266_TIMEOUT_WAITING_RESPONSE = -1, // Time-out waiting for a response.
+    ESP8266_AT_SENDED                   =  0, // Module already send the command.  
+    ESP8266_AT_NOT_SENDED               = -1, // Time-out waiting for a response.  
+    ESP8266_AT_PENDING_RESPONSE         =  1, // Waiting module response.  
+    ESP8266_AT_RESPONSED                =  2, // Module already response.
+    ESP8266_AT_TIMEOUT_WAITING_RESPONSE = -2, // Time-out waiting for a response.   
 }esp8266SendingATStatus_t;
 
 // Responses after sending an AT command to ESP8266
 typedef enum{
-    ESP8266_OK               =  0, 
-    ESP8266_ERR              = -1,
-    ESP8266_ALREADY_CONNECT  = -2,
-    ESP8266_BUSY             = -3,
+    ESP8266_OK              =  0, 
+    ESP8266_ERR             = -1,
+    ESP8266_ALREADY_CONNECT = -2,
+    ESP8266_BUSY            = -3,
 }esp8266Response_t;
 
 // "AT+CWMODE?\r\n"
@@ -94,12 +95,12 @@ typedef struct{
 
 void esp8266UartInit( int baudrate );
 
+bool esp8266UartDataIsReceived();
+char esp8266UartDataRead();
 void esp8266UartReceptorFlush();
-bool esp8266UartDataReceived();
-uint8_t esp8266UartDataRead();
 
-bool esp8266UartByteRead( uint8_t* receivedByte );
-void esp8266UartByteWrite( uint8_t sendedByte );
+bool esp8266UartByteRead( char* receivedByte );
+void esp8266UartByteWrite( char sendedByte );
 void esp8266UartStringWrite( char const* str );
 
 // FSM Initialization and Update ----------------------------------------------
@@ -111,59 +112,62 @@ esp8266Status_t esp8266Update();
 // Tests AT startup. ----------------------------------------------------------
 
 // "AT\r\n"
-esp8266Status_t esp8266TestAT(); 
+//esp8266SendingATStatus_t esp8266TestAT();
+void esp8266TestAT();
 
 // Restarts the ESP8266 module. -----------------------------------------------
 
 // "AT+RST\r\n"
-esp8266Status_t esp8266Reset();
+esp8266SendingATStatus_t esp8266Reset();
 
 // Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------
 
 // "AT+CWMODE=3\r\n"
-esp8266Status_t esp8266WiFiModeSet( esp8266WiFiMode_t mode ); 
+esp8266SendingATStatus_t esp8266WiFiModeSet( esp8266WiFiMode_t mode ); 
 
 // Query the current Wi-Fi mode of ESP32 (Station/AP/Station+AP). -------------
 
 // "AT+CWMODE?"
-esp8266Status_t esp8266WiFiModeGet( esp8266WiFiMode_t* responseMode );
+esp8266SendingATStatus_t esp8266WiFiModeGet( esp8266WiFiMode_t* responseMode );
 
 // Lists available APs. -------------------------------------------------------
  
 //TODO: It can be improbed
 // "AT+CWLAP\r\n"
-esp8266Status_t esp8266ListAPs( char* listOfAPs, int listOfAPsMaxLen );
+esp8266SendingATStatus_t esp8266ListAPs( char* listOfAPs, int listOfAPsMaxLen );
 
 // Disconnects from the AP. ---------------------------------------------------
 
 // "AT+CWQAP\r\n"
-esp8266Status_t esp8266DisconnectFromAP();
+esp8266SendingATStatus_t esp8266DisconnectFromAP();
 
 // Connects to an AP. ---------------------------------------------------------
 
 // Set the AP to which the ESP32 Station needs to be connected.
 // AT+CWJAP=<ssid>,<pwd>
-esp8266Status_t esp8266ConnectToAP( char const* ssid, 
-                                    char const* pwd );
+esp8266SendingATStatus_t esp8266ConnectToAP( char const* ssid, 
+                                             char const* pwd );
 
 // AT+CWJAP=<ssid>,<pwd>[,<bssid>]                        
-esp8266Status_t esp8266ConnectToAPWithMAC( char const* ssid, 
-                                           char const* pwd , 
-                                           char const* bssid );
+esp8266SendingATStatus_t esp8266ConnectToAPWithMAC( char const* ssid, 
+                                                    char const* pwd , 
+                                                    char const* bssid );
 
 // Query the AP to which the ESP32 Station is already connected. --------------
 
 // AT+CWJAP?
-esp8266Status_t esp8266WhichAPIsConnected( char* response, 
-                                           int responseMaxLen );
+esp8266SendingATStatus_t esp8266WhichAPIsConnected( char* response, 
+                                                    int responseMaxLen );
 
 // Configures the multiple connections mode. ----------------------------------
 
 // "AT+CIPMUX?\r\n"
-esp8266Status_t esp8266ConnectionsModeGet( esp8266ConnectionsMode_t* respose );
+esp8266SendingATStatus_t esp8266ConnectionsModeGet(
+    esp8266ConnectionsMode_t* respose );
 
 // "AT+CIPMUX=1\r\n"
-esp8266Status_t esp8266ConnectionsModeSet( esp8266ConnectionsMode_t mode );
+esp8266SendingATStatus_t esp8266ConnectionsModeSet(
+    esp8266ConnectionsMode_t mode );
     // - The default mode is single connection mode.
     // - This mode can only be changed after all connections are disconnected, use:
     //   "AT+CIPCLOSE=5\r\n" // ID = 5 all connections will be closed
@@ -175,7 +179,7 @@ esp8266Status_t esp8266ConnectionsModeSet( esp8266ConnectionsMode_t mode );
 // Deletes/Creates TCP server. ------------------------------------------------
 
 // "AT+CIPSERVER=1,80\r\n"
-esp8266Status_t esp8266CreateTCPServer( int port );
+esp8266SendingATStatus_t esp8266CreateTCPServer( int port );
     // - A TCP server can only be created when multiple connections are
     //   activated (AT+CIPMUX=1).
     // - A server monitor will automatically be created when the TCP server is
@@ -185,34 +189,35 @@ esp8266Status_t esp8266CreateTCPServer( int port );
     // - Use ESP8266_SERVER_DEFAULT_PORT for port number = 333
 
 // "AT+CIPSERVER=0\r\n"
-esp8266Status_t esp8266DeleteTCPServer(); 
+esp8266SendingATStatus_t esp8266DeleteTCPServer(); 
 
 // Gets the local IP address. -------------------------------------------------
 
 // "AT+CIFSR\r\n"
-esp8266Status_t esp8266GetLocalIPAddress( char* softAP_IPaddress,
-                                          char* station_IPaddress ); 
+esp8266SendingATStatus_t esp8266GetLocalIPAddress( char* softAP_IPaddress,
+                                                   char* station_IPaddress ); 
 
 // Gets the connection status. ------------------------------------------------
 
 // "AT+CIPSTATUS\r\n"
-esp8266Status_t esp8266GetConnectionStatus(esp8266ConnectionStatus_t* result);
+esp8266SendingATStatus_t esp8266GetConnectionStatus(
+    esp8266ConnectionStatus_t* result );
 
 // Sends data. ----------------------------------------------------------------
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"
-esp8266Status_t esp8266SendTCPOrSSLData(
+esp8266SendingATStatus_t esp8266SendTCPOrSSLData(
     int linkID,  // ID of the connection (0~4), for multiple connections.
                  // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
     int length,  // Data length, MAX: 2048 bytes. 
                  // If the number of sent bytes is bigger than the size defined
                  // as n, the response will be BUSY. After sending the first n 
                  // number of bytes, SEND OK will be returned.
-    char* data ) // Data to send (String NULL terminated).
+    char* data   // Data to send (String NULL terminated).
 );
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"
-esp8266Status_t esp8266SendUDPData(
+esp8266SendingATStatus_t esp8266SendUDPData(
     int linkID, // ID of the connection (0~4), for multiple connections.
                 // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
     int length,          // Data length, MAX: 2048 bytes.
@@ -224,7 +229,7 @@ esp8266Status_t esp8266SendUDPData(
 // Closes TCP/UDP/SSL connection. ---------------------------------------------
 
 // "AT+CIPCLOSE=" + linkID + "\r\n"
-esp8266Status_t esp8266CloseConnection( int linkID ); 
+esp8266SendingATStatus_t esp8266CloseConnection( int linkID ); 
     // linkID: ID number of connections to be closed;
     // when ID = 5, all connections will be closed.
 
@@ -232,7 +237,7 @@ esp8266Status_t esp8266CloseConnection( int linkID );
 
 // AT+CIPSTART="TCP","iot.espressif.cn",8000
 // AT+CIPSTART="TCP","192.168.101.110",1000
-esp8266Status_t esp8266EstablishTCPConnection( 
+esp8266SendingATStatus_t esp8266EstablishTCPConnection( 
    int linkID, // ID of network connection (0~4), used for multiple connections.
                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
    char* remoteIP, // String parameter indicating the remote IP address.
@@ -246,7 +251,7 @@ esp8266Status_t esp8266EstablishTCPConnection(
 // Establishes UDP transmission -----------------------------------------------
 
 // AT+CIPSTART="UDP","192.168.101.110",1000,1002,2
-esp8266Status_t esp8266EstablishUDPTransmission( 
+esp8266SendingATStatus_t esp8266EstablishUDPTransmission( 
    int linkID, // ID of network connection (0~4), used for multiple connections.
                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
    char* remoteIP,    // String parameter indicating the remote IP address.
@@ -258,7 +263,7 @@ esp8266Status_t esp8266EstablishUDPTransmission(
 // Establishes SSL connection. ------------------------------------------------
 
 // AT+CIPSTART="SSL","iot.espressif.cn",8443
-esp8266Status_t esp8266EstablishSSLConnection( 
+esp8266SendingATStatus_t esp8266EstablishSSLConnection( 
    int linkID, // ID of network connection (0~4), used for multiple connections
                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
    char* remoteIP,   // String parameter indicating the remote IP address.

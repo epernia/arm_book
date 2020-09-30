@@ -5,17 +5,8 @@
 
 #include "wifi_credentials.h"
 #include "wifi_com.h"
+#include "esp8266_at.h"
 
-/*
-#include "siren.h"
-#include "fire_alarm.h"
-#include "code.h"
-#include "date_and_time.h"
-#include "temperature_sensor.h"
-#include "gas_sensor.h"
-#include "event_log.h"
-#include "sd_card.h"
-*/
 //=====[Declaration of private defines]========================================
 
 // #define PC_SERIAL_COM_BAUD_RATE   115200

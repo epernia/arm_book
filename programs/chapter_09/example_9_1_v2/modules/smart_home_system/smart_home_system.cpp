@@ -11,7 +11,7 @@
 #include "event_log.h"
 #include "sd_card.h"
 #include "sapi.h"
-
+#include "wifi_com.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -40,7 +40,7 @@ void smartHomeSystemInit()
     pcSerialComInit();
     sdCardInit();
     wifiComInit();
-    delayConfig( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
+    delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
 }
 
 void smartHomeSystemUpdate()
