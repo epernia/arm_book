@@ -29,6 +29,8 @@ static bool flagStartParser = true;
 static parser_t parser;
 static parserStatus_t parserStatus;
 
+char esp8266ReceivedData[ESP8266_BUFFER_SIZE];
+char esp8266DataToSend[ESP8266_BUFFER_SIZE];
 
 static esp8266Status_t esp8266Status;
 

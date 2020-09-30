@@ -4,8 +4,7 @@
 #include <mbed.h>
 
 #include "sapi.h"     // <= sAPI header
-
-#include "esp8266_module.h"
+#include "esp8266_at.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -45,31 +44,29 @@ Serial uartUsb( USBTX, USBRX );
 int main()
 {
     uartUsb.baud(115200);    
+
+    tickInit(1);
     esp8266Init();
 
-    esp8266Status_t esp8266Status;
+    esp8266SendingATStatus_t esp8266SendingATStatus;
 
     uartUsb.printf( "Prueba de comando que devuelve solo OK\r\n" );
 
     while( true ) {
-        esp8266Status = COMMAND_TO_TEST;
+        esp8266SendingATStatus = COMMAND_TO_TEST;
 
         // Si no lo recibe indica que salio de la funcion
         // waitForReceiveStringOrTimeoutBlocking  por timeout.
-        if( esp8266Status == ESP8266_RESPONSE_TIMEOUT ) {
+        if( esp8266SendingATStatus == ESP8266_TIMEOUT_WAITING_RESPONSE ) {
             uartUsb.printf( "   Salio por timeout.\r\n" );
-
             delay(1000);
-            esp8266Status = COMMAND_TO_TEST;
         }
 
         // Si recibe el string almacenado en miTexto indica que llego el
         // mensaje esperado.
-        if( esp8266Status == ESP8266_OK ) {
+        if( esp8266SendingATStatus == ESP8266_RESPONSED ) {
             uartUsb.printf( "Llego: OK\r\n" );
-
             delay(1000);
-            esp8266Status = COMMAND_TO_TEST;
         }
    }
 }

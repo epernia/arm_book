@@ -13,6 +13,7 @@
 //=====[Declaration of public defines]=========================================
 
 #define ESP8266_BAUDRATE                115200
+#define ESP8266_BUFFER_SIZE             2048
 
 #define ESP8266_SINGLE_CONNECTION       -1     // "AT+CIPSTART="
 #define ESP8266_CLOSE_ALL_CONNECTIONS   5      // "AT+CLOSE=<linkID>"
