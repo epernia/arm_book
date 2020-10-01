@@ -13,9 +13,11 @@
 #include "gas_sensor.h"
 #include "event_log.h"
 #include "sd_card.h"
-#include "wifi_com.h"
+#include "esp8266_http_server.h"
 
-//=====[Declaration of private defines]========================================
+//=====[Declaration of private defines]======================================
+
+
 
 //=====[Declaration of private data types]=====================================
 
@@ -28,7 +30,7 @@ typedef enum{
 
 //=====[Declaration and initialization of public global objects]===============
 
-Serial uartUsb( USBTX, USBRX );
+Serial uartUsb(USBTX, USBRX);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -70,13 +72,13 @@ static void commandShowDateAndTime();
 static void commandShowStoredEvents();
 static void commandEventLogSaveToSdCard();
 static void commandsdCardListFiles();
-static void commandCheckIfWifiModuleIsDetected();
+static void commandSendATCommand();
+static void commandGetESPStatus();
 
 //=====[Implementations of public functions]===================================
 
 void pcSerialComInit()
 {
-    uartUsb.baud( PC_SERIAL_COM_BAUD_RATE );
     availableCommands();
 }
 
@@ -185,9 +187,20 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'o': case 'O': commandGetFileName(); break;
         case 'l': case 'L': commandsdCardListFiles(); break;
-        case 'd': case 'D': commandCheckIfWifiModuleIsDetected(); break;
+        case 'a': case 'A': commandSendATCommand(); break;
+        case 'p': case 'P': commandGetESPStatus(); break;
         default: availableCommands(); break;
     } 
+}
+
+static void commandSendATCommand() 
+{
+    esp8266UartSendAT();
+}
+
+static void commandGetESPStatus() 
+{
+    pcSerialComIntWrite( getEsp8622Status() );
 }
 
 static void availableCommands()
@@ -206,7 +219,6 @@ static void availableCommands()
     uartUsb.printf( "Press 'w' or 'W' to store new events in SD Card\r\n" );
     uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
-    uartUsb.printf( "Press 'd' or 'D' to test if Wi-Fi module is detected\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -370,24 +382,4 @@ static void pcSerialComShowSdCardFile( char * fileName )
         pcSerialComStringWrite( systemBuffer );
         pcSerialComStringWrite( "\r\n" );
     };
-}
-
-static void commandCheckIfWifiModuleIsDetected()
-{
-    bool busy = true;
-    wifiModuleStartDetection();
-    while( busy ) {
-        switch( wifiModuleDetectionResponse() ) {
-            case WIFI_MODULE_DETECTED:
-                pcSerialComStringWrite( "Wi-Fi module detected.\r\n");
-                busy = false;
-            break;
-            case WIFI_MODULE_NOT_DETECTED:
-                pcSerialComStringWrite( "Wi-Fi module not detected.\r\n");
-                busy = false;
-            break;
-            default:
-            break;
-        }
-    }
 }

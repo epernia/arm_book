@@ -1,27 +1,21 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _PC_SERIAL_COM_H_
-#define _PC_SERIAL_COM_H_
+#ifndef _SMART_HOME_SYSTEM_H_
+#define _SMART_HOME_SYSTEM_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
-#define PC_SERIAL_COM_BAUD_RATE   115200
+#define SYSTEM_TIME_INCREMENT_MS   10
 
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void pcSerialComInit();
-char pcSerialComCharRead();
-void pcSerialComCharWrite( char c );
-void pcSerialComStringWrite( const char* str );
-void pcSerialComIntWrite( int number );
-void pcSerialComUpdate();
-bool pcSerialComCodeCompleteRead();
-void pcSerialComCodeCompleteWrite( bool state );
+void smartHomeSystemInit();
+void smartHomeSystemUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _PC_SERIAL_COM_H_
+#endif // _SMART_HOME_SYSTEM_H_

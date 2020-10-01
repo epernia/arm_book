@@ -1,27 +1,25 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _PC_SERIAL_COM_H_
-#define _PC_SERIAL_COM_H_
+#ifndef _FIRE_ALARM_H_
+#define _FIRE_ALARM_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
-#define PC_SERIAL_COM_BAUD_RATE   115200
+
 
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void pcSerialComInit();
-char pcSerialComCharRead();
-void pcSerialComCharWrite( char c );
-void pcSerialComStringWrite( const char* str );
-void pcSerialComIntWrite( int number );
-void pcSerialComUpdate();
-bool pcSerialComCodeCompleteRead();
-void pcSerialComCodeCompleteWrite( bool state );
+void fireAlarmInit();
+void fireAlarmUpdate();
+bool gasDetectorStateRead();
+bool overTemperatureDetectorStateRead();
+bool gasDetectedRead();
+bool overTemperatureDetectedRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _PC_SERIAL_COM_H_
+#endif // _FIRE_ALARM_H_

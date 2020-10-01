@@ -7,8 +7,6 @@
 
 //=====[Declaration of public defines]=======================================
 
-#define PC_SERIAL_COM_BAUD_RATE   115200
-
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================

@@ -115,7 +115,7 @@ displayStatus_t displayCharPositionWrite( uint8_t charPositionX,
     return DISPLAY_NO_ERR;
 }
 
-displayStatus_t displayStringWrite( char const* str )
+displayStatus_t displayStringWrite( char* str )
 {
     while (*str)
     {

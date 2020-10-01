@@ -1,17 +1,12 @@
 //=====[Libraries]=============================================================
 
+#include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "smart_home_system.h"
-
 #include "siren.h"
-#include "user_interface.h"
+
+#include "smart_home_system.h"
 #include "fire_alarm.h"
-#include "pc_serial_com.h"
-#include "event_log.h"
-#include "sd_card.h"
-#include "sapi.h"
-#include "wifi_com.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -19,39 +14,49 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
+DigitalOut alarmLed(LED1);
+
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
-char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
-static delay_t smartHomeSystemDelay;
-
 //=====[Declaration and initialization of private global variables]============
+
+static bool sirenState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void smartHomeSystemInit()
+void sirenInit()
 {
-    tickInit(1);          // Set 1 ms tick counter
-    userInterfaceInit();
-    fireAlarmInit();
-    pcSerialComInit();
-    sdCardInit();
-    wifiComInit();
-    delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
+    alarmLed = OFF;
 }
 
-void smartHomeSystemUpdate()
+bool sirenStateRead()
 {
-    if( delayRead(&smartHomeSystemDelay) ) {
-        userInterfaceUpdate();
-        fireAlarmUpdate();    
-        pcSerialComUpdate(); // FIXME: De Eric para Pablo, ver si sacamos esta afuera del delay
-        eventLogUpdate();
+    return sirenState;
+}
+
+void sirenStateWrite( bool state )
+{
+    sirenState = state;
+}
+
+void sirenIndicatorUpdate( int blinkTime )
+{
+    static int accumulatedTimeAlarm = 0;
+    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
+    
+    if( sirenState ) {
+        if( accumulatedTimeAlarm >= blinkTime ) {
+            accumulatedTimeAlarm = 0;
+            alarmLed = !alarmLed;
+        }
+    } else {
+        alarmLed = OFF;
     }
-    wifiComUpdate();
 }
 
 //=====[Implementations of private functions]==================================
+

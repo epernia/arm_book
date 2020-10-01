@@ -1,27 +1,27 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _PC_SERIAL_COM_H_
-#define _PC_SERIAL_COM_H_
+#ifndef _USER_INTERFACE_H_
+#define _USER_INTERFACE_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
-#define PC_SERIAL_COM_BAUD_RATE   115200
-
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void pcSerialComInit();
-char pcSerialComCharRead();
-void pcSerialComCharWrite( char c );
-void pcSerialComStringWrite( const char* str );
-void pcSerialComIntWrite( int number );
-void pcSerialComUpdate();
-bool pcSerialComCodeCompleteRead();
-void pcSerialComCodeCompleteWrite( bool state );
+void userInterfaceInit();
+void userInterfaceUpdate();
+bool userInterfaceCodeCompleteRead();
+void userInterfaceCodeCompleteWrite( bool state );
+
+bool incorrectCodeStateRead();
+void incorrectCodeStateWrite( bool state );
+
+bool systemBlockedStateRead();
+void systemBlockedStateWrite( bool state );
 
 //=====[#include guards - end]=================================================
 
-#endif // _PC_SERIAL_COM_H_
+#endif // _USER_INTERFACE_H_

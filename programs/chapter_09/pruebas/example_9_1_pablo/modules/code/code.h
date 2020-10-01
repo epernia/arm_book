@@ -1,27 +1,26 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _PC_SERIAL_COM_H_
-#define _PC_SERIAL_COM_H_
+#ifndef _CODE_H_
+#define _CODE_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
-#define PC_SERIAL_COM_BAUD_RATE   115200
+#define CODE_NUMBER_OF_KEYS   4
 
 //=====[Declaration of public data types]======================================
 
+typedef enum{
+    CODE_KEYPAD,
+    CODE_PC_SERIAL,
+} codeOrigin_t;
+
 //=====[Declarations (prototypes) of public functions]=========================
 
-void pcSerialComInit();
-char pcSerialComCharRead();
-void pcSerialComCharWrite( char c );
-void pcSerialComStringWrite( const char* str );
-void pcSerialComIntWrite( int number );
-void pcSerialComUpdate();
-bool pcSerialComCodeCompleteRead();
-void pcSerialComCodeCompleteWrite( bool state );
+void codeWrite( char* newCodeSequence );
+bool codeMatchFrom( codeOrigin_t codeOrigin );
 
 //=====[#include guards - end]=================================================
 
-#endif // _PC_SERIAL_COM_H_
+#endif // _CODE_H_

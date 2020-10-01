@@ -10,8 +10,9 @@
 #include "pc_serial_com.h"
 #include "event_log.h"
 #include "sd_card.h"
-#include "sapi.h"
-#include "wifi_com.h"
+#include "http_server.h"
+#include "sapi_delay.h"
+
 
 //=====[Declaration of private defines]======================================
 
@@ -34,24 +35,23 @@ static delay_t smartHomeSystemDelay;
 
 void smartHomeSystemInit()
 {
-    tickInit(1);          // Set 1 ms tick counter
     userInterfaceInit();
     fireAlarmInit();
     pcSerialComInit();
     sdCardInit();
-    wifiComInit();
-    delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
+    httpServerInit();
+    delayConfig(&smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS);
 }
 
 void smartHomeSystemUpdate()
 {
-    if( delayRead(&smartHomeSystemDelay) ) {
+    if (delayRead(&smartHomeSystemDelay)) {
         userInterfaceUpdate();
         fireAlarmUpdate();    
-        pcSerialComUpdate(); // FIXME: De Eric para Pablo, ver si sacamos esta afuera del delay
+        pcSerialComUpdate();
         eventLogUpdate();
     }
-    wifiComUpdate();
+    httpServerUpdate();
 }
 
 //=====[Implementations of private functions]==================================

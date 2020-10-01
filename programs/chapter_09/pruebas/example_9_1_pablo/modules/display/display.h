@@ -119,7 +119,7 @@ displayStatus_t displayInit( displayType_t type, displayConnection_t connection,
 displayStatus_t displayCharPositionWrite( uint8_t charPositionX, 
                                          uint8_t charPositionY );
 
-displayStatus_t displayStringWrite( char const* str );
+displayStatus_t displayStringWrite( char* str );
 
 displayStatus_t displayModeWrite( displayMode_t mode );
 
