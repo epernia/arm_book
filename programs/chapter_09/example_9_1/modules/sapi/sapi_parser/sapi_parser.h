@@ -48,12 +48,11 @@
 /*==================[typedef]================================================*/
 
 typedef enum{
-   PARSER_RECEIVING   =  3,
-   PARSER_STOPPED     =  2,
-   PARSER_START       =  1,
+   PARSER_RECEIVING     =  3,
+   PARSER_STOPPED       =  2,
+   PARSER_START         =  1,
    PARSER_PATTERN_MATCH =  0,
-   PARSER_TIMEOUT     = -1,
-   PARSER_FULL_BUFFER = -2,
+   PARSER_TIMEOUT       = -1,
 } parserStatus_t;
 
 typedef struct{
@@ -80,13 +79,6 @@ void parserStop( parser_t* instance );
 // Check for Receive a given pattern
 parserStatus_t parserPatternMatchOrTimeout(
     parser_t* instance, char const receivedChar );
-/*
-// Store bytes until receive a given pattern
-parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
-    parser_t* instance,
-    char* receiveBuffer,
-    uint32_t* receiveBufferSize,
-    char const receivedChar );
-*/
+
 /*==================[end of file]============================================*/
 #endif

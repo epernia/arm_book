@@ -51,7 +51,6 @@ void smartHomeSystemUpdate()
         pcSerialComUpdate(); // FIXME: De Eric para Pablo, ver si sacamos esta afuera del delay
         eventLogUpdate();
     }
-    wifiComUpdate();
 }
 
 //=====[Implementations of private functions]==================================
