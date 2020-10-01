@@ -1,10 +1,7 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
-
-#include "wifi_credentials.h"
 #include "wifi_com.h"
+#include "wifi_credentials.h"
 #include "esp8266_at.h"
 
 #include "pc_serial_com.h"
@@ -281,28 +278,3 @@ static void runStateWifiCommunicationUpdate()
 
     }
 }
-
-/*
-static void runStateWifiCommunicationUpdate()
-{
-    static bool stateEntryFlag = false;
-    // ENTRY ----------------------------------------
-    if( stateEntryFlag == false ){
-        stateEntryFlag = true;
-
-    }
-
-    // UPDATE OUTPUTS -------------------------------
-
-
-    // CHECK TRANSITION CONDITIONS ------------------
-
-
-    // EXIT ------------------------------------------
-    if( wifiComFsmState != WIFI_STATE_MODULE_INIT ){
-        stateEntryFlag = false;
-        // Code for exit from this state...  
-
-    }
-}
-*/

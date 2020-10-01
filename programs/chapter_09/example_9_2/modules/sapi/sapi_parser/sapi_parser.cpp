@@ -45,10 +45,10 @@ void parserInit( parser_t* instance,
                  char const* stringPattern, uint16_t stringPatternLen, 
                  tick_t timeout )
 {
-    instance->state = PARSER_STOPPED;
-    instance->stringPattern =  stringPattern;
+    instance->state            = PARSER_STOPPED;
+    instance->stringPattern    = stringPattern;
     instance->stringPatternLen = stringPatternLen;
-    instance->timeout = timeout;
+    instance->timeout          = timeout;
 }
 
 void parserStart( parser_t* instance )
@@ -69,6 +69,9 @@ parserStatus_t parserPatternMatchOrTimeout(
 
    // Initial state
    case PARSER_STOPPED:
+   // Final states
+   case PARSER_PATTERN_MATCH:
+   case PARSER_TIMEOUT:
       break;
 
    case PARSER_START:
@@ -89,12 +92,6 @@ parserStatus_t parserPatternMatchOrTimeout(
       }
       break;
 
-   // Final states
-   case PARSER_PATTERN_MATCH:
-   case PARSER_TIMEOUT:
-      //instance->state = PARSER_START; // Eso hacia que se autolance el parser, ahora lo controlo de afuera
-      break;
-
    default:
       instance->state = PARSER_STOPPED;
       break;
@@ -103,75 +100,6 @@ parserStatus_t parserPatternMatchOrTimeout(
    return instance->state;
 }
 
-/*
-// Store bytes until receive a given pattern
-parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 
-    parser_t* instance,
-    char* receiveBuffer,
-    uint32_t* receiveBufferSize,
-    char const receivedChar )
-{
-   static uint32_t i = 0;
-
-   switch( instance->state ) {
-
-   // Initial state
-   case PARSER_STOPPED:
-      break;
-
-   case PARSER_START:
-      delayInit( &(instance->delay), instance->timeout );
-      instance->stringIndex = 0;
-      i = 0;
-      instance->state = PARSER_RECEIVING;
-      break;
-
-   case PARSER_RECEIVING:
-      if( receivedChar != NULL ) {
-         if( receiveBufferSize > 0 ) {
-            if( i < *receiveBufferSize ) {
-               receiveBuffer[i] = receivedChar;
-               i++;
-            } else {
-               instance->state = PARSER_FULL_BUFFER;
-               *receiveBufferSize = i;
-               i = 0;
-               return instance->state;
-            }
-         }
-         if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
-            (instance->stringIndex)++;
-            if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
-               instance->state = PARSER_PATTERN_MATCH;
-               *receiveBufferSize = i;
-               i = 0;
-            }
-         }
-      }
-
-      if( delayRead( &(instance->delay) ) ) {
-         instance->state = PARSER_TIMEOUT;
-         *receiveBufferSize = i;
-         i = 0;
-      }
-
-      break;
-
-   // Final states
-   case PARSER_PATTERN_MATCH:
-   case PARSER_TIMEOUT:
-   case PARSER_FULL_BUFFER:
-      //instance->state = PARSER_START; // Eso hacia que se autolance el parser, ahora lo controlo de afuera
-      break;
-
-   default:
-      instance->state = PARSER_STOPPED;
-      break;
-   }
-
-   return instance->state;
-}
-*/
 //==================[internal functions definition]============================
 
 //==================[end of file]==============================================

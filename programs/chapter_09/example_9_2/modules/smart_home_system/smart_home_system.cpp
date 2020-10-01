@@ -47,10 +47,10 @@ void smartHomeSystemUpdate()
 {
     if( delayRead(&smartHomeSystemDelay) ) {
         userInterfaceUpdate();
-        fireAlarmUpdate();    
-        pcSerialComUpdate(); // FIXME: De Eric para Pablo, ver si sacamos esta afuera del delay
+        fireAlarmUpdate();
         eventLogUpdate();
     }
+    pcSerialComUpdate();
     wifiComUpdate();
 }
 

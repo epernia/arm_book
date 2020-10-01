@@ -53,7 +53,6 @@ bool esp8266UartByteRead( char* receivedByte )
 void esp8266UartByteWrite( char sendedByte )
 {
     uartEsp8266.putc( sendedByte );
-    // TODO: Ver si se atora la uart con put C o como hace para no atorarse
 }
 
 void esp8266UartStringWrite( char const* str )

@@ -48,11 +48,11 @@
 /*==================[typedef]================================================*/
 
 typedef enum{
-   PARSER_RECEIVING     =  3,
-   PARSER_STOPPED       =  2,
-   PARSER_START         =  1,
-   PARSER_PATTERN_MATCH =  0,
-   PARSER_TIMEOUT       = -1,
+   PARSER_PATTERN_MATCH,
+   PARSER_TIMEOUT,
+   PARSER_RECEIVING,
+   PARSER_STOPPED,
+   PARSER_START,
 } parserStatus_t;
 
 typedef struct{

@@ -1,10 +1,9 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
-#include "arm_book_lib.h"
-
 #include "esp8266_at.h"
 
+#include "mbed.h"
+#include "arm_book_lib.h"
 #include "sapi.h"
 
 //=====[Declaration of private defines]========================================
@@ -105,7 +104,6 @@ void esp8266Init()
     esp8266UartInit( ESP8266_BAUDRATE );
     esp8266State = ESP8266_IDLE;
 }
-
 
 esp8266Status_t esp8266Update() 
 {/*

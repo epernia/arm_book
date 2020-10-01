@@ -5,49 +5,43 @@
 
 //=====[Libraries]=============================================================
 
-#include <arm_book_lib.h>
-#include <mbed.h>
-
-#include <cstring>
-
 //=====[Declaration of public defines]=========================================
 
-#define ESP8266_BAUDRATE                115200
-#define ESP8266_BUFFER_SIZE             2048
+#define ESP8266_BAUDRATE                 115200
+#define ESP8266_BUFFER_SIZE              2048
 
-#define ESP8266_SINGLE_CONNECTION       -1     // "AT+CIPSTART="
-#define ESP8266_CLOSE_ALL_CONNECTIONS   5      // "AT+CLOSE=<linkID>"
-#define ESP8266_SERVER_DEFAULT_PORT     333    // AT+CIPSERVER=<mode>[,<port>]
+#define ESP8266_SINGLE_CONNECTION        -1     // "AT+CIPSTART="
+#define ESP8266_CLOSE_ALL_CONNECTIONS    5      // "AT+CLOSE=<linkID>"
+#define ESP8266_SERVER_DEFAULT_PORT      333    // AT+CIPSERVER=<mode>[,<port>]
 
 //=====[Declaration of public data types]======================================
 
 // Global status
 typedef enum{   
-    ESP8266_IDLE = 0, // Waiting for send and AT command to ESP8266 or
-                      // receive data spontaniously from ESP8266
-    ESP8266_PROCESSING_AT_COMMAND   = 1, // Sending AT command to ESP8266
-    ESP8266_PROCESSING_RECEIVE_DATA = 2, // Receive data sponaniously form ESP8266
+    ESP8266_IDLE,                        // Waiting for interactions
+    ESP8266_PROCESSING_AT_COMMAND,       // Sending AT command to ESP8266
+    ESP8266_PROCESSING_RECEIVE_DATA, // Receive data sponaniously form ESP8266
 }esp8266State_t;
 
 // Module status
 typedef enum{
-    ESP8266_AT_SENDED                   =  0, // Module already send the command.  
-    ESP8266_AT_NOT_SENDED               = -1, // Time-out waiting for a response.  
+    ESP8266_AT_SENDED,                   // Module already send the command.  
+    ESP8266_AT_NOT_SENDED,               // Not sended.
 
-    ESP8266_AT_PENDING_RESPONSE         =  1, // Waiting module response.  
-    ESP8266_AT_RESPONSED                =  2, // Module already response.
-    ESP8266_AT_TIMEOUT_WAITING_RESPONSE = -2, // Time-out waiting for a response.
-    ESP8266_AT_INVALID_PARAMETER        = -3, // Invalid parameter(s).
+    ESP8266_AT_PENDING_RESPONSE,         // Waiting module response.  
+    ESP8266_AT_RESPONSED,                // Module already response.
+    ESP8266_AT_TIMEOUT_WAITING_RESPONSE, // Time-out waiting for a response.
+    ESP8266_AT_INVALID_PARAMETER,        // Invalid parameter(s).
 
-    ESP8266_RECEIVING                   =  3 // Module is receiving data. 
+    ESP8266_RECEIVING,                   // Module is receiving data. 
 }esp8266Status_t;
 
 // Responses after sending an AT command to ESP8266
 typedef enum{
-    ESP8266_OK              =  0, 
-    ESP8266_ERR             = -1,
-    ESP8266_ALREADY_CONNECT = -2,
-    ESP8266_BUSY            = -3,
+    ESP8266_OK, 
+    ESP8266_ERR,
+    ESP8266_ALREADY_CONNECT,
+    ESP8266_BUSY,
 }esp8266Response_t;
 
 // "AT+CWMODE?\r\n"
@@ -112,14 +106,12 @@ esp8266Status_t esp8266StatusGet();
 
 // "AT\r\n"
 esp8266Status_t esp8266TestATSend();
-
 esp8266Status_t esp8266TestATResponse();
 
 // Restarts the ESP8266 module. -----------------------------------------------
 
 // "AT+RST\r\n"
 esp8266Status_t esp8266ResetSend();
-
 esp8266Status_t esp8266ResetResponse();
 
 // Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------

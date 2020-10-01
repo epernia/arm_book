@@ -20,7 +20,7 @@ typedef enum{
 // Module status
 typedef enum{
     ESP8266_AT_SENDED,                   // Module already send the command.  
-    ESP8266_AT_NOT_SENDED,               // Not sended.  
+    ESP8266_AT_NOT_SENDED,               // Not sended.
 
     ESP8266_AT_PENDING_RESPONSE,         // Waiting module response.  
     ESP8266_AT_RESPONSED,                // Module already response.

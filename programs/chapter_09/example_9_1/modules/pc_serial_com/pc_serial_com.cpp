@@ -73,6 +73,7 @@ static void commandShowStoredEvents();
 static void commandEventLogSaveToSdCard();
 static void commandsdCardListFiles();
 static void commandCheckIfWifiModuleIsDetected();
+
 static void checkResponseForWifiModuleIsDetected();
 
 //=====[Implementations of public functions]===================================
