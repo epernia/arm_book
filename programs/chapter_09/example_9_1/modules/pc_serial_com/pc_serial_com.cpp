@@ -47,6 +47,8 @@ static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfFileNameChar = 0;
 
+static bool wifiModuleCheckResponse = false;
+
 //=====[Declarations (prototypes) of private functions]========================
 
 static void pcSerialComGetCodeUpdate( char receivedChar );
@@ -71,6 +73,7 @@ static void commandShowStoredEvents();
 static void commandEventLogSaveToSdCard();
 static void commandsdCardListFiles();
 static void commandCheckIfWifiModuleIsDetected();
+static void checkResponseForWifiModuleIsDetected();
 
 //=====[Implementations of public functions]===================================
 
@@ -89,11 +92,6 @@ char pcSerialComCharRead()
     return receivedChar;
 }
 
-void pcSerialComCharWrite( char c )
-{
-    uartUsb.putc(c);
-}
-
 void pcSerialComStringWrite( const char* str )
 {
     uartUsb.printf( "%s", str );
@@ -106,6 +104,9 @@ void pcSerialComIntWrite( int number )
 
 void pcSerialComUpdate()
 {
+    if( wifiModuleCheckResponse ) {
+        checkResponseForWifiModuleIsDetected();
+    }
     char receivedChar = pcSerialComCharRead();
     if( receivedChar != '\0' ) {
         switch ( pcSerialComMode ) {
@@ -127,7 +128,7 @@ void pcSerialComUpdate()
                 pcSerialComMode = PC_SERIAL_COMMANDS;
             break;
         }
-    }    
+    }
 }
 
 bool pcSerialComCodeCompleteRead()
@@ -349,15 +350,15 @@ static void commandShowStoredEvents()
 
 static void pcSerialComGetFileName( char receivedChar )
 {
-   if ( receivedChar == '\r' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         fileName[numberOfFileNameChar] = NULL;
         numberOfFileNameChar = 0;
         pcSerialComShowSdCardFile( fileName );
-   } else {
-    fileName[numberOfFileNameChar] = receivedChar;
-    uartUsb.printf( "%c", receivedChar );
-    numberOfFileNameChar++;
+    } else {
+        fileName[numberOfFileNameChar] = receivedChar;
+        uartUsb.printf( "%c", receivedChar );
+        numberOfFileNameChar++;
     }
 }
 
@@ -369,25 +370,27 @@ static void pcSerialComShowSdCardFile( char * fileName )
         pcSerialComStringWrite( "The file content is:\r\n");
         pcSerialComStringWrite( systemBuffer );
         pcSerialComStringWrite( "\r\n" );
-    };
+    }
 }
 
 static void commandCheckIfWifiModuleIsDetected()
 {
-    bool busy = true;
     wifiModuleStartDetection();
-    while( busy ) {
-        switch( wifiModuleDetectionResponse() ) {
-            case WIFI_MODULE_DETECTED:
-                pcSerialComStringWrite( "Wi-Fi module detected.\r\n");
-                busy = false;
-            break;
-            case WIFI_MODULE_NOT_DETECTED:
-                pcSerialComStringWrite( "Wi-Fi module not detected.\r\n");
-                busy = false;
-            break;
-            default:
-            break;
-        }
+    wifiModuleCheckResponse = true;
+}
+
+static void checkResponseForWifiModuleIsDetected()
+{
+    switch( wifiModuleDetectionResponse() ) {
+        case WIFI_MODULE_DETECTED:
+            pcSerialComStringWrite( "Wi-Fi module detected.\r\n");
+            wifiModuleCheckResponse = false;
+        break;
+        case WIFI_MODULE_NOT_DETECTED:
+            pcSerialComStringWrite( "Wi-Fi module not detected.\r\n");
+            wifiModuleCheckResponse = false;
+        break;
+        default:
+        break;
     }
 }

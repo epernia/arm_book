@@ -14,9 +14,7 @@
 #include "event_log.h"
 #include "sd_card.h"
 
-//=====[Declaration of private defines]======================================
-
-
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 
@@ -29,7 +27,7 @@ typedef enum{
 
 //=====[Declaration and initialization of public global objects]===============
 
-Serial uartUsb(USBTX, USBRX);
+Serial uartUsb( USBTX, USBRX );
 
 //=====[Declaration of external public global variables]=======================
 
@@ -121,7 +119,7 @@ void pcSerialComUpdate()
                 pcSerialComMode = PC_SERIAL_COMMANDS;
             break;
         }
-    }    
+    }
 }
 
 bool pcSerialComCodeCompleteRead()
@@ -341,15 +339,15 @@ static void commandShowStoredEvents()
 
 static void pcSerialComGetFileName( char receivedChar )
 {
-   if ( receivedChar == '\r' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         fileName[numberOfFileNameChar] = NULL;
         numberOfFileNameChar = 0;
         pcSerialComShowSdCardFile( fileName );
-   } else {
-    fileName[numberOfFileNameChar] = receivedChar;
-    uartUsb.printf( "%c", receivedChar );
-    numberOfFileNameChar++;
+    } else {
+        fileName[numberOfFileNameChar] = receivedChar;
+        uartUsb.printf( "%c", receivedChar );
+        numberOfFileNameChar++;
     }
 }
 
@@ -361,5 +359,5 @@ static void pcSerialComShowSdCardFile( char * fileName )
         pcSerialComStringWrite( "The file content is:\r\n");
         pcSerialComStringWrite( systemBuffer );
         pcSerialComStringWrite( "\r\n" );
-    };
+    }
 }

@@ -87,10 +87,10 @@ static void fireAlarmActivationUpdate()
 {
     temperatureSensorUpdate();
     gasSensorUpdate();
-/*
+
     overTemperatureDetectorState = temperatureSensorReadCelsius() > 
                                    TEMPERATURE_C_LIMIT_ALARM;
-*/
+
     if ( overTemperatureDetectorState ) {
         overTemperatureDetected = ON;
         sirenStateWrite(ON);
