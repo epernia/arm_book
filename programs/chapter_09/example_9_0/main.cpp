@@ -4,7 +4,7 @@
 #define ESP8266_BAUD_RATE      115200
 #define UART_USB_BAUD_RATE     115200
 
-Serial uartEsp8266( D42, D41 );
+Serial esp8266Uart( D42, D41 );
 Serial uartUsb(USBTX, USBRX);
 
 int main()
@@ -12,7 +12,7 @@ int main()
     char receivedCharUsb;
     char receivedCharEsp;
 
-    uartEsp8266.baud(ESP8266_BAUD_RATE);
+    esp8266Uart.baud(ESP8266_BAUD_RATE);
     uartUsb.baud(UART_USB_BAUD_RATE);
 
     uartUsb.printf("AT COMMANDS test\r\n");
@@ -21,15 +21,17 @@ int main()
 
         if( uartUsb.readable() ) {
             receivedCharUsb = uartUsb.getc();
-            if ( receivedCharUsb == '\r' ) {
-                uartEsp8266.printf("\r\n");
+            if ( ( receivedCharUsb == 'h' ) || ( receivedCharUsb == 'H' ) )  {
+                esp8266Uart.printf("<!doctype html> <html> <body> Hello! </body> </html>");
+            } else if ( receivedCharUsb == '\r' ) {
+                esp8266Uart.printf("\r\n");
             } else {
-                uartEsp8266.putc( receivedCharUsb );
+                esp8266Uart.putc( receivedCharUsb );
             }
         }
 
-        if ( uartEsp8266.readable() ) {
-            receivedCharEsp = uartEsp8266.getc();
+        if ( esp8266Uart.readable() ) {
+            receivedCharEsp = esp8266Uart.getc();
             uartUsb.putc( receivedCharEsp );
         }
     }
