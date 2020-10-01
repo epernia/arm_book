@@ -4,9 +4,9 @@ RESPONSES
 
 Response: "OK\r\n"
 
-AT
-AT+RST
-AT+CWMODE=<mode>
+AT - Test AT commands
+AT+RST - Reset ESP8266
+AT+CWMODE=<mode> - Wi-Fi Mode (Station, Soft AP, Station+ Soft AP)
 AT+CWQAP - Disconnects from the AP
 AT+CIPCLOSE - Closes TCP/UDP/SSL Connection
 AT+CIPMUX=<mode> - Set connection type (single or multiple)
@@ -15,7 +15,7 @@ AT+CIPSERVER=<mode>[,<port>] - Deletes/Creates TCP Server
 AT+CIPMODE=<mode> - Set the Transmission Mode (este comando no esta ver si lo agrego en modulo esp8266_module.c/h, el ejemplo original que anda no lo usa)
 
 Estos comandos se implementan asi:
-    esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
+    return esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
     return esp8266CheckOkResponse();
 
 -------------------------------------------------------------------------------
