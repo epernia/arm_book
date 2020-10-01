@@ -93,6 +93,11 @@ char pcSerialComCharRead()
     return receivedChar;
 }
 
+void pcSerialComCharWrite( char c )
+{
+    uartUsb.putc(c);
+}
+
 void pcSerialComStringWrite( const char* str )
 {
     uartUsb.printf( "%s", str );
