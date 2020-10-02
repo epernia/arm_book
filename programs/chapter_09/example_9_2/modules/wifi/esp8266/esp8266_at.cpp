@@ -6,6 +6,11 @@
 #include "arm_book_lib.h"
 #include "sapi.h"
 
+#ifdef ARMBOOK_DEBUG
+
+#endif
+
+
 //=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
@@ -144,46 +149,46 @@ esp8266Status_t esp8266StatusGet()
     return esp8266Status;
 }*/
 
-// Tests AT startup. ----------------------------------------------------------
+    // Tests AT startup. ----------------------------------------------------------
 
-// "AT\r\n"
+    // "AT\r\n"
 
-esp8266Status_t esp8266TestATSend()
-{
-    return esp8266SendCommandWithOkResponse( "AT\r\n" );
-}
+    esp8266Status_t esp8266TestATSend()
+    {
+        return esp8266SendCommandWithOkResponse( "AT\r\n" );
+    }
 
-esp8266Status_t esp8266TestATResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266TestATResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
-// Restarts the ESP8266 module. -----------------------------------------------
+    // Restarts the ESP8266 module. -----------------------------------------------
 
-// "AT+RST\r\n"
-esp8266Status_t esp8266ResetSend()
-{
-    return esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
-}
+    // "AT+RST\r\n"
+    esp8266Status_t esp8266ResetSend()
+    {
+        return esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
+    }
 
-esp8266Status_t esp8266ResetResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266ResetResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
-// Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------
+    // Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------
 
-// "AT+CWMODE=3\r\n"
-esp8266Status_t esp8266WiFiModeSetSend( esp8266WiFiMode_t mode )
-{
-    // "AT+CWMODE=" + mode +  "\r\n"  (debo concatenar estos 3 strings)
-    return esp8266SendCommandWithOkResponse( "AT+CWMODE=3\r\n" ); // FIXME: Hacer comando con mode variable
-}
+    // "AT+CWMODE=3\r\n"
+    esp8266Status_t esp8266WiFiModeSetSend( esp8266WiFiMode_t mode )
+    {
+        // "AT+CWMODE=" + mode +  "\r\n"  (debo concatenar estos 3 strings)
+        return esp8266SendCommandWithOkResponse( "AT+CWMODE=3\r\n" ); // FIXME: Hacer comando con mode variable
+    }
 
-esp8266Status_t esp8266WiFiModeSetResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266WiFiModeSetResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
 // Query the current Wi-Fi mode of ESP32 (Station/AP/Station+AP). -------------
 
@@ -212,18 +217,18 @@ esp8266Status_t esp8266ListAPsResponse( char* listOfAPs,
     return ESP8266_AT_RESPONSED; // TODO: Falta implementar
 }
 
-// Disconnects from the AP. ---------------------------------------------------
+    // Disconnects from the AP. ---------------------------------------------------
 
-// "AT+CWQAP\r\n"
-esp8266Status_t esp8266DisconnectFromAPSend()
-{
-    return esp8266SendCommandWithOkResponse( "AT+CWQAP\r\n" );
-}
+    // "AT+CWQAP\r\n"
+    esp8266Status_t esp8266DisconnectFromAPSend()
+    {
+        return esp8266SendCommandWithOkResponse( "AT+CWQAP\r\n" );
+    }
 
-esp8266Status_t esp8266DisconnectFromAPResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266DisconnectFromAPResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
 // Connects to an AP. ---------------------------------------------------------
 
@@ -279,13 +284,6 @@ esp8266Status_t esp8266WhichAPIsConnectedResponse( char* response,
 // Configures the multiple connections mode. ----------------------------------
 
 // "AT+CIPMUX?\r\n"
-esp8266Status_t esp8266ConnectionsModeGet( 
-   esp8266ConnectionsMode_t* respose )
-{
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
-}
-
-// "AT+CIPMUX=1\r\n"
 esp8266Status_t esp8266ConnectionsModeGetSend()
 {
     return ESP8266_AT_RESPONSED; // TODO: Falta implementar
@@ -297,74 +295,74 @@ esp8266Status_t esp8266ConnectionsModeGetResponse(
     return ESP8266_AT_RESPONSED; // TODO: Falta implementar
 }
 
-
-esp8266Status_t esp8266ConnectionsModeSetSend( esp8266ConnectionsMode_t mode )
-{
-    // - The default mode is single connection mode.
-    // - This mode can only be changed after all connections are disconnected, use:
-    //   "AT+CIPCLOSE=5\r\n" // ID = 5 all connections will be closed
-    // - If the TCP server is running, it must be deleted (AT+CIPSERVER=0)
-    //   before the single connection mode is activated.
-    // - Multiple connections can only be set when transparent transmission
-    //   is disabled (AT+CIPMODE=0).
-    if( mode == ESP8266_SIGNLE_CONNECTION ) {
-        return esp8266SendCommandWithOkResponse( "AT+CIPMUX=0\r\n" );
-    } else if( mode == ESP8266_MULTIPLE_CONNECTIONS ) {
-        return esp8266SendCommandWithOkResponse( "AT+CIPMUX=1\r\n" );
-    } else{
-        return ESP8266_AT_INVALID_PARAMETER;
+    // "AT+CIPMUX=1\r\n"
+    esp8266Status_t esp8266ConnectionsModeSetSend( esp8266ConnectionsMode_t mode )
+    {
+        // - The default mode is single connection mode.
+        // - This mode can only be changed after all connections are disconnected, use:
+        //   "AT+CIPCLOSE=5\r\n" // ID = 5 all connections will be closed
+        // - If the TCP server is running, it must be deleted (AT+CIPSERVER=0)
+        //   before the single connection mode is activated.
+        // - Multiple connections can only be set when transparent transmission
+        //   is disabled (AT+CIPMODE=0).
+        if( mode == ESP8266_SIGNLE_CONNECTION ) {
+            return esp8266SendCommandWithOkResponse( "AT+CIPMUX=0\r\n" );
+        } else if( mode == ESP8266_MULTIPLE_CONNECTIONS ) {
+            return esp8266SendCommandWithOkResponse( "AT+CIPMUX=1\r\n" );
+        } else{
+            return ESP8266_AT_INVALID_PARAMETER;
+        }
     }
-}
 
-esp8266Status_t esp8266ConnectionsModeSetResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266ConnectionsModeSetResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
-// Deletes/Creates TCP server. ------------------------------------------------
+    // Deletes/Creates TCP server. ------------------------------------------------
 
-// "AT+CIPSERVER=1,80\r\n"
-esp8266Status_t esp8266CreateTCPServerSend( int port )
-{
-    // Example
     // "AT+CIPSERVER=1,80\r\n"
-    // In this case creates a Server with port 80 
+    esp8266Status_t esp8266CreateTCPServerSend( int port )
+    {
+        // Example
+        // "AT+CIPSERVER=1,80\r\n"
+        // In this case creates a Server with port 80 
 
-    // <mode>:
-    //   0: delete server.
-    //   1: create server.
-    // <port>: port number; 333 by default
+        // <mode>:
+        //   0: delete server.
+        //   1: create server.
+        // <port>: port number; 333 by default
 
-    // - A TCP server can only be created when multiple connections are
-    //   activated (AT+CIPMUX=1).
-    // - A server monitor will automatically be created when the TCP server is
-    //   created.
-    // - When a client is connected to the server, it will take up one
-    //   connection and be assigned an ID.
-    // - Use ESP8266_SERVER_DEFAULT_PORT for port number = 333
+        // - A TCP server can only be created when multiple connections are
+        //   activated (AT+CIPMUX=1).
+        // - A server monitor will automatically be created when the TCP server is
+        //   created.
+        // - When a client is connected to the server, it will take up one
+        //   connection and be assigned an ID.
+        // - Use ESP8266_SERVER_DEFAULT_PORT for port number = 333
 
-    if( port == ESP8266_SERVER_DEFAULT_PORT ) {
-        return esp8266SendCommandWithOkResponse( "AT+CIPSERVER=1\r\n" );
-    } else {
-        return esp8266SendCommandWithOkResponse( "AT+CIPSERVER=1,80\r\n" ); // FIXME: allow to select a port
+        if( port == ESP8266_SERVER_DEFAULT_PORT ) {
+            return esp8266SendCommandWithOkResponse( "AT+CIPSERVER=1\r\n" );
+        } else {
+            return esp8266SendCommandWithOkResponse( "AT+CIPSERVER=1,80\r\n" ); // FIXME: allow to select a port
+        }
     }
-}
 
-esp8266Status_t esp8266CreateTCPServerResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266CreateTCPServerResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
-// "AT+CIPSERVER=0\r\n"
-esp8266Status_t esp8266DeleteTCPServerSend()
-{
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
-}
+    // "AT+CIPSERVER=0\r\n"
+    esp8266Status_t esp8266DeleteTCPServerSend()
+    {
+        return esp8266SendCommandWithOkResponse( "AT+CIPSERVER=0\r\n" );
+    }
 
-esp8266Status_t esp8266DeleteTCPServerResponse()
-{
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
-}
+    esp8266Status_t esp8266DeleteTCPServerResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
 // Gets the local IP address. -------------------------------------------------
 
@@ -444,21 +442,21 @@ esp8266Status_t esp8266SendUDPDataResponse()
     return ESP8266_AT_RESPONSED; // TODO: Falta implementar
 }
 
-// Closes TCP/UDP/SSL connection. ---------------------------------------------
+    // Closes TCP/UDP/SSL connection. ---------------------------------------------
 
-// "AT+CIPCLOSE=" + linkID + "\r\n"
-esp8266Status_t esp8266CloseConnectionSend( int linkID )
-{
-    // linkID: ID number of connections to be closed;
-    // when ID = 5, all connections will be closed.
-    // Remember to use ESP8266_CLOSE_ALL_CONNECTIONS for linkID=5
-    return esp8266SendCommandWithOkResponse( "AT+CIPCLOSE=5\r\n" ); // FIXME: Lo hice fijo para cerrar todas las conexiones, hacer variable
-}
+    // "AT+CIPCLOSE=" + linkID + "\r\n"
+    esp8266Status_t esp8266CloseConnectionSend( int linkID )
+    {
+        // linkID: ID number of connections to be closed;
+        // when ID = 5, all connections will be closed.
+        // Remember to use ESP8266_CLOSE_ALL_CONNECTIONS for linkID=5
+        return esp8266SendCommandWithOkResponse( "AT+CIPCLOSE=5\r\n" ); // FIXME: Lo hice fijo para cerrar todas las conexiones, hacer variable
+    }
 
-esp8266Status_t esp8266CloseConnectionResponse()
-{
-    return esp8266CheckOkResponse();
-}
+    esp8266Status_t esp8266CloseConnectionResponse()
+    {
+        return esp8266CheckOkResponse();
+    }
 
 // Establishes TCP connection -------------------------------------------------
 
