@@ -65,9 +65,9 @@ static esp8266Status_t esp8266CheckParametersAndOkResponse();
 
 // UART used for the ESP8266 --------------------------------------------------
 
-void esp8266UartInit( int baudrate )
+void esp8266UartInit( int baudRate )
 {
-    uartEsp8266.baud(baudrate);
+    uartEsp8266.baud(baudRate);
 }
 
 bool esp8266UartDataIsReceived()
@@ -113,7 +113,7 @@ void esp8266UartStringWrite( char const* str )
 
 void esp8266Init()
 {
-    esp8266UartInit( ESP8266_BAUDRATE );
+    esp8266UartInit( ESP8266_BAUD_RATE );
     esp8266State = ESP8266_IDLE;
 }
 
@@ -147,7 +147,7 @@ esp8266Status_t esp8266Update()
             esp8266Status = ESP8266_IDLE;
         break;
     }*/
-    return ESP8266_AT_RESPONSED;
+    return ESP8266_AT_RESPONDED;
 }
 
 /*
@@ -202,26 +202,26 @@ esp8266Status_t esp8266StatusGet()
 // "AT+CWMODE?"
 esp8266Status_t esp826SendCmd6WiFiModeGetSend()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp826SendCmd6WiFiModeGetResponse(
     esp8266WiFiMode_t* responseMode )
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Lists available APs. -------------------------------------------------------
  
 // "AT+CWLAP\r\n"
 esp8266Status_t esp8266ListAPsSend() {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266ListAPsResponse( char* listOfAPs, 
                                         int listOfAPsMaxLen ) {
     // FIXME: It can be improved
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
     // Disconnects from the AP. ---------------------------------------------------
@@ -242,12 +242,12 @@ esp8266Status_t esp8266ListAPsResponse( char* listOfAPs,
 // AT+CWJAP=<ssid>,<pwd>
 esp8266Status_t esp8266ConnectToAPSend( char const* ssid, char const* pwd )
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266ConnectToAPResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // AT+CWJAP=<ssid>,<pwd>[,<bssid>]                        
@@ -266,12 +266,12 @@ esp8266Status_t esp8266ConnectToAPWithMACSend( char const* ssid,
     // If multiple APs have the same SSID as "abc", the target AP can be found
     // by BSSID:
     //     AT+CWJAP="abc","0123456789","ca:d7:19:d8:a6:44"
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266ConnectToAPWithMACResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Query the AP to which the ESP32 Station is already connected. --------------
@@ -279,13 +279,13 @@ esp8266Status_t esp8266ConnectToAPWithMACResponse()
 // AT+CWJAP?
 esp8266Status_t esp8266WhichAPIsConnectedSend()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266WhichAPIsConnectedResponse( char* response,
                                                    int responseMaxLen )
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Configures the multiple connections mode. ----------------------------------
@@ -293,13 +293,13 @@ esp8266Status_t esp8266WhichAPIsConnectedResponse( char* response,
 // "AT+CIPMUX?\r\n"
 esp8266Status_t esp8266ConnectionsModeGetSend()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266ConnectionsModeGetResponse(
     esp8266ConnectionsMode_t* respose )
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
     // "AT+CIPMUX=1\r\n"
@@ -376,13 +376,13 @@ esp8266Status_t esp8266ConnectionsModeGetResponse(
 // "AT+CIFSR\r\n"
 esp8266Status_t esp8266LocalIPAddressGetSend()
 {    
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
                                           
 esp8266Status_t esp8266LocalIPAddressGetResponse( char* softAP_IPaddress,
                                                   char* station_IPaddress )
 {    
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Gets the connection status. ------------------------------------------------
@@ -390,13 +390,13 @@ esp8266Status_t esp8266LocalIPAddressGetResponse( char* softAP_IPaddress,
 // "AT+CIPSTATUS\r\n"
 esp8266Status_t esp8266ConnectionStatusGetSend()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266ConnectionStatusGetResponse(
     esp8266ConnectionStatus_t* result )
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Sends data. ----------------------------------------------------------------
@@ -412,12 +412,12 @@ esp8266Status_t esp8266SendTCPOrSSLDataSend(
     char* data   // Data to send (String NULL terminated).
 )
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266SendTCPOrSSLDataResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"
@@ -441,12 +441,12 @@ esp8266Status_t esp8266SendUDPDataSend(
     "AT+CIPSEND=0,93\r\n"
     "<!DOCTYPE HTML><html><head><title>ESP8266 test</title></head><body>Hello World!</body></html>"
     */
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266SendUDPDataResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
     // Closes TCP/UDP/SSL connection. ---------------------------------------------
@@ -487,15 +487,15 @@ esp8266Status_t esp8266EstablishTCPConnectionSend(
     */
 
     // Return:
-    //     ESP8266_AT_RESPONSED
+    //     ESP8266_AT_RESPONDED
     //     ESP8266_ERR
     
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266EstablishTCPConnectionResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Establishes UDP transmission -----------------------------------------------
@@ -516,16 +516,16 @@ esp8266Status_t esp8266EstablishUDPTransmissionSend(
     intToString(TCP_keepAlive) + "\r\n"
     */
     // Return:
-    //     ESP8266_AT_RESPONSED
+    //     ESP8266_AT_RESPONDED
     //     ESP8266_ERR
     //     ESP8266_ALREADY_CONNECT
 
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266EstablishUDPTransmissionResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 // Establishes SSL connection. ------------------------------------------------
@@ -552,12 +552,12 @@ esp8266Status_t esp8266EstablishSSLConnectionSend(
     //     ESP8266_ERR
     //     ESP8266_ALREADY_CONNECT
 
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 esp8266Status_t esp8266EstablishSSLConnectionResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Falta implementar
+    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
 
@@ -579,7 +579,7 @@ esp8266Status_t esp8266ATCommandUpdate()
         break;
 
         // Module already response
-        case ESP8266_AT_RESPONSED:
+        case ESP8266_AT_RESPONDED:
         break;
 
         // Time-out waiting for a response
@@ -590,7 +590,7 @@ esp8266Status_t esp8266ATCommandUpdate()
             esp8266SendingATStatus = ESP8266_AT_IDLE;
         break;
     }*/
-    return ESP8266_AT_RESPONSED;
+    return ESP8266_AT_RESPONDED;
 }
 
 esp8266Status_t esp8266ReceiveDataUpdate() 
@@ -613,7 +613,7 @@ esp8266Status_t esp8266ReceiveDataUpdate()
             esp8266ReceivingStatus = ESP8266_DATA_RECEIVE_IDLE;
         break;
     }*/
-    return ESP8266_AT_RESPONSED;
+    return ESP8266_AT_RESPONDED;
 }
 
 static esp8266Status_t esp8266SendCommandWithOkResponse( char const* cmd )
@@ -623,9 +623,9 @@ static esp8266Status_t esp8266SendCommandWithOkResponse( char const* cmd )
         parserStart( &parser );
         esp8266UartStringWrite( cmd );
         esp8266State = ESP8266_PROCESSING_AT_COMMAND; //ESP8266_PENDING_RESPONSE;
-        return ESP8266_AT_SENDED;
+        return ESP8266_AT_SENT;
     } else {        
-        return ESP8266_AT_NOT_SENDED;   
+        return ESP8266_AT_NOT_SENT;   
     }
 }
 
@@ -658,5 +658,5 @@ static esp8266Status_t esp8266CheckOkResponse()
 // Check response for previously sended commands that response parameter(s) and "\r\nOK\r\n"
 static esp8266Status_t esp8266CheckParametersAndOkResponse()
 {
-    return ESP8266_AT_RESPONSED; // TODO: Implement
+    return ESP8266_AT_RESPONDED; // TODO: Implement
 }

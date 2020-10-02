@@ -4,6 +4,7 @@
 #include "wifi_credentials.h"
 #include "esp8266_at.h"
 
+#include "sapi.h"
 #include "pc_serial_com.h"
 
 //=====[Declaration of private defines]========================================
