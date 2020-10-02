@@ -15,6 +15,14 @@
 
 //=====[Declaration of private data types]=====================================
 
+// FSM State
+
+typedef enum{   
+    ESP8266_IDLE,                        // Waiting for interactions
+    ESP8266_PROCESSING_AT_COMMAND,       // Sending AT command to ESP8266
+    ESP8266_PROCESSING_RECEIVE_DATA, // Receive data sponaniously form ESP8266
+}esp8266State_t;
+
 //=====[Declaration and initialization of public global objects]===============
 
 //static Serial uartEsp8266( USBTX, USBRX );
@@ -33,10 +41,10 @@ static bool flagStartParser = true;
 static parser_t parser;
 static parserStatus_t parserStatus;
 
+static esp8266State_t esp8266State;
+
 char esp8266ReceivedData[ESP8266_BUFFER_SIZE];
 char esp8266DataToSend[ESP8266_BUFFER_SIZE];
-
-static esp8266State_t esp8266State;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -88,10 +96,9 @@ bool esp8266UartByteRead( char* receivedByte )
     return false;
 }
 
-void esp8266UartByteWrite( char sendedByte )
+void esp8266UartByteWrite( char sentByte )
 {
-    uartEsp8266.putc( sendedByte );
-    // TODO: Ver si se atora la uart con put C o como hace para no atorarse
+    uartEsp8266.putc( sentByte );
 }
 
 void esp8266UartStringWrite( char const* str )
@@ -636,14 +643,14 @@ static esp8266Status_t esp8266CheckOkResponse()
     switch( parserStatus ) {
         case PARSER_TIMEOUT:
             esp8266State = ESP8266_IDLE;
-            return ESP8266_AT_TIMEOUT_WAITING_RESPONSE;
+            return ESP8266_AT_TIMEOUT;
         break;
         case PARSER_PATTERN_MATCH:
             esp8266State = ESP8266_IDLE;
-            return ESP8266_AT_RESPONSED;
+            return ESP8266_AT_RESPONDED;
         break;
         default:
-            return ESP8266_AT_PENDING_RESPONSE;
+            return ESP8266_AT_RESPONSE_PENDING;
         break;
     }
 }

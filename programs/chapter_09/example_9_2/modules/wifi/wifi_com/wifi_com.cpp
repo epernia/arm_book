@@ -75,8 +75,8 @@ void wifiComUpdate()
 wifiComStatus_t wifiModuleStartDetection()
 {
     switch( esp8266TestATSend() ) {
-        case ESP8266_AT_SENDED: return WIFI_MODULE_DETECTION_STARTED;
-        case ESP8266_AT_NOT_SENDED:
+        case ESP8266_AT_SENT: return WIFI_MODULE_DETECTION_STARTED;
+        case ESP8266_AT_NOT_SENT:
         default: return WIFI_MODULE_BUSY;
     }
 }
@@ -84,8 +84,8 @@ wifiComStatus_t wifiModuleStartDetection()
 wifiComStatus_t wifiModuleDetectionResponse()
 {
     switch( esp8266TestATResponse() ) {
-        case ESP8266_AT_RESPONSED: return WIFI_MODULE_DETECTED;
-        case ESP8266_AT_TIMEOUT_WAITING_RESPONSE: return WIFI_MODULE_NOT_DETECTED;
+        case ESP8266_AT_RESPONDED: return WIFI_MODULE_DETECTED;
+        case ESP8266_AT_TIMEOUT: return WIFI_MODULE_NOT_DETECTED;
         default: return WIFI_MODULE_BUSY;
     }
 }
@@ -95,8 +95,8 @@ wifiComStatus_t wifiModuleDetectionResponse()
 wifiComStatus_t wifiModuleStartReset()
 {
     switch( esp8266ResetSend() ) {
-        case ESP8266_AT_SENDED: return WIFI_MODULE_RESET_STARTED;
-        case ESP8266_AT_NOT_SENDED:
+        case ESP8266_AT_SENT: return WIFI_MODULE_RESET_STARTED;
+        case ESP8266_AT_NOT_SENT:
         default: return WIFI_MODULE_BUSY;
     }
 }
@@ -104,8 +104,8 @@ wifiComStatus_t wifiModuleStartReset()
 wifiComStatus_t wifiModuleResetResponse()
 {
     switch( esp8266ResetResponse() ) {
-        case ESP8266_AT_RESPONSED: return WIFI_MODULE_RESET_COMPLETE;
-        case ESP8266_AT_TIMEOUT_WAITING_RESPONSE: return WIFI_MODULE_NOT_DETECTED;
+        case ESP8266_AT_RESPONDED: return WIFI_MODULE_RESET_COMPLETE;
+        case ESP8266_AT_TIMEOUT: return WIFI_MODULE_NOT_DETECTED;
         default: return WIFI_MODULE_BUSY;
     }
 }

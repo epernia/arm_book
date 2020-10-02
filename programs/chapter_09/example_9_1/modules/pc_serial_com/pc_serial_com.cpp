@@ -47,7 +47,7 @@ static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfFileNameChar = 0;
 
-static bool wifiModuleCheckResponse = false;
+static bool wifiModuleDetectionMustBeChecked = false;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -74,7 +74,7 @@ static void commandEventLogSaveToSdCard();
 static void commandsdCardListFiles();
 static void commandCheckIfWifiModuleIsDetected();
 
-static void checkResponseForWifiModuleIsDetected();
+static void checkIfWiFiModuleIsDetected();
 
 //=====[Implementations of public functions]===================================
 
@@ -105,8 +105,8 @@ void pcSerialComIntWrite( int number )
 
 void pcSerialComUpdate()
 {
-    if( wifiModuleCheckResponse ) {
-        checkResponseForWifiModuleIsDetected();
+    if( wifiModuleDetectionMustBeChecked ) {
+        checkIfWiFiModuleIsDetected();
     }
     char receivedChar = pcSerialComCharRead();
     if( receivedChar != '\0' ) {
@@ -376,20 +376,28 @@ static void pcSerialComShowSdCardFile( char * fileName )
 
 static void commandCheckIfWifiModuleIsDetected()
 {
-    wifiModuleStartDetection();
-    wifiModuleCheckResponse = true;
+    switch( wifiModuleStartDetection() ) {
+        case WIFI_MODULE_DETECTION_STARTED:
+            wifiModuleDetectionMustBeChecked = true;
+        break;
+        case WIFI_MODULE_BUSY:
+            pcSerialComStringWrite( "Wi-Fi module not detected.\r\n");          
+        break;
+        default:
+        break;
+    }
 }
 
-static void checkResponseForWifiModuleIsDetected()
+static void checkIfWiFiModuleIsDetected()
 {
     switch( wifiModuleDetectionResponse() ) {
         case WIFI_MODULE_DETECTED:
             pcSerialComStringWrite( "Wi-Fi module detected.\r\n");
-            wifiModuleCheckResponse = false;
+            wifiModuleDetectionMustBeChecked = false;
         break;
         case WIFI_MODULE_NOT_DETECTED:
             pcSerialComStringWrite( "Wi-Fi module not detected.\r\n");
-            wifiModuleCheckResponse = false;
+            wifiModuleDetectionMustBeChecked = false;
         break;
         default:
         break;

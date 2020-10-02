@@ -1,13 +1,13 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _ESP8266_H_
-#define _ESP8266_H_
+#ifndef _ESP8266_AT_H_
+#define _ESP8266_AT_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=========================================
 
-#define ESP8266_BAUDRATE                 115200
+#define ESP8266_BAUD_RATE                  115200
 #define ESP8266_BUFFER_SIZE              2048
 
 #define ESP8266_SINGLE_CONNECTION        -1     // "AT+CIPSTART="
@@ -16,22 +16,15 @@
 
 //=====[Declaration of public data types]======================================
 
-// Global status
-typedef enum{   
-    ESP8266_IDLE,                        // Waiting for interactions
-    ESP8266_PROCESSING_AT_COMMAND,       // Sending AT command to ESP8266
-    ESP8266_PROCESSING_RECEIVE_DATA, // Receive data sponaniously form ESP8266
-}esp8266State_t;
-
 // Module status
 typedef enum{
-    ESP8266_AT_SENDED,                   // Module already send the command.  
-    ESP8266_AT_NOT_SENDED,               // Not sended.
-
-    ESP8266_AT_PENDING_RESPONSE,         // Waiting module response.  
-    ESP8266_AT_RESPONSED,                // Module already response.
-    ESP8266_AT_TIMEOUT_WAITING_RESPONSE, // Time-out waiting for a response.
+    ESP8266_AT_SENT,                     // Module already send the command.  
+    ESP8266_AT_NOT_SENT,                 // Not sended.
     ESP8266_AT_INVALID_PARAMETER,        // Invalid parameter(s).
+
+    ESP8266_AT_RESPONSE_PENDING,         // Waiting module response.  
+    ESP8266_AT_RESPONDED,                // Module already response.
+    ESP8266_AT_TIMEOUT,                  // Time-out waiting for a response.
 
     ESP8266_RECEIVING,                   // Module is receiving data. 
 }esp8266Status_t;
@@ -42,7 +35,7 @@ typedef enum{
     ESP8266_ERR,
     ESP8266_ALREADY_CONNECT,
     ESP8266_BUSY,
-}esp8266Response_t;
+}esp8266ATResponse_t;
 
 // "AT+CWMODE?\r\n"
 // "AT+CWMODE=<mode>\r\n"
@@ -84,14 +77,14 @@ typedef struct{
 
 // UART used for the ESP8266 --------------------------------------------------
 
-void esp8266UartInit( int baudrate );
+void esp8266UartInit( int baudRate );
 
 bool esp8266UartDataIsReceived();
 char esp8266UartDataRead();
 void esp8266UartReceptorFlush();
 
 bool esp8266UartByteRead( char* receivedByte );
-void esp8266UartByteWrite( char sendedByte );
+void esp8266UartByteWrite( char sentByte );
 void esp8266UartStringWrite( char const* str );
 
 // FSM Initialization and Update ----------------------------------------------

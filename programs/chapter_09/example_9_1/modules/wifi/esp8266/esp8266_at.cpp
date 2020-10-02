@@ -10,6 +10,11 @@
 
 //=====[Declaration of private data types]=====================================
 
+typedef enum{   
+    ESP8266_IDLE,
+    ESP8266_PROCESSING_AT_COMMAND,
+}esp8266State_t;
+
 //=====[Declaration and initialization of public global objects]===============
 
 static Serial uartEsp8266( D42, D41 );
@@ -44,9 +49,9 @@ bool esp8266UartByteRead( char* receivedByte )
     return false;
 }
 
-void esp8266UartByteWrite( char sendedByte )
+void esp8266UartByteWrite( char sentByte )
 {
-    uartEsp8266.putc( sendedByte );
+    uartEsp8266.putc( sentByte );
 }
 
 void esp8266UartStringWrite( char const* str )
@@ -59,7 +64,7 @@ void esp8266UartStringWrite( char const* str )
 
 void esp8266Init()
 {
-    esp8266UartInit( ESP8266_BAUDRATE );
+    esp8266UartInit( ESP8266_BAUD_RATE );
     esp8266State = ESP8266_IDLE;
 }
 
@@ -70,9 +75,9 @@ esp8266Status_t esp8266TestATSend()
         parserStart( &parser );
         esp8266UartStringWrite( "AT\r\n" );
         esp8266State = ESP8266_PROCESSING_AT_COMMAND;
-        return ESP8266_AT_SENDED;
+        return ESP8266_AT_SENT;
     } else {        
-        return ESP8266_AT_NOT_SENDED;   
+        return ESP8266_AT_NOT_SENT;   
     }
 }
 
@@ -86,14 +91,14 @@ esp8266Status_t esp8266TestATResponse()
     switch( parserStatus ) {
         case PARSER_TIMEOUT:
             esp8266State = ESP8266_IDLE;
-            return ESP8266_AT_TIMEOUT_WAITING_RESPONSE;
+            return ESP8266_AT_TIMEOUT;
         break;
         case PARSER_PATTERN_MATCH:
             esp8266State = ESP8266_IDLE;
-            return ESP8266_AT_RESPONSED;
+            return ESP8266_AT_RESPONDED;
         break;
         default:
-            return ESP8266_AT_PENDING_RESPONSE;
+            return ESP8266_AT_RESPONSE_PENDING;
         break;
     }
 }
