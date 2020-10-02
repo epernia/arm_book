@@ -20,7 +20,7 @@ typedef enum{
     WIFI_MODULE_WAIT_FOR_AP_CONNECTION,
     WIFI_COMMUNICATION_INIT,
     WIFI_COMMUNICATION_UPDATE,
-} wifiComStatus_t;
+} wifiComRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -28,12 +28,12 @@ void wifiComInit();
 void wifiComUpdate();
 
 // Detect module
-wifiComStatus_t wifiModuleStartDetection();
-wifiComStatus_t wifiModuleDetectionResponse();
+wifiComRequestResult_t wifiModuleStartDetection();
+wifiComRequestResult_t wifiModuleDetectionResponse();
 
 // Reset module
-wifiComStatus_t wifiModuleStartReset();
-wifiComStatus_t wifiModuleResetResponse();
+wifiComRequestResult_t wifiModuleStartReset();
+wifiComRequestResult_t wifiModuleResetResponse();
 
 //=====[#include guards - end]=================================================
 

@@ -18,7 +18,7 @@ typedef enum{
     ESP8266_AT_RESPONSE_PENDING,
     ESP8266_AT_RESPONDED,
     ESP8266_AT_TIMEOUT,
-}esp8266Status_t;
+}esp8266RequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -29,8 +29,8 @@ void esp8266UartStringWrite( char const* str );
 
 void esp8266Init();
 
-esp8266Status_t esp8266TestATSend();
-esp8266Status_t esp8266TestATResponse();
+esp8266RequestResult_t esp8266TestATSend();
+esp8266RequestResult_t esp8266TestATResponse();
 
 //=====[#include guards - end]=================================================
 

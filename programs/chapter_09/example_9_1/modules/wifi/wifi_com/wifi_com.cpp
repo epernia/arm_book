@@ -28,7 +28,7 @@ void wifiComInit()
 
 // Detect module
 
-wifiComStatus_t wifiModuleStartDetection()
+wifiComRequestResult_t wifiModuleStartDetection()
 {
     switch( esp8266TestATSend() ) {
         case ESP8266_AT_SENT: return WIFI_MODULE_DETECTION_STARTED;
@@ -37,7 +37,7 @@ wifiComStatus_t wifiModuleStartDetection()
     }
 }
 
-wifiComStatus_t wifiModuleDetectionResponse()
+wifiComRequestResult_t wifiModuleDetectionResponse()
 {
     switch( esp8266TestATResponse() ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_DETECTED;

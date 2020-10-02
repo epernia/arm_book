@@ -73,7 +73,7 @@ void wifiComUpdate()
 
 // Detect module
 
-wifiComStatus_t wifiModuleStartDetection()
+wifiComRequestResult_t wifiModuleStartDetection()
 {
     switch( esp8266TestATSend() ) {
         case ESP8266_AT_SENT: return WIFI_MODULE_DETECTION_STARTED;
@@ -82,7 +82,7 @@ wifiComStatus_t wifiModuleStartDetection()
     }
 }
 
-wifiComStatus_t wifiModuleDetectionResponse()
+wifiComRequestResult_t wifiModuleDetectionResponse()
 {
     switch( esp8266TestATResponse() ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_DETECTED;
@@ -93,7 +93,7 @@ wifiComStatus_t wifiModuleDetectionResponse()
 
 // Reset module
 
-wifiComStatus_t wifiModuleStartReset()
+wifiComRequestResult_t wifiModuleStartReset()
 {
     switch( esp8266ResetSend() ) {
         case ESP8266_AT_SENT: return WIFI_MODULE_RESET_STARTED;
@@ -102,7 +102,7 @@ wifiComStatus_t wifiModuleStartReset()
     }
 }
 
-wifiComStatus_t wifiModuleResetResponse()
+wifiComRequestResult_t wifiModuleResetResponse()
 {
     switch( esp8266ResetResponse() ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_RESET_COMPLETE;

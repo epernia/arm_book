@@ -68,7 +68,7 @@ void esp8266Init()
     esp8266State = ESP8266_IDLE;
 }
 
-esp8266Status_t esp8266TestATSend()
+esp8266RequestResult_t esp8266TestATSend()
 {
     if( esp8266State == ESP8266_IDLE ){
         parserInit( &parser, "OK\r\n", strlen("OK\r\n"), 50 );
@@ -81,7 +81,7 @@ esp8266Status_t esp8266TestATSend()
     }
 }
 
-esp8266Status_t esp8266TestATResponse()
+esp8266RequestResult_t esp8266TestATResponse()
 {
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );

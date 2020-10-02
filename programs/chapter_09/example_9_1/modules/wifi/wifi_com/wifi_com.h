@@ -14,15 +14,15 @@ typedef enum{
     WIFI_MODULE_DETECTION_STARTED,
     WIFI_MODULE_DETECTED,
     WIFI_MODULE_NOT_DETECTED,
-} wifiComStatus_t;
+} wifiComRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
 void wifiComInit();
 
 // Detect module
-wifiComStatus_t wifiModuleStartDetection();
-wifiComStatus_t wifiModuleDetectionResponse();
+wifiComRequestResult_t wifiModuleStartDetection();
+wifiComRequestResult_t wifiModuleDetectionResponse();
 
 //=====[#include guards - end]=================================================
 
