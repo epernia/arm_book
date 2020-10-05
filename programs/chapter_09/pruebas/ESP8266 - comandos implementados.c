@@ -503,16 +503,16 @@ FSM
 --------------------------------------------------
 
 AT                                                    50 ms
-AT+RST                                                10 s
+    AT+RST                                                5 s
+        AT+CWMODE?                                           50 ms
 AT+CWMODE=1                                           50 ms
-AT+CIPSTATUS                                          VER
-AT+CWJAP="NISUTA-Home","CeMaThBe09241727"             20 s
-AT+CIFSR                                              50 ms
-AT+CIPMUX=1                                           50 ms
+    AT+CWJAP="NISUTA-Home","CeMaThBe09241727"             20 s
+    AT+CIFSR                                              50 ms
+    AT+CIPMUX=1                                           50 ms
 AT+CIPSERVER=1,80                                     50 ms
-+IPD...
-AT+CIPSEND=0,54
-AT+CIPCLOSE=0
+    +IPD...
+    AT+CIPSEND=0,54
+    AT+CIPCLOSE=0
 
 -----------------------
 
@@ -533,8 +533,6 @@ Chequeo que este conectado y tenga IP:
     AT+CIPSTATUS
         Si da no conectado tengo que conectar:
             AT+CWJAP="NISUTA-Home","CeMaThBe09241727"
-        Si da conectado averiguo la IP y se la muestro al usaurio
-            AT+CIFSR
 
 Si esta conectado arranco el server:
 

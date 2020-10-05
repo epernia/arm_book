@@ -406,22 +406,6 @@ esp8266RequestResult_t esp8266ConnectionStatusGetResponse(
     return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
-AT+CIPSTATUS Response
-STATUS:<stat> +CIPSTATUS:<link ID>,<type>,<remote IP>,<remote port>,<local port>,<tetype>
-Parameters
-    <stat>: status of the ESP32 Station interface.  
-        2: The ESP32 Station is connected to an AP and its IP is obtained.
-        3: The ESP32 Station has created a TCP or UDP transmission.
-        4: The TCP or UDP transmission of ESP32 Station is disconnected.
-        5: The ESP32 Station does NOT connect to an AP.
-    <link ID>: ID of the connection (0~4), used for multiple connections.
-    <type>: string parameter, "TCP" or "UDP".
-    <remote IP>: string parameter indicating the remote IP address.
-    <remote port>: the remote port number.
-    <local port>: ESP32 local port number.•<tetype>:
-        0: ESP32 runs as a client.
-        1: ESP32 runs as a server.
-
 // Sends data. ----------------------------------------------------------------
 
 // "AT+CIPSEND=[<link ID>,]<length>[,<remote IP>,<remote port>]\r\n"

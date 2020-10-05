@@ -58,7 +58,7 @@ typedef enum{
 }esp8266UDP_mode_t;
 
 // "AT+CIPSTATUS\r\n"
-// Satatus
+// status of the ESP32 Station interface.
 typedef enum{
     ESP8266_STATUS_AP_IP = 2, // 2: The ESP32 Station is connected to an AP and
                               //    its IP is obtained.
@@ -69,7 +69,7 @@ typedef enum{
                                              //    disconnected.
     ESP8266_STATUS_AP_NOT_CONNECTED = 5, // 5: The ESP32 Station does NOT
                                          // connect to an AP.
-}esp8266Status_t;
+}esp8266StationStatus_t;
 
 // "AT+CIPSTATUS\r\n"
 // Tetype
@@ -80,18 +80,14 @@ typedef enum{
 
 // "AT+CIPSTATUS\r\n"
 typedef struct{
-    int status; // status of the ESP32 Station interface:
-        //   2: The ESP32 Station is connected to an AP and its IP is obtained.
-        //   3: The ESP32 Station has created a TCP or UDP transmission.
-        //   4: The TCP or UDP transmission of ESP32 Station is disconnected.
-        //   5: The ESP32 Station does NOT connect to an AP.
+    esp8266StationStatus_t status; // status of the ESP32 Station interface.
     int linkID; // ID of the connection (0~4), used for multiple connections.
-                // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
-    char type[4];        // String parameter, "TCP" or "UDP".
-    char remoteIP[16];   // String parameter indicating the remote IP address.
-    char remotePort[10]; // The remote port number.
-    char localPort[10];  // ESP32 local port number.
-    int tetype; // 0: ESP32 runs as a client. 1: ESP32 runs as a server.
+                // Use ESP8266_SINGLE_CONNECTION (-1) for single connection.
+    char type[4];       // String parameter, "TCP" or "UDP".
+    char remoteIP[17];  // String parameter indicating the remote IP address.
+    int remotePort[10]; // The remote port number.
+    int localPort[10];  // ESP32 local port number.
+    esp8266Tetype_t tetype; // 0: ESP32 runs as a client. 1: As a server.
 }esp8266ConnectionStatus_t;
 
 //=====[Declarations (prototypes) of public functions]=========================

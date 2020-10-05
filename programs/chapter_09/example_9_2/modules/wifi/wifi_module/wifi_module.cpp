@@ -124,7 +124,10 @@ wifiComRequestResult_t wifiModuleStartIsConnectedWithAP()
 
 wifiComRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip )
 {
-    char mac[50] = "";
+    esp8266ConnectionStatus_t connectionStatus;
+    
+    
+
     switch( esp8266LocalIPAddressGetResponse(ip, mac) ) {
         case ESP8266_AT_RESPONDED:
             if( strcmp(ip, "0.0.0.0") ) 
