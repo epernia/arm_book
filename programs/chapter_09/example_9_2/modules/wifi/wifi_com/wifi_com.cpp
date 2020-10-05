@@ -6,11 +6,22 @@
 #include "pc_serial_com.h"
 #include "wifi_module.h"
 #include "wifi_credentials.h"
+#include "esp8266_at.h"
 #include "string.h"
 
 //=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
+
+typedef enum{
+    WIFI_STATE_MODULE_DETECT,
+    WIFI_STATE_MODULE_NOT_DETECTED,
+    WIFI_STATE_MODULE_INIT,
+    WIFI_STATE_MODULE_CHECK_AP_CONNECTION,
+    WIFI_STATE_MODULE_NOT_CONNECTED,
+    WIFI_STATE_COMMUNICATION_INIT,
+    WIFI_STATE_COMMUNICATION_UPDATE,
+} wifiFsmComState_t;
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -19,6 +30,8 @@
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
+
+static wifiFsmComState_t wifiComFsmState;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -180,7 +193,7 @@ static void runStateWifiModuleInit()
     }
 
     // EXIT ------------------------------------------
-    if( wifiComFsmState != WIFI_STATE_INIT ){
+    if( wifiComFsmState != WIFI_STATE_MODULE_INIT ){
         stateEntryFlag = false;
     }
 }
@@ -201,7 +214,7 @@ static void runStateWifiModuleCheckAPConnection()
     }
 
     // CHECK TRANSITION CONDITIONS ------------------
-    switch( wifiModuleIsConnectedWithAPResponse( &ip ) ) {
+    switch( wifiModuleIsConnectedWithAPResponse( ip ) ) {
         case WIFI_MODULE_IS_CONNECTED:
             pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
             pcSerialComStringWrite( ip );
@@ -251,7 +264,7 @@ static void runStateWifiModuleNotConnected()
         stateEntryFlag = false; // Asi relanzo el entry de este estado
     }
 
-    switch( wifiModuleConnectWithAPResponse( &ip ) ) {
+    switch( wifiModuleConnectWithAPResponse( ip ) ) {
         case WIFI_MODULE_IS_CONNECTED:
             pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
             pcSerialComStringWrite( ip );

@@ -4,6 +4,7 @@
 
 #include "sapi.h"
 #include "esp8266_at.h"
+#include "string.h"
 
 //=====[Declaration of private defines]========================================
 
@@ -70,7 +71,7 @@ wifiComRequestResult_t wifiModuleStartReset()
 wifiComRequestResult_t wifiModuleResetResponse()
 {
     //switch( esp8266ResetResponse() ) {
-    switch( ESP8266_AT_RESPONDED() ) {
+    switch( ESP8266_AT_RESPONDED ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_RESET_COMPLETE;
         case ESP8266_AT_TIMEOUT: return WIFI_MODULE_NOT_DETECTED;
         default: return WIFI_MODULE_BUSY;
@@ -115,7 +116,7 @@ wifiComRequestResult_t wifiModuleStartIsConnectedWithAP()
 
 wifiComRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip )
 {
-    *ip = "192.168.101.101";
+    strcat( ip, "192.168.101.101" );
     return WIFI_MODULE_IS_CONNECTED;
 }
 // Responses:
@@ -137,7 +138,7 @@ wifiComRequestResult_t wifiModuleStartConnectWithAP(
 
 wifiComRequestResult_t wifiModuleConnectWithAPResponse( char* ip )
 {
-    *ip = "192.168.101.101";
+    strcat( ip, "192.168.101.101" );
     return WIFI_MODULE_IS_CONNECTED;
 }
 // Responses:
