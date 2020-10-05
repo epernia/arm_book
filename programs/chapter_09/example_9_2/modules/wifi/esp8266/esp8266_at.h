@@ -58,6 +58,27 @@ typedef enum{
 }esp8266UDP_mode_t;
 
 // "AT+CIPSTATUS\r\n"
+// Satatus
+typedef enum{
+    ESP8266_STATUS_AP_IP = 2, // 2: The ESP32 Station is connected to an AP and
+                              //    its IP is obtained.
+    ESP8266_STATUS_TCP_UDP_CREATED = 3, // 3: The ESP32 Station has created a
+                                        //    TCP or UDP transmission.
+    ESP8266_STATUS_TCP_UDP_DISCONNECTED = 4, // 4: The TCP or UDP transmission
+                                             //    of ESP32 Station is
+                                             //    disconnected.
+    ESP8266_STATUS_AP_NOT_CONNECTED = 5, // 5: The ESP32 Station does NOT
+                                         // connect to an AP.
+}esp8266Status_t;
+
+// "AT+CIPSTATUS\r\n"
+// Tetype
+typedef enum{
+    ESP8266_RUNS_AS_CLIENT = 0, // 0: ESP32 runs as a client.
+    ESP8266_RUNS_AS_SERVER = 1, // 1: ESP32 runs as a server.
+}esp8266Tetype_t;
+
+// "AT+CIPSTATUS\r\n"
 typedef struct{
     int status; // status of the ESP32 Station interface:
         //   2: The ESP32 Station is connected to an AP and its IP is obtained.
@@ -110,7 +131,7 @@ esp8266RequestResult_t esp8266ResetResponse();
 // Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------
 
 // "AT+CWMODE=3\r\n"
-esp8266RequestResult_t esp8266WiFiModeSetSend( esp8266WiFiMode_t mode ); 
+esp8266RequestResult_t esp8266WiFiModeSetSend( esp8266WiFiMode_t mode );
 
 esp8266RequestResult_t esp8266WiFiModeSetResponse();
 
@@ -204,8 +225,8 @@ esp8266RequestResult_t esp8266DeleteTCPServerResponse();
 // "AT+CIFSR\r\n"
 esp8266RequestResult_t esp8266LocalIPAddressGetSend();
                                           
-esp8266RequestResult_t esp8266LocalIPAddressGetResponse( char* softAP_IPaddress,
-                                                  char* station_IPaddress ); 
+esp8266RequestResult_t esp8266LocalIPAddressGetResponse( 
+    char* ipAddress, char* macAddress ); 
 
 // Gets the connection status. ------------------------------------------------
 

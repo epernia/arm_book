@@ -172,18 +172,18 @@ esp8266RequestResult_t esp8266StatusGet()
         return esp8266CheckOkResponse();
     }
 
-    // Restarts the ESP8266 module. -----------------------------------------------
+// Restarts the ESP8266 module. -----------------------------------------------
 
-    // "AT+RST\r\n"
-    esp8266RequestResult_t esp8266ResetSend()
-    {
-        return esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
-    }
+// "AT+RST\r\n"
+esp8266RequestResult_t esp8266ResetSend()
+{
+    return ESP8266_AT_SENT; //esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
+}
 
-    esp8266RequestResult_t esp8266ResetResponse()
-    {
-        return esp8266CheckOkResponse();
-    }
+esp8266RequestResult_t esp8266ResetResponse()
+{
+    return ESP8266_AT_RESPONDED; //esp8266CheckOkResponse();
+}
 
     // Sets the Wi-Fi mode of ESP32 (Station/AP/Station+AP). ----------------------
 
@@ -204,7 +204,7 @@ esp8266RequestResult_t esp8266StatusGet()
 // "AT+CWMODE?"
 esp8266RequestResult_t esp826SendCmd6WiFiModeGetSend()
 {
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp826SendCmd6WiFiModeGetResponse(
@@ -217,7 +217,7 @@ esp8266RequestResult_t esp826SendCmd6WiFiModeGetResponse(
  
 // "AT+CWLAP\r\n"
 esp8266RequestResult_t esp8266ListAPsSend() {
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp8266ListAPsResponse( char* listOfAPs, 
@@ -244,7 +244,7 @@ esp8266RequestResult_t esp8266ListAPsResponse( char* listOfAPs,
 // AT+CWJAP=<ssid>,<pwd>
 esp8266RequestResult_t esp8266ConnectToAPSend( char const* ssid, char const* pwd )
 {
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp8266ConnectToAPResponse()
@@ -268,7 +268,7 @@ esp8266RequestResult_t esp8266ConnectToAPWithMACSend( char const* ssid,
     // If multiple APs have the same SSID as "abc", the target AP can be found
     // by BSSID:
     //     AT+CWJAP="abc","0123456789","ca:d7:19:d8:a6:44"
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp8266ConnectToAPWithMACResponse()
@@ -281,7 +281,7 @@ esp8266RequestResult_t esp8266ConnectToAPWithMACResponse()
 // AT+CWJAP?
 esp8266RequestResult_t esp8266WhichAPIsConnectedSend()
 {
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp8266WhichAPIsConnectedResponse( char* response,
@@ -295,12 +295,13 @@ esp8266RequestResult_t esp8266WhichAPIsConnectedResponse( char* response,
 // "AT+CIPMUX?\r\n"
 esp8266RequestResult_t esp8266ConnectionsModeGetSend()
 {
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp8266ConnectionsModeGetResponse(
     esp8266ConnectionsMode_t* respose )
 {
+    *respose = ESP8266_MULTIPLE_CONNECTIONS;
     return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
@@ -378,12 +379,16 @@ esp8266RequestResult_t esp8266ConnectionsModeGetResponse(
 // "AT+CIFSR\r\n"
 esp8266RequestResult_t esp8266LocalIPAddressGetSend()
 {    
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
                                           
-esp8266RequestResult_t esp8266LocalIPAddressGetResponse( char* softAP_IPaddress,
-                                                  char* station_IPaddress )
-{    
+esp8266RequestResult_t esp8266LocalIPAddressGetResponse( 
+    char* ipAddress, char* macAddress )
+{
+    *ipAddress[0] = '0';
+    *macAddress[0] = '0';
+    strcat( ipAddress, "192.168.101.101" );
+    strcat( macAddress, "5c:cf:7f:87:41:bb" );
     return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
 
@@ -392,7 +397,7 @@ esp8266RequestResult_t esp8266LocalIPAddressGetResponse( char* softAP_IPaddress,
 // "AT+CIPSTATUS\r\n"
 esp8266RequestResult_t esp8266ConnectionStatusGetSend()
 {
-    return ESP8266_AT_RESPONDED; // TODO: Falta implementar
+    return ESP8266_AT_SENT; // TODO: Falta implementar
 }
 
 esp8266RequestResult_t esp8266ConnectionStatusGetResponse(
@@ -400,6 +405,22 @@ esp8266RequestResult_t esp8266ConnectionStatusGetResponse(
 {
     return ESP8266_AT_RESPONDED; // TODO: Falta implementar
 }
+
+AT+CIPSTATUS Response
+STATUS:<stat> +CIPSTATUS:<link ID>,<type>,<remote IP>,<remote port>,<local port>,<tetype>
+Parameters
+    <stat>: status of the ESP32 Station interface.  
+        2: The ESP32 Station is connected to an AP and its IP is obtained.
+        3: The ESP32 Station has created a TCP or UDP transmission.
+        4: The TCP or UDP transmission of ESP32 Station is disconnected.
+        5: The ESP32 Station does NOT connect to an AP.
+    <link ID>: ID of the connection (0~4), used for multiple connections.
+    <type>: string parameter, "TCP" or "UDP".
+    <remote IP>: string parameter indicating the remote IP address.
+    <remote port>: the remote port number.
+    <local port>: ESP32 local port number.•<tetype>:
+        0: ESP32 runs as a client.
+        1: ESP32 runs as a server.
 
 // Sends data. ----------------------------------------------------------------
 
@@ -426,10 +447,10 @@ esp8266RequestResult_t esp8266SendTCPOrSSLDataResponse()
 esp8266RequestResult_t esp8266SendUDPDataSend(
     int linkID, // ID of the connection (0~4), for multiple connections.
                 // (-1 = single conection = ESP8266_SINGLE_CONNECTION).
-    int length,          // Data length, MAX: 2048 bytes.
-    char remoteIP[16],   // Remote IP can be set in UDP transmission.
-    char remotePort[10], // Remote port can be set in UDP transmission.
-    char* data           // Data to send (String NULL terminated).
+    int length,       // Data length, MAX: 2048 bytes.
+    char* remoteIP,   // Remote IP can be set in UDP transmission.
+    char* remotePort, // Remote port can be set in UDP transmission.
+    char* data        // Data to send (String NULL terminated).
 )
 {
     // Returns ">", 
