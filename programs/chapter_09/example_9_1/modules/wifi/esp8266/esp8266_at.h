@@ -7,7 +7,7 @@
 
 //=====[Declaration of public defines]=========================================
 
-#define ESP8266_BAUD_RATE                  115200
+#define ESP8266_BAUD_RATE   115200
 
 //=====[Declaration of public data types]======================================
 
@@ -24,7 +24,7 @@ typedef enum{
 
 void esp8266UartInit( int baudRate );
 bool esp8266UartByteRead( char* receivedByte );
-void esp8266UartByteWrite( char sentByte );
+void esp8266UartByteWrite( char byteToSend );
 void esp8266UartStringWrite( char const* str );
 
 void esp8266Init();

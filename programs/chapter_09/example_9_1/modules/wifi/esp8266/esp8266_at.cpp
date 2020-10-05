@@ -35,9 +35,9 @@ static esp8266State_t esp8266State;
 
 //=====[Implementations of public functions]===================================
 
-void esp8266UartInit( int baudrate )
+void esp8266UartInit( int baudRate )
 {
-    uartEsp8266.baud(baudrate);
+    uartEsp8266.baud(baudRate);
 }
 
 bool esp8266UartByteRead( char* receivedByte )
@@ -49,9 +49,9 @@ bool esp8266UartByteRead( char* receivedByte )
     return false;
 }
 
-void esp8266UartByteWrite( char sentByte )
+void esp8266UartByteWrite( char byteToSend )
 {
-    uartEsp8266.putc( sentByte );
+    uartEsp8266.putc( byteToSend );
 }
 
 void esp8266UartStringWrite( char const* str )

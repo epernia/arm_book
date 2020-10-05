@@ -13,7 +13,7 @@
 #include "gas_sensor.h"
 #include "event_log.h"
 #include "sd_card.h"
-#include "wifi_com.h"
+#include "wifi_module.h"
 
 //=====[Declaration of private defines]========================================
 
@@ -386,7 +386,7 @@ static void commandCheckIfWifiModuleIsDetected()
             wifiModuleDetectionMustBeChecked = true;
         break;
         case WIFI_MODULE_BUSY:
-            pcSerialComStringWrite( "Wi-Fi module not detected.\r\n");          
+            pcSerialComStringWrite( "Wi-Fi module detected.\r\n");          
         break;
         default:
         break;

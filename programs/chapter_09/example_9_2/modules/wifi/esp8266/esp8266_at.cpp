@@ -6,10 +6,11 @@
 #include "arm_book_lib.h"
 #include "sapi.h"
 
+#define ARMBOOK_DEBUG
+
 #ifdef ARMBOOK_DEBUG
-
+    #include "pc_serial_com.h"
 #endif
-
 
 //=====[Declaration of private defines]========================================
 
@@ -59,7 +60,8 @@ static esp8266RequestResult_t esp8266SendCommandWithOkResponse( char const* cmd 
 static esp8266RequestResult_t esp8266CheckOkResponse();
 
 // Check response for previously sended commands that response parameter(s) and "\r\nOK\r\n"
-static esp8266RequestResult_t esp8266CheckParametersAndOkResponse();
+static esp8266RequestResult_t esp8266CheckParametersAndOkResponse(
+    char* buffer, int* bufferLen );
 
 //=====[Implementations of public functions]===================================
 
@@ -96,9 +98,9 @@ bool esp8266UartByteRead( char* receivedByte )
     return false;
 }
 
-void esp8266UartByteWrite( char sentByte )
+void esp8266UartByteWrite( char byteToSend )
 {
-    uartEsp8266.putc( sentByte );
+    uartEsp8266.putc( byteToSend );
 }
 
 void esp8266UartStringWrite( char const* str )
@@ -635,11 +637,17 @@ static esp8266RequestResult_t esp8266CheckOkResponse()
     // Receive from UART connected to ESP8266 if is data available
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );
-    
+
     // Update parser status
     parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
 
-    // Chech parser response
+    #ifdef ARMBOOK_DEBUG
+        if( receivedChar != '\0' ) {
+            pcSerialComCharWrite( receivedChar );
+        }
+    #endif
+
+    // Check parser response
     switch( parserStatus ) {
         case PARSER_TIMEOUT:
             esp8266State = ESP8266_IDLE;
@@ -656,7 +664,34 @@ static esp8266RequestResult_t esp8266CheckOkResponse()
 }
 
 // Check response for previously sended commands that response parameter(s) and "\r\nOK\r\n"
-static esp8266RequestResult_t esp8266CheckParametersAndOkResponse()
+static esp8266RequestResult_t esp8266CheckParametersAndOkResponse(
+    char* buffer, int* bufferLen )
 {
-    return ESP8266_AT_RESPONDED; // TODO: Implement
+    // Receive from UART connected to ESP8266 if is data available
+    char receivedChar = '\0';
+    esp8266UartByteRead( &receivedChar );
+
+    // Update parser status
+    parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+
+    #ifdef ARMBOOK_DEBUG
+        if( receivedChar != '\0' ) {
+            pcSerialComCharWrite( receivedChar );
+        }
+    #endif
+
+    // Check parser response
+    switch( parserStatus ) {
+        case PARSER_TIMEOUT:
+            esp8266State = ESP8266_IDLE;
+            return ESP8266_AT_TIMEOUT;
+        break;
+        case PARSER_PATTERN_MATCH:
+            esp8266State = ESP8266_IDLE;
+            return ESP8266_AT_RESPONDED;
+        break;
+        default:
+            return ESP8266_AT_RESPONSE_PENDING;
+        break;
+    }
 }

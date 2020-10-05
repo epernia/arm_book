@@ -7,7 +7,7 @@
 
 //=====[Declaration of public defines]=========================================
 
-#define ESP8266_BAUD_RATE                  115200
+#define ESP8266_BAUD_RATE                115200
 #define ESP8266_BUFFER_SIZE              2048
 
 #define ESP8266_SINGLE_CONNECTION        -1     // "AT+CIPSTART="
@@ -84,7 +84,7 @@ char esp8266UartDataRead();
 void esp8266UartReceptorFlush();
 
 bool esp8266UartByteRead( char* receivedByte );
-void esp8266UartByteWrite( char sentByte );
+void esp8266UartByteWrite( char byteToSend );
 void esp8266UartStringWrite( char const* str );
 
 // FSM Initialization and Update ----------------------------------------------

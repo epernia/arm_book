@@ -26,8 +26,6 @@ void wifiComInit()
     esp8266Init();
 }
 
-// Detect module
-
 wifiComRequestResult_t wifiModuleStartDetection()
 {
     switch( esp8266TestATSend() ) {

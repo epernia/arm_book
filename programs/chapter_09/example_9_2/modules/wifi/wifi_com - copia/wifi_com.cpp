@@ -1,16 +1,25 @@
 //=====[Libraries]=============================================================
 
 #include "wifi_com.h"
+#include "wifi_credentials.h"
+#include "esp8266_at.h"
 
 #include "sapi.h"
 #include "pc_serial_com.h"
-#include "wifi_module.h"
-#include "wifi_credentials.h"
-#include "string.h"
 
 //=====[Declaration of private defines]========================================
 
+// #define PC_SERIAL_COM_BAUD_RATE   115200
+
 //=====[Declaration of private data types]=====================================
+
+typedef enum{
+    WIFI_STATE_MODULE_DETECT,
+    WIFI_STATE_MODULE_NOT_DETECTED,
+    WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION,
+    WIFI_STATE_COMMUNICATION_INIT,
+    WIFI_STATE_COMMUNICATION_UPDATE,
+} wifiFsmComState_t;
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -20,16 +29,13 @@
 
 //=====[Declaration and initialization of private global variables]============
 
+static wifiFsmComState_t wifiComFsmState;
+
 //=====[Declarations (prototypes) of private functions]========================
 
 static void runStateWifiModuleDetect();
 static void runStateWifiModuleNotDetected();
-
-static void runStateWifiModuleInit();
-
-static void runStateWifiModuleCheckAPConnection();
-static void runStateWifiModuleNotConnected();
-
+static void runStateWifiModuleWaitForAPConnection();
 static void runStateWifiCommunicationInit();
 static void runStateWifiCommunicationUpdate();
 
@@ -52,14 +58,8 @@ void wifiComUpdate()
         case WIFI_STATE_MODULE_NOT_DETECTED:
             runStateWifiModuleNotDetected();
         break;
-        case WIFI_STATE_MODULE_INIT:
-            runStateWifiModuleInit();
-        break;
-        case WIFI_STATE_MODULE_CHECK_AP_CONNECTION:
-            runStateWifiModuleCheckAPConnection();
-        break;
-        case WIFI_STATE_MODULE_NOT_CONNECTED:
-            runStateWifiModuleNotConnected();
+        case WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION:
+            runStateWifiModuleWaitForAPConnection();
         break;
         case WIFI_STATE_COMMUNICATION_INIT:
             runStateWifiCommunicationInit();
@@ -73,10 +73,156 @@ void wifiComUpdate()
     } 
 }
 
+// Detect module --------------------------------------------------------------
+
+wifiComRequestResult_t wifiModuleStartDetection()
+{
+    switch( esp8266TestATSend() ) {
+        case ESP8266_AT_SENT: return WIFI_MODULE_DETECTION_STARTED;
+        case ESP8266_AT_NOT_SENT:
+        default: return WIFI_MODULE_BUSY;
+    }
+}
+
+wifiComRequestResult_t wifiModuleDetectionResponse()
+{
+    switch( esp8266TestATResponse() ) {
+        case ESP8266_AT_RESPONDED: return WIFI_MODULE_DETECTED;
+        case ESP8266_AT_TIMEOUT: return WIFI_MODULE_NOT_DETECTED;
+        default: return WIFI_MODULE_BUSY;
+    }
+}
+
+// Reset module ---------------------------------------------------------------
+
+wifiComRequestResult_t wifiModuleStartReset()
+{
+    switch( esp8266ResetSend() ) {
+        case ESP8266_AT_SENT: return WIFI_MODULE_RESET_STARTED;
+        case ESP8266_AT_NOT_SENT:
+        default: return WIFI_MODULE_BUSY;
+    }
+}
+
+wifiComRequestResult_t wifiModuleResetResponse()
+{
+    switch( esp8266ResetResponse() ) {
+        case ESP8266_AT_RESPONDED: return WIFI_MODULE_RESET_COMPLETE;
+        case ESP8266_AT_TIMEOUT: return WIFI_MODULE_NOT_DETECTED;
+        default: return WIFI_MODULE_BUSY;
+    }
+}
+
+// Initialize module ----------------------------------------------------------
+
+wifiComRequestResult_t wifiModuleInit()
+{
+    
+}
+
+wifiComRequestResult_t wifiModuleInitResponse()
+{
+    
+}
+
+// AP connection --------------------------------------------------------------
+
+// Connect with AP
+
+wifiComRequestResult_t wifiModuleConnectWithAP( char const* ssid,
+                                                char const* password )
+{
+    
+}
+
+wifiComRequestResult_t wifiModuleConnectWithAPResponse()
+{
+    
+}
+
+// Check if connected with AP
+
+wifiComRequestResult_t wifiModuleIsConnectedWithAP()
+{
+    
+}
+
+bool wifiModuleIsConnectedWithAPResponse()
+{
+    
+}
+
+// Get IP
+
+wifiComRequestResult_t wifiModuleIPGet()
+{
+    
+}
+
+wifiComRequestResult_t wifiModuleIPGetResponse( char* ip )
+{
+    
+}
+
+// TCP Server -----------------------------------------------------------------
+
+// Create a TCP Server 
+
+wifiComRequestResult_t wifiModuleStartTCPServerAtPort( int port )
+{
+    
+}
+
+wifiComRequestResult_t wifiModuleStartTCPServerAtPortResponse()
+{
+    
+}
+
+// Delete TCP Server
+
+wifiComRequestResult_t wifiModuleStopTCPServer()
+{
+    
+}
+
+wifiComRequestResult_t wifiModuleStopTCPServerResponse()
+{
+    
+}
+
+// Check if are a client pending request
+// Note: PC should also connect to the same Access Point.
+
+wifiComRequestResult_t wifiModuleIsAClientPendingRequest()
+{
+    
+}
+
+bool wifiModuleIsAClientPendingRequestResponse( 
+    int* linkID, 
+    wifiComClientRequest_t* clientRequest )
+{
+    
+}
+
+// Response to a client request
+
+wifiComRequestResult_t wifiModuleRespondToClientRequest( 
+    int linkID, 
+    char const* response )
+{
+    
+}
+
+wifiComRequestResult_t wifiModuleRespondToClientRequestResponse()
+{
+    
+}
+
 //=====[Implementations of private functions]==================================
 
 // En este estado si detecta el modulo pasa al estado 
-// WIFI_STATE_MODULE_INIT.
+// WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION.
 // Si no pasa al estado: WIFI_STATE_MODULE_NOT_DETECTED
 static void runStateWifiModuleDetect()
 {
@@ -88,20 +234,17 @@ static void runStateWifiModuleDetect()
         }
         stateEntryFlag = true;
     }
-
     // CHECK TRANSITION CONDITIONS ------------------
     switch( wifiModuleDetectionResponse() ) {
         case WIFI_MODULE_DETECTED:
-            wifiComFsmState = WIFI_STATE_MODULE_INIT;
-            pcSerialComStringWrite( "Wi-Fi module detected.\r\n" );
+            wifiComFsmState = WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION;
         break;
         case WIFI_MODULE_NOT_DETECTED:
             wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;
         break;
-        default: // Module busy, not do anything
+        default:
         break;
     }
-
     // EXIT ------------------------------------------
     if( wifiComFsmState != WIFI_STATE_MODULE_DETECT ){
         stateEntryFlag = false;
@@ -109,170 +252,76 @@ static void runStateWifiModuleDetect()
 }
 
 // En este estado reintenta detectar el módulo Wi-Fi cada 10 segundos (lo resetea).
-// Cuando lo detecta pasa al estado WIFI_STATE_MODULE_INIT
+// Cuando lo detecta pasa al estado WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION
 static void runStateWifiModuleNotDetected()
 {
     static bool stateEntryFlag = false;
     static bool resetSended = false;
     static delay_t reintentsDelay;
     // ENTRY ----------------------------------------
-    if( stateEntryFlag == false ) {
+    if( stateEntryFlag == false ){
+        stateEntryFlag = true;
         pcSerialComStringWrite( "\r\nERROR: Wi-Fi module not detected!\r\n" );
         pcSerialComStringWrite( "It will re-intent automaticaly in 10 seconds...\r\n" );
         delayInit( &reintentsDelay, 10000 );
-        stateEntryFlag = true;
     }
 
     // CHECK TRANSITION CONDITIONS ------------------
     if( delayRead(&reintentsDelay) && !resetSended ) {
         pcSerialComStringWrite( "Reseting Wi-Fi module..\r\n" );
-        if( wifiModuleStartReset() == WIFI_MODULE_RESET_STARTED ) {
+        if( wifiModuleStartReset() == WIFI_MODULE_RESET_STARTED ){
             resetSended = true;
         }
     }
     if ( resetSended ) {            
         switch( wifiModuleResetResponse() ) {
             case WIFI_MODULE_RESET_COMPLETE:
-                wifiComFsmState = WIFI_STATE_MODULE_INIT;
-                pcSerialComStringWrite( "Wi-Fi module detected.\r\n" );
+                wifiComFsmState = WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION;
             break;
             case WIFI_MODULE_NOT_DETECTED:
                 wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;
-                stateEntryFlag = false; // Asi relanzo el entry de este estado   
+                stateEntryFlag = false;
+                resetSended = false;                
             break;
-            default: // Module busy, not do anything
+            default:
             break;
         }
-        resetSended = false;   
     }
 
     // EXIT ------------------------------------------
     if( wifiComFsmState != WIFI_STATE_MODULE_NOT_DETECTED ){
         stateEntryFlag = false;
-    }
-}
+        // Code for exit from this state...  
 
-// En este estado inicializa el modulo Wi-Fi para poder conectarse a un AP
-// Cuando termina la inicializacion pasa al estado
-// WIFI_STATE_MODULE_CHECK_AP_CONNECTION
-static void runStateWifiModuleInit()
-{
-    static bool stateEntryFlag = false;
-    // ENTRY ----------------------------------------
-    if( stateEntryFlag == false ){
-        if( wifiModuleStartInit() != WIFI_MODULE_INIT_STARTED ){
-            return;
-        }
-        stateEntryFlag = true;
-    }
-
-    // CHECK TRANSITION CONDITIONS ------------------
-    switch( wifiModuleInitResponse() ) {
-        case WIFI_MODULE_INIT_COMPLETE:
-            pcSerialComStringWrite( "Wi-Fi module initialized.\r\n" );
-            wifiComFsmState = WIFI_STATE_MODULE_CHECK_AP_CONNECTION;
-        break;
-        case WIFI_MODULE_NOT_DETECTED:
-            wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;
-        break;
-        default: // Module busy, not do anything
-        break;
-    }
-
-    // EXIT ------------------------------------------
-    if( wifiComFsmState != WIFI_STATE_INIT ){
-        stateEntryFlag = false;
     }
 }
 
 // Chequea si esta conectado y tiene IP.
 // Si está conectado y tiene IP pasa al estado WIFI_STATE_COMMUNICATIONS_INIT
-// Si no está conectado pasa al estado: WIFI_STATE_MODULE_NOT_CONNECTED
-static void runStateWifiModuleCheckAPConnection()
-{
-    static bool stateEntryFlag = false;
-    char ip[20] = ""; 
-    // ENTRY ----------------------------------------
-    if( stateEntryFlag == false ){
-        if( wifiModuleStartIsConnectedWithAP() != WIFI_MODULE_INIT_STARTED ){
-            return;
-        }
-        stateEntryFlag = true;
-    }
-
-    // CHECK TRANSITION CONDITIONS ------------------
-    switch( wifiModuleIsConnectedWithAPResponse( &ip ) ) {
-        case WIFI_MODULE_IS_CONNECTED:
-            pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
-            pcSerialComStringWrite( ip );
-            pcSerialComStringWrite( "\r\n" );
-            wifiComFsmState = WIFI_STATE_COMMUNICATION_INIT;
-        break;
-        case WIFI_MODULE_IS_NOT_CONNECTED:
-            pcSerialComStringWrite( "Wi-Fi module is not connected.\r\n" );
-            wifiComFsmState = WIFI_STATE_MODULE_NOT_CONNECTED;
-        break;
-        case WIFI_MODULE_NOT_DETECTED:
-            wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;
-        break;
-        default: // Module busy, not do anything
-        break;
-    }
-
-    // EXIT ------------------------------------------
-    if( wifiComFsmState != WIFI_STATE_MODULE_CHECK_AP_CONNECTION ){
-        stateEntryFlag = false;
-    }
-}
-
 // Si no está conectado reintenta conectarse cada 10 segundos.
 // Si no detecta el módulo vuelve a: 
-//     WIFI_STATE_MODULE_NOT_DETECTED.
-static void runStateWifiModuleNotConnected()
+//     WIFI_STATE_MODULE_NOT_DETECTED.   
+static void runStateWifiModuleWaitForAPConnection()
 {
     static bool stateEntryFlag = false;
-    char ip[20] = ""; 
-    static bool resetSended = false;
-    static delay_t reintentsDelay;
     // ENTRY ----------------------------------------
     if( stateEntryFlag == false ){
-        if( wifiModuleStartConnectWithAP( WIFI_SSID , WIFI_PASSWORD ) !=
-            WIFI_MODULE_CONNECT_AP_STARTED ){
-            return;
-        }        
-        pcSerialComStringWrite( "Wi-Fi try to connect with: " );
-        pcSerialComStringWrite( WIFI_SSID );
-        pcSerialComStringWrite( "\r\n" );
+        pcSerialComStringWrite( "\r\nWi-Fi module detected.\r\n" );
+        
         stateEntryFlag = true;
     }
 
-    // CHECK TRANSITION CONDITIONS ------------------
-    if( delayRead(&reintentsDelay) && !resetSended ) {
-        stateEntryFlag = false; // Asi relanzo el entry de este estado
-    }
+    // UPDATE OUTPUTS -------------------------------
 
-    switch( wifiModuleConnectWithAPResponse( &ip ) ) {
-        case WIFI_MODULE_IS_CONNECTED:
-            pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
-            pcSerialComStringWrite( ip );
-            pcSerialComStringWrite( "\r\n" );
-            wifiComFsmState = WIFI_STATE_COMMUNICATION_INIT;
-        break;
-        case WIFI_MODULE_NOT_DETECTED:
-            wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;          
-        break;
-        case WIFI_MODULE_BUSY: // Module busy, not do anything
-        break;
-        default: // Error trying to connect
-            pcSerialComStringWrite( "\r\nERROR: Wi-Fi not connected!\r\n" );
-            pcSerialComStringWrite( "It will re-intent automaticaly in 10 seconds...\r\n" );
-            delayInit( &reintentsDelay, 10000 );
-        break;
-    }
+
+    // CHECK TRANSITION CONDITIONS ------------------
+
 
     // EXIT ------------------------------------------
-    if( wifiComFsmState != WIFI_STATE_MODULE_NOT_CONNECTED ){
+    if( wifiComFsmState != WIFI_STATE_MODULE_WAIT_FOR_AP_CONNECTION ){
         stateEntryFlag = false;
+        // Code for exit from this state...  
+
     }
 }
 
@@ -293,18 +342,20 @@ static void runStateWifiCommunicationInit()
     // ENTRY ----------------------------------------
     if( stateEntryFlag == false ){
         stateEntryFlag = true;
-        pcSerialComStringWrite( "Wi-Fi communication initialized\r\n" );
+
     }
 
     // UPDATE OUTPUTS -------------------------------
 
 
     // CHECK TRANSITION CONDITIONS ------------------
-    wifiComFsmState != WIFI_STATE_COMMUNICATION_INIT;
+
 
     // EXIT ------------------------------------------
-    if( wifiComFsmState != WIFI_STATE_COMMUNICATION_UPDATE ){
+    if( wifiComFsmState != WIFI_STATE_COMMUNICATION_INIT ){
         stateEntryFlag = false;
+        // Code for exit from this state...  
+
     }
 }
 
@@ -320,7 +371,7 @@ static void runStateWifiCommunicationUpdate()
     // ENTRY ----------------------------------------
     if( stateEntryFlag == false ){
         stateEntryFlag = true;
-        pcSerialComStringWrite( "Wi-Fi communication Update\r\n" );
+
     }
 
     // UPDATE OUTPUTS -------------------------------
@@ -332,5 +383,7 @@ static void runStateWifiCommunicationUpdate()
     // EXIT ------------------------------------------
     if( wifiComFsmState != WIFI_STATE_COMMUNICATION_UPDATE ){
         stateEntryFlag = false;
+        // Code for exit from this state...  
+
     }
 }

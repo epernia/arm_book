@@ -5,13 +5,14 @@ RESPONSES
 Response: "OK\r\n"
 
 AT - Test AT commands
-AT+RST - Reset ESP8266
 AT+CWMODE=<mode> - Wi-Fi Mode (Station, Soft AP, Station+ Soft AP)
 
 AT+CIPMUX=<mode> - Set connection type (single or multiple)
 AT+CIPSERVER=<mode>[,<port>] - Deletes/Creates TCP Server
 
-AT+CIPMODE=<mode> - Set the Transmission Mode (este comando no esta ver si lo agrego en modulo esp8266_module.c/h, el ejemplo original que anda no lo usa)
+    AT+CIPMODE=<mode> - Set the Transmission Mode 
+    (este comando no esta ver si lo agrego en modulo esp8266_module.c/h, el
+    ejemplo original que anda no lo usa)
 
 Estos comandos se implementan asi:
     return esp8266SendCommandWithOkResponse( "AT+RST\r\n" );
@@ -40,6 +41,38 @@ AT+CIPMODE? - Query the Transmission Mode
     +CIPMODE:<mode>
     
     OK
+    
+AT+RST - Reset ESP8266
+>>> OK
+    WIFI DISCONNECT
+
+     ets Jan  8 2013,rst cause:2, boot mode:(3,6)
+
+    load 0x40100000, len 1396, room 16 
+    tail 4
+    chksum 0x89
+    load 0x3ffe8000, len 776, room 4 
+    tail 4
+    chksum 0xe8
+    load 0x3ffe8308, len 540, room 4 
+    tail 8
+    chksum 0xc0
+    csum 0xc0
+
+    2nd boot version : 1.4(b1)
+      SPI Speed      : 40MHz
+      SPI Mode       : DIO
+      SPI Flash Size & Map: 8Mbit(512KB+512KB)
+    jump to run user1 @ 1000
+
+    .ò..n't use rtc mem data
+    r0.æ$.’b.Ì÷
+    Ai-Thinker Technology Co.,Ltd.
+
+>>> ready
+    WIFI CONNECTED
+>>> WIFI GOT IP
+
 
 -------------------------------------------------------------------------------
 
@@ -466,32 +499,80 @@ Upgrade-Insecure-Requests: 1
 
 
 --------------------------------------------------
+FSM
+--------------------------------------------------
 
-AT
-    Si no da intento resetear.
-AT+CWMODE?
-    Si da 1 o 3 sigo
-    Si no
-        AT+CWMODE=1
-AT+CIFSR
-    Si da
-        +CIFSR:STAIP,"0.0.0.0"
-        +CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
+AT                                                    50 ms
+    AT+RST                                                5 s
+        AT+CWMODE?                                           50 ms
+AT+CWMODE=1                                           50 ms
+    AT+CWJAP="NISUTA-Home","CeMaThBe09241727"             20 s
+    AT+CIFSR                                              50 ms
+    AT+CIPMUX=1                                           50 ms
+AT+CIPSERVER=1,80                                     50 ms
+    +IPD...
+    AT+CIPSEND=0,54
+    AT+CIPCLOSE=0
 
-        OK
-    Tengo que conectar:
-        AT+CWJAP="NISUTA-Home","CeMaThBe09241727"
-    Si da
-        +CIFSR:STAIP,"192.168.1.101"
-        +CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
+-----------------------
 
-        OK
-    Esta conectado.
-Si esta conectado arranco el server y me quedo esperando peticiones:
+Detecto el modulo:
+
+    AT
+        Si no da intento resetear.
+        
+        AT+RST
+    
+Inicializo el módulo:
+
+    Chequeo modo del Wifi:
+        
+    AT+CWMODE?
+        Si da 1 o 3 sigo.
+        Si no lo seteo a 1:
+            AT+CWMODE=1
+        
+Chequeo que este conectado y tenga IP:
+        
+    AT+CIFSR
+        Si da
+            +CIFSR:STAIP,"0.0.0.0"
+            +CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
+
+            OK
+        Tengo que conectar:
+            AT+CWJAP="NISUTA-Home","CeMaThBe09241727"
+        Si da
+            +CIFSR:STAIP,"192.168.1.101"
+            +CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
+
+            OK
+        Esta conectado.
+
+Si esta conectado arranco el server:
+
     AT+CIPMUX=1
         OK
     AT+CIPSERVER=1,80
         OK
+
+Me quedo esperando peticiones:
+
+    0,CONNECT
+
+    +IPD...
+    si no respondo a tiempo y el usuario cierra el bowser me llega
+    0,CLOSED
+    
+Respondo a la peticion:
+
+    AT+CIPSEND=0,54
+
+    <!doctype html> <html> <body> Hello! </body> </html>
+
+    AT+CIPCLOSE=0
+
+--------------------------------------------------
 
 
 
