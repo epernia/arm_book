@@ -24,9 +24,15 @@
 
 //=====[Implementations of public functions]===================================
 
+// Update module status -------------------------------------------------------
+
+void wifiModuleUpdate() {
+    esp8266Update();
+}
+
 // Detect module --------------------------------------------------------------
 
-wifiComRequestResult_t wifiModuleStartDetection()
+wifiModuleRequestResult_t wifiModuleStartDetection()
 {
     switch( esp8266TestATSend() ) {
         case ESP8266_AT_SENT: return WIFI_MODULE_DETECTION_STARTED;
@@ -38,7 +44,7 @@ wifiComRequestResult_t wifiModuleStartDetection()
 // WIFI_MODULE_DETECTION_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleDetectionResponse()
+wifiModuleRequestResult_t wifiModuleDetectionResponse()
 {
     switch( esp8266TestATResponse() ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_DETECTED;
@@ -53,7 +59,7 @@ wifiComRequestResult_t wifiModuleDetectionResponse()
 
 // Reset module ---------------------------------------------------------------
 
-wifiComRequestResult_t wifiModuleStartReset()
+wifiModuleRequestResult_t wifiModuleStartReset()
 {
     switch( esp8266ResetSend() ) {
         case ESP8266_AT_SENT: return WIFI_MODULE_RESET_STARTED;
@@ -65,7 +71,7 @@ wifiComRequestResult_t wifiModuleStartReset()
 // WIFI_MODULE_RESET_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleResetResponse()
+wifiModuleRequestResult_t wifiModuleResetResponse()
 {
     switch( esp8266ResetResponse() ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_RESET_COMPLETE;
@@ -80,7 +86,7 @@ wifiComRequestResult_t wifiModuleResetResponse()
 
 // Initialize module ----------------------------------------------------------
 
-wifiComRequestResult_t wifiModuleStartInit()
+wifiModuleRequestResult_t wifiModuleStartInit()
 {
     return WIFI_MODULE_INIT_STARTED;
     switch( esp8266WiFiModeSetSend(ESP8266_WIFI_MODE_STATION) ) {
@@ -93,7 +99,7 @@ wifiComRequestResult_t wifiModuleStartInit()
 // WIFI_MODULE_INIT_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleInitResponse()
+wifiModuleRequestResult_t wifiModuleInitResponse()
 {
     switch( esp8266WiFiModeSetResponse() ) {
         case ESP8266_AT_RESPONDED: return WIFI_MODULE_INIT_COMPLETE;
@@ -110,7 +116,7 @@ wifiComRequestResult_t wifiModuleInitResponse()
 
 // Check if connected with AP
 
-wifiComRequestResult_t wifiModuleStartIsConnectedWithAP()
+wifiModuleRequestResult_t wifiModuleStartIsConnectedWithAP()
 {
     switch( esp8266LocalIPAddressGetSend() ) {
         case ESP8266_AT_SENT: return WIFI_MODULE_IS_CONNECTED_AP_STARTED;
@@ -122,7 +128,7 @@ wifiComRequestResult_t wifiModuleStartIsConnectedWithAP()
 // WIFI_MODULE_IS_CONNECTED_AP_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip )
+wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip )
 {
     esp8266ConnectionStatus_t connectionStatus;
     
@@ -148,7 +154,7 @@ wifiComRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip )
 
 // Connect with AP
 
-wifiComRequestResult_t wifiModuleStartConnectWithAP(
+wifiModuleRequestResult_t wifiModuleStartConnectWithAP(
     char const* ssid, char const* password )
 {
     return WIFI_MODULE_CONNECT_AP_STARTED;
@@ -157,7 +163,7 @@ wifiComRequestResult_t wifiModuleStartConnectWithAP(
 // WIFI_MODULE_CONNECT_AP_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleConnectWithAPResponse( char* ip )
+wifiModuleRequestResult_t wifiModuleConnectWithAPResponse( char* ip )
 {
     strcat( ip, "192.168.101.101" );
     return WIFI_MODULE_IS_CONNECTED;
@@ -175,7 +181,7 @@ wifiComRequestResult_t wifiModuleConnectWithAPResponse( char* ip )
 
 // Create a TCP Server --------------
 
-wifiComRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port )
+wifiModuleRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port )
 {
     return WIFI_MODULE_CREATE_TCP_SERVER_STARTED;
 }
@@ -183,7 +189,7 @@ wifiComRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port )
 // WIFI_MODULE_CREATE_TCP_SERVER_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleCreateTCPServerAtPortResponse()
+wifiModuleRequestResult_t wifiModuleCreateTCPServerAtPortResponse()
 {
     return WIFI_MODULE_CREATE_TCP_SERVER_COMPLETE;
 }
@@ -195,7 +201,7 @@ wifiComRequestResult_t wifiModuleCreateTCPServerAtPortResponse()
 
 // Delete TCP Server --------------
 
-wifiComRequestResult_t wifiModuleStartDeleteTCPServer()
+wifiModuleRequestResult_t wifiModuleStartDeleteTCPServer()
 {
     return WIFI_MODULE_DELETE_TCP_SERVER_STARTED;
 }
@@ -203,7 +209,7 @@ wifiComRequestResult_t wifiModuleStartDeleteTCPServer()
 // WIFI_MODULE_DELETE_TCP_SERVER_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleDeleteTCPServerResponse()
+wifiModuleRequestResult_t wifiModuleDeleteTCPServerResponse()
 {
     return WIFI_MODULE_DELETE_TCP_SERVER_COMPLETE;
 }
@@ -215,7 +221,7 @@ wifiComRequestResult_t wifiModuleDeleteTCPServerResponse()
 // Check if are a client pending request --------------
 // Note: PC should also connect to the same Access Point.
 
-wifiComRequestResult_t wifiModuleStartIsAClientRequestPending()
+wifiModuleRequestResult_t wifiModuleStartIsAClientRequestPending()
 {
     return WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED;
 }
@@ -223,7 +229,7 @@ wifiComRequestResult_t wifiModuleStartIsAClientRequestPending()
 // WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleIsAClientRequestPendingResponse( 
+wifiModuleRequestResult_t wifiModuleIsAClientRequestPendingResponse( 
     int* linkID ) //, 
 //    wifiComClientRequest_t* clientRequest )
 {
@@ -237,7 +243,7 @@ wifiComRequestResult_t wifiModuleIsAClientRequestPendingResponse(
 
 // Response to a client request --------------
 
-wifiComRequestResult_t wifiModuleStartRespondToClientRequest( 
+wifiModuleRequestResult_t wifiModuleStartRespondToClientRequest( 
     int linkID, 
     char const* response )
 {
@@ -247,7 +253,7 @@ wifiComRequestResult_t wifiModuleStartRespondToClientRequest(
 // WIFI_MODULE_RESPOND_TO_CLIENT_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleRespondToClientRequestResponse()
+wifiModuleRequestResult_t wifiModuleRespondToClientRequestResponse()
 {
     return WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE;
 }

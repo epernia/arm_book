@@ -48,7 +48,7 @@ typedef enum{
 
     WIFI_MODULE_RESPOND_TO_CLIENT_STARTED,
     WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE,
-} wifiComRequestResult_t;
+} wifiModuleRequestResult_t;
 
 /*
 typedef enum{
@@ -58,14 +58,18 @@ typedef enum{
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+// Update module status -------------------------------------------------------
+
+void wifiModuleUpdate();
+
 // Detect module --------------------------------------------------------------
 
-wifiComRequestResult_t wifiModuleStartDetection();
+wifiModuleRequestResult_t wifiModuleStartDetection();
 // Responses:
 // WIFI_MODULE_DETECTION_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleDetectionResponse();
+wifiModuleRequestResult_t wifiModuleDetectionResponse();
 // Responses:
 // WIFI_MODULE_DETECTED
 // WIFI_MODULE_NOT_DETECTED;
@@ -73,12 +77,12 @@ wifiComRequestResult_t wifiModuleDetectionResponse();
 
 // Reset module ---------------------------------------------------------------
 
-wifiComRequestResult_t wifiModuleStartReset();
+wifiModuleRequestResult_t wifiModuleStartReset();
 // Responses:
 // WIFI_MODULE_RESET_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleResetResponse();
+wifiModuleRequestResult_t wifiModuleResetResponse();
 // Responses:
 // WIFI_MODULE_RESET_COMPLETE
 // WIFI_MODULE_NOT_DETECTED
@@ -86,12 +90,12 @@ wifiComRequestResult_t wifiModuleResetResponse();
 
 // Initialize module ----------------------------------------------------------
 
-wifiComRequestResult_t wifiModuleStartInit();
+wifiModuleRequestResult_t wifiModuleStartInit();
 // Responses:
 // WIFI_MODULE_INIT_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleInitResponse();
+wifiModuleRequestResult_t wifiModuleInitResponse();
 // Responses:
 // WIFI_MODULE_INIT_COMPLETE
 // WIFI_MODULE_NOT_DETECTED
@@ -101,12 +105,12 @@ wifiComRequestResult_t wifiModuleInitResponse();
 
 // Check if connected with AP
 
-wifiComRequestResult_t wifiModuleStartIsConnectedWithAP();
+wifiModuleRequestResult_t wifiModuleStartIsConnectedWithAP();
 // Responses:
 // WIFI_MODULE_IS_CONNECTED_AP_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip );
+wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip );
 // Responses:
 // WIFI_MODULE_IS_CONNECTED (and fill ip variable)
 // WIFI_MODULE_IS_NOT_CONNECTED
@@ -115,13 +119,13 @@ wifiComRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip );
 
 // Connect with AP
 
-wifiComRequestResult_t wifiModuleStartConnectWithAP(
+wifiModuleRequestResult_t wifiModuleStartConnectWithAP(
     char const* ssid, char const* password );
 // Responses:
 // WIFI_MODULE_CONNECT_AP_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleConnectWithAPResponse( char* ip );
+wifiModuleRequestResult_t wifiModuleConnectWithAPResponse( char* ip );
 // Responses:
 // WIFI_MODULE_IS_CONNECTED (and fill ip variable)
 // WIFI_MODULE_CONNECT_AP_ERR_TIMEOUT
@@ -135,12 +139,12 @@ wifiComRequestResult_t wifiModuleConnectWithAPResponse( char* ip );
 
 // Create a TCP Server --------------
 
-wifiComRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port );
+wifiModuleRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port );
 // Responses:
 // WIFI_MODULE_CREATE_TCP_SERVER_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleCreateTCPServerAtPortResponse();
+wifiModuleRequestResult_t wifiModuleCreateTCPServerAtPortResponse();
 // Responses:
 // WIFI_MODULE_CREATE_TCP_SERVER_COMPLETE
 // WIFI_MODULE_CREATE_TCP_SERVER_ERR
@@ -149,12 +153,12 @@ wifiComRequestResult_t wifiModuleCreateTCPServerAtPortResponse();
 
 // Delete TCP Server --------------
 
-wifiComRequestResult_t wifiModuleStartDeleteTCPServer();
+wifiModuleRequestResult_t wifiModuleStartDeleteTCPServer();
 // Responses:
 // WIFI_MODULE_DELETE_TCP_SERVER_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleDeleteTCPServerResponse();
+wifiModuleRequestResult_t wifiModuleDeleteTCPServerResponse();
 // Responses:
 // WIFI_MODULE_DELETE_TCP_SERVER_COMPLETE
 // WIFI_MODULE_NOT_DETECTED
@@ -163,12 +167,12 @@ wifiComRequestResult_t wifiModuleDeleteTCPServerResponse();
 // Check if are a client pending request --------------
 // Note: PC should also connect to the same Access Point.
 
-wifiComRequestResult_t wifiModuleStartIsAClientRequestPending();
+wifiModuleRequestResult_t wifiModuleStartIsAClientRequestPending();
 // Responses:
 // WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleIsAClientRequestPendingResponse( 
+wifiModuleRequestResult_t wifiModuleIsAClientRequestPendingResponse( 
     int* linkID );//, 
 //    wifiComClientRequest_t* clientRequest );
 // Responses:
@@ -179,14 +183,14 @@ wifiComRequestResult_t wifiModuleIsAClientRequestPendingResponse(
 
 // Response to a client request --------------
 
-wifiComRequestResult_t wifiModuleStartRespondToClientRequest( 
+wifiModuleRequestResult_t wifiModuleStartRespondToClientRequest( 
     int linkID, 
     char const* response );
 // Responses:
 // WIFI_MODULE_RESPOND_TO_CLIENT_STARTED
 // WIFI_MODULE_BUSY
 
-wifiComRequestResult_t wifiModuleRespondToClientRequestResponse();
+wifiModuleRequestResult_t wifiModuleRespondToClientRequestResponse();
 // Responses:
 // WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE
 // WIFI_MODULE_NOT_DETECTED
