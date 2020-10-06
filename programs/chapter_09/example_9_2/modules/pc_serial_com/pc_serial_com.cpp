@@ -386,8 +386,6 @@ static void commandCheckIfWifiModuleIsDetected()
             wifiModuleDetectionMustBeChecked = true;
         break;
         case WIFI_MODULE_BUSY:
-            pcSerialComStringWrite( "Wi-Fi module detected.\r\n");          
-        break;
         default:
         break;
     }

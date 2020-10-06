@@ -11,7 +11,7 @@
 #include "event_log.h"
 #include "sd_card.h"
 #include "sapi.h"
-#include "wifi_com.h"
+#include "wifi_module.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -51,7 +51,6 @@ void smartHomeSystemUpdate()
         eventLogUpdate();
     }
     pcSerialComUpdate();
-    wifiComUpdate();
 }
 
 //=====[Implementations of private functions]==================================

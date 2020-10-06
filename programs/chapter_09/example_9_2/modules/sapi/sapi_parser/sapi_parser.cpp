@@ -35,30 +35,23 @@
 //==================[inclusions]===============================================
 
 #include "sapi_parser.h"
-#include "string.h"
 
 //==================[internal functions declaration]===========================
 
 //==================[external functions definition]============================
 
+// Initialize parser
 void parserInit( parser_t* instance,
                  char const* stringPattern, uint16_t stringPatternLen, 
                  tick_t timeout )
 {
-    instance->state            = PARSER_STOPPED;
+    instance->state            = PARSER_RECEIVING;
     instance->stringPattern    = stringPattern;
     instance->stringPatternLen = stringPatternLen;
     instance->timeout          = timeout;
-}
-
-void parserStart( parser_t* instance )
-{
-    instance->state = PARSER_START;
-}
-
-void parserStop( parser_t* instance )
-{
-    instance->state = PARSER_STOPPED;
+    
+    delayInit( &(instance->delay), instance->timeout );
+    instance->stringIndex = 0;
 }
 
 // Check for Receive a given pattern
@@ -68,18 +61,6 @@ parserStatus_t parserPatternMatchOrTimeout(
    switch( instance->state ) {
 
    // Initial state
-   case PARSER_STOPPED:
-   // Final states
-   case PARSER_PATTERN_MATCH:
-   case PARSER_TIMEOUT:
-      break;
-
-   case PARSER_START:
-      delayInit( &(instance->delay), instance->timeout );
-      instance->stringIndex = 0;
-      instance->state = PARSER_RECEIVING;
-      break;
-
    case PARSER_RECEIVING:
       if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
          (instance->stringIndex)++;
@@ -92,8 +73,10 @@ parserStatus_t parserPatternMatchOrTimeout(
       }
       break;
 
+   // Final states
+   case PARSER_PATTERN_MATCH:
+   case PARSER_TIMEOUT:
    default:
-      instance->state = PARSER_STOPPED;
       break;
    }
 

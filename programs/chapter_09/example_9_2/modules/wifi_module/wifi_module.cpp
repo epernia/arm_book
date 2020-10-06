@@ -1,12 +1,11 @@
 //=====[Libraries]=============================================================
 
-#include "esp8266_at.h"
-
-#include "mbed.h"
-#include "arm_book_lib.h"
+#include "wifi_module.h"
 #include "sapi.h"
 
 //=====[Declaration of private defines]========================================
+
+#define ESP8266_BAUD_RATE   115200
 
 //=====[Declaration of private data types]=====================================
 
@@ -33,55 +32,31 @@ static esp8266State_t esp8266State;
 
 //=====[Declarations (prototypes) of private functions]========================
 
+static bool esp8266UartByteRead( char* receivedByte );
+static void esp8266UartByteWrite( char byteToSend );
+static void esp8266UartStringWrite( char const* str );
+
 //=====[Implementations of public functions]===================================
 
-void esp8266UartInit( int baudRate )
-{
-    uartEsp8266.baud(baudRate);
-}
-
-bool esp8266UartByteRead( char* receivedByte )
-{
-    if( uartEsp8266.readable() ) {
-        *receivedByte = uartEsp8266.getc();
-        return true;
-    }
-    return false;
-}
-
-void esp8266UartByteWrite( char byteToSend )
-{
-    uartEsp8266.putc( byteToSend );
-}
-
-void esp8266UartStringWrite( char const* str )
-{
-    while ( *str != NULL ) {
-        esp8266UartByteWrite( (uint8_t)*str );
-        str++;
-    }
-}
-
-void esp8266Init()
-{
-    esp8266UartInit( ESP8266_BAUD_RATE );
+void wifiComInit()
+{  
+    uartEsp8266.baud(ESP8266_BAUD_RATE);
     esp8266State = ESP8266_IDLE;
 }
 
-esp8266RequestResult_t esp8266TestATSend()
-{
+wifiComRequestResult_t wifiModuleStartDetection()
+{    
     if( esp8266State == ESP8266_IDLE ){
         parserInit( &parser, "OK\r\n", strlen("OK\r\n"), 50 );
-        parserStart( &parser );
-        esp8266UartStringWrite( "AT\r\n" );
         esp8266State = ESP8266_PROCESSING_AT_COMMAND;
-        return ESP8266_AT_SENT;
+        esp8266UartStringWrite( "AT\r\n" );
+        return WIFI_MODULE_DETECTION_STARTED;
     } else {        
-        return ESP8266_AT_NOT_SENT;   
+        return WIFI_MODULE_BUSY;   
     }
 }
 
-esp8266RequestResult_t esp8266TestATResponse()
+wifiComRequestResult_t wifiModuleDetectionResponse()
 {
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );
@@ -91,16 +66,38 @@ esp8266RequestResult_t esp8266TestATResponse()
     switch( parserStatus ) {
         case PARSER_TIMEOUT:
             esp8266State = ESP8266_IDLE;
-            return ESP8266_AT_TIMEOUT;
+            return WIFI_MODULE_NOT_DETECTED;
         break;
         case PARSER_PATTERN_MATCH:
             esp8266State = ESP8266_IDLE;
-            return ESP8266_AT_RESPONDED;
+            return WIFI_MODULE_DETECTED;
         break;
         default:
-            return ESP8266_AT_RESPONSE_PENDING;
+            return WIFI_MODULE_BUSY;
         break;
     }
 }
 
 //=====[Implementations of private functions]==================================
+
+static bool esp8266UartByteRead( char* receivedByte )
+{
+    if( uartEsp8266.readable() ) {
+        *receivedByte = uartEsp8266.getc();
+        return true;
+    }
+    return false;
+}
+
+static void esp8266UartByteWrite( char byteToSend )
+{
+    uartEsp8266.putc( byteToSend );
+}
+
+static void esp8266UartStringWrite( char const* str )
+{
+    while ( *str != NULL ) {
+        esp8266UartByteWrite( (uint8_t)*str );
+        str++;
+    }
+}

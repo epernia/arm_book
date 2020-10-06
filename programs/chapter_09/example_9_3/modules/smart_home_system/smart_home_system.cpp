@@ -51,6 +51,7 @@ void smartHomeSystemUpdate()
         eventLogUpdate();
     }
     pcSerialComUpdate();
+    wifiComUpdate();
 }
 
 //=====[Implementations of private functions]==================================

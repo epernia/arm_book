@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _WIFI_COM_H_
-#define _WIFI_COM_H_
+#ifndef _WIFI_MODULE_H_
+#define _WIFI_MODULE_H_
 
 //=====[Libraries]=============================================================
 
@@ -26,4 +26,4 @@ wifiComRequestResult_t wifiModuleDetectionResponse();
 
 //=====[#include guards - end]=================================================
 
-#endif // _WIFI_COM_H_
+#endif // _WIFI_MODULE_H_

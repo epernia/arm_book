@@ -51,8 +51,6 @@ typedef enum{
    PARSER_PATTERN_MATCH,
    PARSER_TIMEOUT,
    PARSER_RECEIVING,
-   PARSER_STOPPED,
-   PARSER_START,
 } parserStatus_t;
 
 typedef struct{
@@ -66,15 +64,10 @@ typedef struct{
 
 /*==================[external functions declaration]=========================*/
 
-// Parser over UART reception functions ---------------------------------------
-
-void parserInit( parser_t* instance, //Serial* uart,
+// Initialize parser
+void parserInit( parser_t* instance,
                  char const* stringPattern, uint16_t stringPatternLen, 
                  tick_t timeout );
-
-void parserStart( parser_t* instance );
-
-void parserStop( parser_t* instance );
 
 // Check for Receive a given pattern
 parserStatus_t parserPatternMatchOrTimeout(

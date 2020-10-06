@@ -66,9 +66,8 @@ typedef struct{
 
 /*==================[external functions declaration]=========================*/
 
-// Parser over UART reception functions ---------------------------------------
-
-void parserInit( parser_t* instance, //Serial* uart,
+// Initialize parser
+void parserInit( parser_t* instance,
                  char const* stringPattern, uint16_t stringPatternLen, 
                  tick_t timeout );
 
