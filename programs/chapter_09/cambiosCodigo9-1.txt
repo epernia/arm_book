@@ -1,0 +1,16 @@
+ESP8266_AT en el .h
+
+Hacer commandCheckIfWifiModuleIsDetected como checkResponseForWifiModuleIsDetected()
+
+esp8266State_t -> esp8266ModuleState_t
+esp8266Status_t -> esp8266ATCommandState_t
+
+RESPONSE_PENDING
+
+AT_RESPONDED
+
+SENDED por SENT
+
+wifiModuleCheckResponse -> wifiModuleDetectionMustBeChecked
+
+Cambio en baudRate

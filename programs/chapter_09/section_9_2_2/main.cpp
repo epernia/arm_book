@@ -11,6 +11,7 @@ int main()
 {
     char receivedCharUsb;
     char receivedCharEsp;
+    bool prepareWeb = false;
 
     esp8266Uart.baud(ESP8266_BAUD_RATE);
     uartUsb.baud(UART_USB_BAUD_RATE);
@@ -21,8 +22,11 @@ int main()
 
         if( uartUsb.readable() ) {
             receivedCharUsb = uartUsb.getc();
-            if ( ( receivedCharUsb == 'h' ) || ( receivedCharUsb == 'H' ) )  {
-                esp8266Uart.printf("<!doctype html> <html> <body> Hello! </body> </html>");
+            if (prepareWeb) {
+                if ( ( receivedCharUsb == 'h' ) || ( receivedCharUsb == 'H' ) )  {
+                    esp8266Uart.printf("<!doctype html> <html> <body> Hello! </body> </html>");
+                    prepareWeb = false;
+                }
             } else if ( receivedCharUsb == '\r' ) {
                 esp8266Uart.printf("\r\n");
             } else {
@@ -33,6 +37,9 @@ int main()
         if ( esp8266Uart.readable() ) {
             receivedCharEsp = esp8266Uart.getc();
             uartUsb.putc( receivedCharEsp );
+            if (receivedCharEsp == '>') {
+                prepareWeb = true;
+            }
         }
     }
 }

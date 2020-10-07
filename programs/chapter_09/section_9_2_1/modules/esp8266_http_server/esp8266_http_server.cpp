@@ -175,6 +175,9 @@ static delay_t Esp8266Delay;
 
 /*==================[definiciones de datos externos]=========================*/
 
+extern char ssid[100];
+extern char pass[100];
+
 //Serial esp8266Uart(D1, D0); // UART de BLE
 
 // D42 = PE_8 = UART7_TX
@@ -327,16 +330,20 @@ void ExcecuteHttpServerFsm(void)
    switch (Esp8266Status) {
 
       case ESP_INIT:
-         delayConfig(&Esp8266Delay, ESP8266_PAUSE);
+         delayConfig(&Esp8266Delay, 1000);
          SetEsp8622Status(ESP_SEND_AT);
+         //pcSerialComStringWrite( "ESP_INIT\r\n" );
+         
       break;
 
       case ESP_SEND_AT:
          if (delayRead(&Esp8266Delay)) {
             esp8266UartStringWrite( "AT\r\n" );
+            //pcSerialComStringWrite( "SEND_AT\r\n" );
             Esp8266ResponseToWait = Response_OK;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_AT);
+            //pcSerialComStringWrite( "WAIT_AT\r\n" );
          }
       break;
 
@@ -355,7 +362,8 @@ void ExcecuteHttpServerFsm(void)
       case ESP_SEND_CWMODE:
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CWMODE=3\r\n");
-            esp8266UartStringWrite( "AT+CWMODE=3\r\n" );
+            esp8266UartStringWrite( "AT+CWMODE=1\r\n" );
+            //pcSerialComStringWrite( "SEND_AT+CWMODE=1\r\n" );
             Esp8266ResponseToWait = Response_OK;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_CWMODE);
@@ -378,6 +386,7 @@ void ExcecuteHttpServerFsm(void)
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CWJAP?\r\n");
             esp8266UartStringWrite( "AT+CWJAP?\r\n" );
+            //pcSerialComStringWrite( "SEND_AT+CWJAP?\r\n" );
             Esp8266ResponseToWait = Response_CWJAP_OK;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_CWJAP_CONS_1);
@@ -409,7 +418,8 @@ void ExcecuteHttpServerFsm(void)
       case ESP_SEND_CWMODE_SET:
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CWMODE=3\r\n");
-            esp8266UartStringWrite( "AT+CWMODE=3\r\n" );
+            esp8266UartStringWrite( "AT+CWMODE=1\r\n" );
+            //pcSerialComStringWrite( "SEND_AT+CWMODE=1\r\n" );
             Esp8266ResponseToWait = Response_OK;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_CWMODE_SET);
@@ -431,11 +441,12 @@ void ExcecuteHttpServerFsm(void)
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CWJAP=\"%s\",\"%s\"", WifiName, WifiPass);
             esp8266UartStringWrite( "AT+CWJAP=\"" );
-            esp8266UartStringWrite( WifiName );
+            esp8266UartStringWrite( ssid );
             esp8266UartStringWrite( "\",\"" );
-            esp8266UartStringWrite( WifiPass );
+            esp8266UartStringWrite( pass );
             esp8266UartStringWrite( "\"" );
             esp8266UartStringWrite( "\r\n" );
+            //pcSerialComStringWrite( "SEND_AT+CWJAP=ssid and pass\r\n" );
             Esp8266ResponseToWait = Response_CWJAP_1;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_CWJAP_SET_1);
@@ -477,6 +488,7 @@ void ExcecuteHttpServerFsm(void)
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CIPMUX=1\r\n");
             esp8266UartStringWrite( "AT+CIPMUX=1\r\n" );
+            //pcSerialComStringWrite( "SEND_AT+CIPMUX=1\r\n" );
             Esp8266ResponseToWait = Response_OK;
             delayConfig(&Esp8266Delay, ESP8266_TMO);
             SetEsp8622Status(ESP_WAIT_CIPMUX);
@@ -565,6 +577,7 @@ void ExcecuteHttpServerFsm(void)
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CIPSTATUS\r\n");
             esp8266UartStringWrite( "AT+CIPSTATUS\r\n" );
+            //pcSerialComStringWrite( "SEND_AT+CIPSTATUS\r\n" );
             Esp8266ResponseToWait = Response_STATUS_3;
             delayConfig(&Esp8266Delay, ESP8266_PAUSE);
             SetEsp8622Status(ESP_WAIT_CIPSTATUS_3);
@@ -580,6 +593,7 @@ void ExcecuteHttpServerFsm(void)
          if (delayRead(&Esp8266Delay)) {
             delayConfig(&Esp8266Delay, ESP8266_PAUSE);
             SetEsp8622Status(ESP_SEND_CIPSTATUS);
+            //pcSerialComStringWrite( "READY_FOR_REQUEST\r\n" );
          }
       break;
 
@@ -627,6 +641,7 @@ void ExcecuteHttpServerFsm(void)
          }
 //         stdioPrintf(ESP8266_UART, "AT+CIPSEND=%c,%d\r\n", CurrentConnectionId, lenghtOfHttpLines);
         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", CurrentConnectionId, lenghtOfHttpLines );
+        //pcSerialComStringWrite( "SEND_AT+CIPSEND\r\n" );
         esp8266UartStringWrite( strToSend );
 
          SetEsp8622Status(ESP_WAIT_CIPSEND);
@@ -649,6 +664,7 @@ void ExcecuteHttpServerFsm(void)
         esp8266UartStringWrite( PointerOfHttpHeader );
         esp8266UartStringWrite( PointerOfHttpBody );
         esp8266UartStringWrite( PointerOfHttpEnd );
+        //pcSerialComStringWrite( "SEND_HTTP\r\n" );
 
          SetEsp8622Status(ESP_WAIT_HTTP);
          Esp8266ResponseToWait = Response_SEND_OK;
@@ -669,6 +685,7 @@ void ExcecuteHttpServerFsm(void)
          if (delayRead(&Esp8266Delay)) {
 //            stdioPrintf(ESP8266_UART, "AT+CIPCLOSE=%c\r\n", CurrentConnectionId);
             sprintf( strToSend, "AT+CIPCLOSE=%c\r\n", CurrentConnectionId );
+            //pcSerialComStringWrite( "SEND_AT+CIPCLOSE\r\n" );
             esp8266UartStringWrite( strToSend );
             Esp8266ResponseToWait  = Response_CIPCLOSE;
             delayConfig(&Esp8266Delay, ESP8266_PAUSE);
