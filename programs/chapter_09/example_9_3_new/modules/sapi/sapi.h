@@ -1,4 +1,4 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,48 +30,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+#ifndef _SAPI_H_
+#define _SAPI_H_
 
 /*==================[inclusions]=============================================*/
 
-#include <sapi_datatypes.h>
-#include <sapi_delay.h>
+#include "sapi_datatypes.h"
 
-#include <arm_book_lib.h>
-#include <mbed.h>
+// Peripheral Drivers
 
-/*==================[macros]=================================================*/
+#include "sapi_tick.h"
 
-/*==================[typedef]================================================*/
+// High Level drivers
 
-typedef enum{
-   PARSER_PATTERN_MATCH,
-   PARSER_TIMEOUT,
-   PARSER_RECEIVING,
-} parserStatus_t;
+#include "sapi_parser.h"
+#include "sapi_convert.h"
+#include "sapi_delay.h"
 
-typedef struct{
-   parserStatus_t state;
-   char const*    stringPattern;
-   uint16_t       stringPatternLen;
-   uint16_t       stringIndex;
-   tick_t         timeout;
-   delay_t        delay;
-} parser_t;
+// External Peripheral Drivers
 
-/*==================[external functions declaration]=========================*/
+//#include "sapi_esp8266.h"
 
-// Initialize parser
-void parserInit( parser_t* instance,
-                 char const* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+/*==================[c++]====================================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar );
+/*==================[c++]====================================================*/
+#ifdef __cplusplus
+}
+#endif
 
 /*==================[end of file]============================================*/
-#endif
+#endif /* _SAPI_H_ */

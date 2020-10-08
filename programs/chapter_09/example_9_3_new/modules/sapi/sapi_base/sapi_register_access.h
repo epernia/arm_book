@@ -1,4 +1,4 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,48 +30,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+#ifndef _SAPI_REGISTER_ACCESS_H_
+#define _SAPI_REGISTER_ACCESS_H_
 
-/*==================[inclusions]=============================================*/
+//==================[inclusions]===============================================
 
-#include <sapi_datatypes.h>
-#include <sapi_delay.h>
-
-#include <arm_book_lib.h>
+#include <stdint.h>
 #include <mbed.h>
 
-/*==================[macros]=================================================*/
-
-/*==================[typedef]================================================*/
-
-typedef enum{
-   PARSER_PATTERN_MATCH,
-   PARSER_TIMEOUT,
-   PARSER_RECEIVING,
-} parserStatus_t;
-
-typedef struct{
-   parserStatus_t state;
-   char const*    stringPattern;
-   uint16_t       stringPatternLen;
-   uint16_t       stringIndex;
-   tick_t         timeout;
-   delay_t        delay;
-} parser_t;
-
-/*==================[external functions declaration]=========================*/
-
-// Initialize parser
-void parserInit( parser_t* instance,
-                 char const* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
-
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar );
-
-/*==================[end of file]============================================*/
+//==================[c++]======================================================
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+//==================[macros]===================================================
+
+// Register direct access definitions
+// From: https://es.coursera.org/lecture/embedded-software-hardware/9-register-definition-files-6pqVq
+
+//  __I Defines 'read only' permissions: volatile const
+//  __O Defines 'write only' permissions: volatile
+// __IO Defines 'read / write' permissions: volatile
+
+#define HW_REG_8_R(x)     (*((__I  uint8_t *)(x)))
+#define HW_REG_16_R(x)    (*((__I uint16_t *)(x)))
+#define HW_REG_32_R(x)    (*((__I uint32_t *)(x)))
+
+#define HW_REG_8_W(x)     (*((__O  uint8_t *)(x)))
+#define HW_REG_16_W(x)    (*((__O uint16_t *)(x)))
+#define HW_REG_32_W(x)    (*((__O uint32_t *)(x)))
+
+#define HW_REG_8_RW(x)    (*((__IO  uint8_t *)(x)))
+#define HW_REG_16_RW(x)   (*((__IO uint16_t *)(x)))
+#define HW_REG_32_RW(x)   (*((__IO uint32_t *)(x)))
+
+// Example:
+//#define REG_NAME   (HW_REG_32_RW(0x4544555))
+
+//==================[c++]======================================================
+#ifdef __cplusplus
+}
+#endif
+
+//==================[end of file]==============================================
+#endif // _SAPI_REGISTER_ACCESS_H_

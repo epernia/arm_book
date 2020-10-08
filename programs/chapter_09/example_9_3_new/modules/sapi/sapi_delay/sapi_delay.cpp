@@ -1,4 +1,4 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,59 +30,79 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
 //==================[inclusions]===============================================
 
-#include "sapi_parser.h"
+#include <sapi_delay.h>
 
-//==================[internal functions declaration]===========================
+//==================[external data definition]=================================
+
+extern tick_t tickRateMS;
 
 //==================[external functions definition]============================
 
-// Initialize parser
-void parserInit( parser_t* instance,
-                 char const* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout )
+// ---- Inaccurate Blocking Delay ----
+
+void delayInaccurateMs(tick_t delay_ms)
 {
-    instance->state            = PARSER_RECEIVING;
-    instance->stringPattern    = stringPattern;
-    instance->stringPatternLen = stringPatternLen;
-    instance->timeout          = timeout;
-    
-    delayInit( &(instance->delay), instance->timeout );
-    instance->stringIndex = 0;
+   volatile tick_t i;
+   volatile tick_t delay;
+   delay = INACCURATE_TO_MS * delay_ms;
+   for( i=delay; i>0; i-- );
 }
 
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar )
+void delayInaccurateUs( tick_t delay_us )
 {
-   switch( instance->state ) {
+   volatile tick_t i;
+   volatile tick_t delay;
+   delay = (INACCURATE_TO_US_x10 * delay_us) / 10;
+   for( i=delay; i>0; i-- );
+}
 
-   // Initial state
-   case PARSER_RECEIVING:
-      if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
-         if( (instance->stringIndex) == (instance->stringPatternLen) ) {
-            instance->state = PARSER_PATTERN_MATCH;
-         }
-         (instance->stringIndex)++;
-      }
-      if( delayRead( &(instance->delay) ) ) {
-         instance->state = PARSER_TIMEOUT;
-      }
-      break;
+void delayInaccurateNs( tick_t delay_ns )
+{
+   volatile tick_t i;
+   volatile float delayF = (float)delay_ns / INACCURATE_MIN_NS;
+   for( i=(tick_t)round(delayF); i>0; i-- );
+}
 
-   // Final states
-   case PARSER_PATTERN_MATCH:
-   case PARSER_TIMEOUT:
-   default:
-      break;
+// ---- Blocking Delay --------
+
+void delay( tick_t duration_ms )
+{
+   tick_t startTime = tickRead();
+   while ( (tick_t)(tickRead() - startTime) < duration_ms / tickRateMS );
+}
+
+// ---- Non Blocking Delay ----
+
+void delayInit( delay_t * delay, tick_t duration_ms )
+{
+   delay->duration = duration_ms / tickRateMS;
+   delay->running = 0;
+}
+
+bool delayRead( delay_t * delay )
+{
+   bool timeArrived = 0;
+
+   if( !delay->running ) {
+      delay->startTime = tickRead();
+      delay->running = 1;
+   } else {
+      if ( (tick_t)(tickRead() - delay->startTime) >= delay->duration ) {
+         timeArrived = 1;
+         delay->running = 0;
+      }
    }
 
-   return instance->state;
+   return timeArrived;
 }
 
-//==================[internal functions definition]============================
+void delayWrite( delay_t * delay, tick_t duration_ms )
+{
+   delay->duration = duration_ms / tickRateMS;
+}
 
 //==================[end of file]==============================================

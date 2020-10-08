@@ -30,48 +30,58 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2016-06-05
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
-
-/*==================[inclusions]=============================================*/
+//==================[inclusions]===============================================
 
 #include <sapi_datatypes.h>
-#include <sapi_delay.h>
 
-#include <arm_book_lib.h>
-#include <mbed.h>
+//==================[macros and definitions]===================================
 
-/*==================[macros]=================================================*/
+//==================[internal data declaration]================================
 
-/*==================[typedef]================================================*/
+//==================[internal functions declaration]===========================
 
-typedef enum{
-   PARSER_PATTERN_MATCH,
-   PARSER_TIMEOUT,
-   PARSER_RECEIVING,
-} parserStatus_t;
+//==================[internal data definition]=================================
 
-typedef struct{
-   parserStatus_t state;
-   char const*    stringPattern;
-   uint16_t       stringPatternLen;
-   uint16_t       stringIndex;
-   tick_t         timeout;
-   delay_t        delay;
-} parser_t;
+//==================[external data definition]=================================
 
-/*==================[external functions declaration]=========================*/
+//==================[internal functions definition]============================
 
-// Initialize parser
-void parserInit( parser_t* instance,
-                 char const* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+//==================[external functions definition]============================
 
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar );
+// Null Function Pointer definition
+// --------------------------------------
+// param:  void * - Not used
+// return: bool_t - Return always true
+bool sAPI_NullFuncPtr( void* ptr )
+{
+   return 1;
+}
 
-/*==================[end of file]============================================*/
-#endif
+//==================[ISR external functions definition]========================
+
+//==================[end of file]==============================================
+
+// EASTER EGG FUNCTION POINTER VECTOR EXAMPLE
+
+/*
+// Fuinction to avoid NULL pointer
+void dummy(void){
+    return;
+}
+
+// Function pointer typedef definition
+typedef void (*voidFunctionPointer_t)(void);
+
+// Function pointer array variable definition initialized with dummy (NULL)
+voidFunctionPointer_t voidFunctionPointer[2] = {dummy, dummy};
+
+// Execute the funcion
+(* voidFunctionPointer[0] )();
+(* voidFunctionPointer[1] )();
+
+// Asign a function on each array position
+voidFunctionPointer[0] = ledB;
+voidFunctionPointer[1] = led1;
+*/

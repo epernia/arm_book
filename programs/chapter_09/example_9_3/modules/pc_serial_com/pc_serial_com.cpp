@@ -13,18 +13,30 @@
 #include "gas_sensor.h"
 #include "event_log.h"
 #include "sd_card.h"
+#include "sapi.h"
 #include "wifi_module.h"
+#include "string.h"
 
 //=====[Declaration of private defines]========================================
+
+#define PC_SERIAL_AP_CREDENTIALS_TIMEOUT          15000 // 15000 ms or 15 seconds
+#define PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN   WIFI_MODULE_CREDENTIAL_MAX_LEN + 20
 
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
-    PC_SERIAL_GET_FILE_NAME,
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
+    PC_SERIAL_GET_FILE_NAME,
+    PC_SERIAL_GET_WIFI_AP_CREDENTIALS,
 } pcSerialComMode_t;
+
+typedef enum{
+    SET_AP_CREDENTIALS_WAIT_SSID,
+    SET_AP_CREDENTIALS_WAIT_SSID_CONFIRMATION,
+    SET_AP_CREDENTIALS_WAIT_PASSWORD,
+} setWiFiAPCredentials_t; 
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -40,12 +52,18 @@ char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
 //=====[Declaration and initialization of private global variables]============
 
-static char fileName[40];
-
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
+
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfFileNameChar = 0;
+
+static char fileName[40];
+
+static int credentialBufferIdx = 0;
+static char credentialBuffer[PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN] = "";
+static parser_t parser;
+static setWiFiAPCredentials_t setWiFiAPCredentialsState;
 
 static bool wifiModuleDetectionMustBeChecked = false;
 
@@ -55,6 +73,8 @@ static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 static void pcSerialComGetFileName( char receivedChar );
 static void pcSerialComShowSdCardFile( char * readBuffer ) ;
+static void pcSerialComGetWiFiAPCredentials( char receivedChar );
+static void checkIfWiFiModuleIsDetected();
 
 static void pcSerialComCommandUpdate( char receivedChar );
 
@@ -62,7 +82,6 @@ static void availableCommands();
 static void commandShowCurrentSirenState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTemperatureDetectorState();
-static void commandGetFileName();
 static void commandEnterCodeSequence();
 static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
@@ -71,10 +90,10 @@ static void commandSetDateAndTime();
 static void commandShowDateAndTime();
 static void commandShowStoredEvents();
 static void commandEventLogSaveToSdCard();
+static void commandGetFileName();
 static void commandsdCardListFiles();
+static void commandSetAPWifiCredentials();
 static void commandCheckIfWifiModuleIsDetected();
-
-static void checkIfWiFiModuleIsDetected();
 
 //=====[Implementations of public functions]===================================
 
@@ -114,26 +133,38 @@ void pcSerialComUpdate()
         checkIfWiFiModuleIsDetected();
     }
     char receivedChar = pcSerialComCharRead();
-    if( receivedChar != '\0' ) {
-        switch ( pcSerialComMode ) {
-            case PC_SERIAL_GET_FILE_NAME:
-                pcSerialComGetFileName( receivedChar );
-            break;
-            case PC_SERIAL_COMMANDS:
+    switch ( pcSerialComMode ) {
+        case PC_SERIAL_COMMANDS:
+            if( receivedChar != '\0' ) {
                 pcSerialComCommandUpdate( receivedChar );
-            break;
+            }
+        break;
 
-            case PC_SERIAL_GET_CODE:
+        case PC_SERIAL_GET_CODE:
+            if( receivedChar != '\0' ) {
                 pcSerialComGetCodeUpdate( receivedChar );
-            break;
+            }
+        break;
 
-            case PC_SERIAL_SAVE_NEW_CODE:
+        case PC_SERIAL_SAVE_NEW_CODE:
+            if( receivedChar != '\0' ) {
                 pcSerialComSaveNewCodeUpdate( receivedChar );
-            break;
-            default:
-                pcSerialComMode = PC_SERIAL_COMMANDS;
-            break;
-        }
+            }
+        break;
+
+        case PC_SERIAL_GET_FILE_NAME:
+            if( receivedChar != '\0' ) {
+                pcSerialComGetFileName( receivedChar );
+            }
+        break;
+
+        case PC_SERIAL_GET_WIFI_AP_CREDENTIALS:
+            pcSerialComGetWiFiAPCredentials( receivedChar );
+        break;
+
+        default:
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        break;
     }
 }
 
@@ -192,6 +223,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'o': case 'O': commandGetFileName(); break;
         case 'l': case 'L': commandsdCardListFiles(); break;
+        case 'a': case 'A': commandSetAPWifiCredentials(); break; 
         case 'd': case 'D': commandCheckIfWifiModuleIsDetected(); break;
         default: availableCommands(); break;
     } 
@@ -213,6 +245,7 @@ static void availableCommands()
     uartUsb.printf( "Press 'w' or 'W' to store new events in SD Card\r\n" );
     uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
+    uartUsb.printf( "Press 'a' or 'A' to set Wi-Fi AP credentials\r\n" );
     uartUsb.printf( "Press 'd' or 'D' to test if Wi-Fi module is detected\r\n" );
     uartUsb.printf( "\r\n" );
 }
@@ -255,13 +288,6 @@ static void commandEnterCodeSequence()
     } else {
         uartUsb.printf( "Alarm is not activated.\r\n" );
     }
-}
-
-static void commandGetFileName()
-{
-    uartUsb.printf( "Please enter the file name \r\n" );
-    pcSerialComMode = PC_SERIAL_GET_FILE_NAME ;
-    numberOfFileNameChar = 0;
 }
 
 static void commandEnterNewCode()
@@ -354,6 +380,12 @@ static void commandShowStoredEvents()
     }
 }
 
+static void commandGetFileName()
+{
+    uartUsb.printf( "Please enter the file name \r\n" );
+    pcSerialComMode = PC_SERIAL_GET_FILE_NAME ;
+    numberOfFileNameChar = 0;
+}
 static void pcSerialComGetFileName( char receivedChar )
 {
     if ( receivedChar == '\r' ) {
@@ -368,7 +400,7 @@ static void pcSerialComGetFileName( char receivedChar )
     }
 }
 
-static void pcSerialComShowSdCardFile( char * fileName ) 
+static void pcSerialComShowSdCardFile( char* fileName ) 
 {
     systemBuffer[0] = NULL;
     pcSerialComStringWrite( "\r\n" );
@@ -379,6 +411,147 @@ static void pcSerialComShowSdCardFile( char * fileName )
     }
 }
 
+static void commandSetAPWifiCredentials()
+{
+    pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS;
+
+    pcSerialComStringWrite("\r\nPlease provide the SSID and password of the "); 
+    pcSerialComStringWrite("Wi-Fi Access Point.\r\nNote that:\r\n");
+    pcSerialComStringWrite(" - You have 15 seconds to complete each operation.");
+    pcSerialComStringWrite("\r\n - Maximum length of SSID or password is 100");
+    pcSerialComStringWrite(" characters.\r\n");
+
+    pcSerialComStringWrite("\r\nType the Wi-Fi SSID using the format:\r\n");
+    pcSerialComStringWrite("SSID:myssid\r\n");
+    pcSerialComStringWrite("and press the Enter key.\r\n");
+
+    setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_SSID;
+    credentialBufferIdx = 0;
+    credentialBuffer[0] = '\0';
+
+    parserInit( &parser, "SSID:\r", strlen("SSID:\r"), 
+                PC_SERIAL_AP_CREDENTIALS_TIMEOUT );
+}
+
+static void pcSerialComGetWiFiAPCredentials( char receivedChar ) 
+{
+    parserStatus_t parserStatus;
+
+    if( receivedChar != '\0' && receivedChar == '\r' ) {
+        pcSerialComStringWrite( "\r\n" );
+    } else {
+        pcSerialComCharWrite( receivedChar );
+    }
+
+    switch( setWiFiAPCredentialsState ) {
+
+    case SET_AP_CREDENTIALS_WAIT_SSID:
+        // Update outputs
+        parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+        if( receivedChar != '\0' &&
+            credentialBufferIdx < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+            credentialBuffer[credentialBufferIdx] = receivedChar;
+            credentialBufferIdx++;
+        }
+        // Check transition conditions or end the FSM execution
+        if( parserStatus == PARSER_PATTERN_MATCH ) {
+            credentialBuffer[credentialBufferIdx-1] = '\0'; // Reemplazo el '\r' del enter final que me mandaron por un '\0' (NULL)
+ 
+            pcSerialComStringWrite("\r\nYour Wi-Fi SSID is ");
+            pcSerialComStringWrite( credentialBuffer + strlen("SSID:") ); // muestro solo el ssid del usuario esquivando "SSID:"
+            pcSerialComStringWrite("?\r\n");
+
+            pcSerialComStringWrite("Please type OK (uppercase) and press the"); 
+            pcSerialComStringWrite(" Enter key to confirm.\r\n");
+            pcSerialComStringWrite("If is not correct just wait until ");
+            pcSerialComStringWrite("timout.\r\n");
+
+            setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_SSID_CONFIRMATION;
+
+            parserInit( &parser, "OK\r", strlen("OK\r"), 
+                        PC_SERIAL_AP_CREDENTIALS_TIMEOUT );
+        }
+        if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+            pcSerialComStringWrite("\r\n\r\nMaximum length of SSID is 100 ");
+            pcSerialComStringWrite("characters. Press 'a' or 'A' to retry.\r\n" );
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        }
+        if( parserStatus == PARSER_TIMEOUT ) {
+            pcSerialComStringWrite("\r\nA timeout occurred while waiting for a ");
+            pcSerialComStringWrite("SSID. Press 'a' or 'A' to retry.\r\n" );
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        }
+    break;
+
+    case SET_AP_CREDENTIALS_WAIT_SSID_CONFIRMATION:
+        // Update outputs
+        parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+        // Check transition conditions or end the FSM execution
+        if( parserStatus == PARSER_PATTERN_MATCH ) {
+            wifiModuleSetAP_SSID( credentialBuffer + strlen("SSID:") ); // Guardo solo el ssid del usuario esquivando "SSID:"
+            credentialBufferIdx = 0;     // Reseteo las variables para guardar luego el password
+            credentialBuffer[0] = '\0';
+            pcSerialComStringWrite("\r\nSSID saved.\r\n\r\n");
+
+            pcSerialComStringWrite("Type the Wi-Fi password using the format:");
+            pcSerialComStringWrite("\r\n+PASSWORD,\"mypassword\"\r\n");
+            pcSerialComStringWrite("and press the Enter key.\r\n");
+
+            setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_PASSWORD;
+
+            parserInit( &parser, "+PASSWORD,\"\"\r", 
+                        strlen("+PASSWORD,\"\"\r"), 
+                        PC_SERIAL_AP_CREDENTIALS_TIMEOUT );
+        }
+        if( parserStatus == PARSER_TIMEOUT ) {
+            pcSerialComStringWrite("\r\nA timeout occurred while waiting for ");
+            pcSerialComStringWrite("confirmation. Press 'a' or 'A' to retry.");
+            pcSerialComStringWrite("\r\n" );
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        }
+    break;
+
+    case SET_AP_CREDENTIALS_WAIT_PASSWORD:
+        // Update outputs
+        parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );   
+        if( receivedChar != '\0' &&
+            credentialBufferIdx < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+            credentialBuffer[credentialBufferIdx] = receivedChar;
+            credentialBufferIdx++;
+        }
+        // Check transition conditions or end the FSM execution
+        if( parserStatus == PARSER_PATTERN_MATCH ) {
+            credentialBuffer[credentialBufferIdx-2] = '\0'; // Reemplazo el '\"\r' del final que me mandaron por un '\0' (NULL)
+            wifiModuleSetAP_Password( credentialBuffer + strlen("+PASSWORD,\"") ); // Guardo solo el password del usuario esquivando "+PASSWORD,"
+
+            pcSerialComStringWrite("\r\nThe Wi-Fi credentials provided are:");
+            pcSerialComStringWrite("\r\n  SSID: ");
+            pcSerialComStringWrite( wifiModuleGetAP_SSID() );
+            pcSerialComStringWrite("\r\n  Password: ");
+            pcSerialComStringWrite( wifiModuleGetAP_Password() );
+            pcSerialComStringWrite("\r\n");
+
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        }
+        if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+            pcSerialComStringWrite("\r\n\r\nMaximum length of password is 100");
+            pcSerialComStringWrite(" characters. Press 'a' or 'A' to ");
+            pcSerialComStringWrite("retry.\r\n" );
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        }
+        if( parserStatus == PARSER_TIMEOUT ) {
+            pcSerialComStringWrite("\r\nA timeout occurred while waiting for ");
+            pcSerialComStringWrite("password. Press 'a' or 'A' to retry.\r\n" );
+            pcSerialComMode = PC_SERIAL_COMMANDS;
+        }        
+    break;
+
+    default:
+        pcSerialComMode = PC_SERIAL_COMMANDS;
+    break;
+    }
+}
+
 static void commandCheckIfWifiModuleIsDetected()
 {
     switch( wifiModuleStartDetection() ) {
@@ -386,8 +559,6 @@ static void commandCheckIfWifiModuleIsDetected()
             wifiModuleDetectionMustBeChecked = true;
         break;
         case WIFI_MODULE_BUSY:
-            pcSerialComStringWrite( "Wi-Fi module detected.\r\n");          
-        break;
         default:
         break;
     }

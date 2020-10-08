@@ -1,4 +1,6 @@
-/* Copyright 2016, Eric Pernia.
+/* Copyright 2015-2018, Eric Pernia.
+ * Copyright 2018, Martin Ribelotta.
+ * Copyright 2018, Eric Pernia.
  * All rights reserved.
  *
  * This file is part sAPI library for microcontrollers.
@@ -30,48 +32,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// File creation date: 2016-03-01
+// File creation date: 2015-09-23
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+//=====[#include guards - begin]===============================================
 
-/*==================[inclusions]=============================================*/
+#ifndef _SAPI_TICK_H_
+#define _SAPI_TICK_H_
+
+//=====[Libraries]=============================================================
 
 #include <sapi_datatypes.h>
-#include <sapi_delay.h>
 
-#include <arm_book_lib.h>
-#include <mbed.h>
+//=====[Declarations (prototypes) of public functions]=========================
 
-/*==================[macros]=================================================*/
+// Tick Initialization and rate configuration from 1 to 1000 ms
+bool tickInit( tick_t tickRateMSvalue );
 
-/*==================[typedef]================================================*/
+// Read Tick Counter
+tick_t tickRead( void );
 
-typedef enum{
-   PARSER_PATTERN_MATCH,
-   PARSER_TIMEOUT,
-   PARSER_RECEIVING,
-} parserStatus_t;
+// Write Tick Counter
+void tickWrite( tick_t ticks );
 
-typedef struct{
-   parserStatus_t state;
-   char const*    stringPattern;
-   uint16_t       stringPatternLen;
-   uint16_t       stringIndex;
-   tick_t         timeout;
-   delay_t        delay;
-} parser_t;
+// Tick interrupt callback
+bool tickCallbackSet( callBackFuncPtr_t tickCallback, void* tickCallbackParams );
 
-/*==================[external functions declaration]=========================*/
+// Enable or disable the peripheral energy and clock
+void tickPowerSet( bool power );
 
-// Initialize parser
-void parserInit( parser_t* instance,
-                 char const* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+//=====[#include guards - end]=================================================
 
-// Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar );
-
-/*==================[end of file]============================================*/
 #endif

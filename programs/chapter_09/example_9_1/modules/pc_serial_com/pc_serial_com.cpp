@@ -485,13 +485,13 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
             pcSerialComStringWrite("\r\nSSID saved.\r\n\r\n");
 
             pcSerialComStringWrite("Type the Wi-Fi password using the format:");
-            pcSerialComStringWrite("\r\n+PASSWORD,\"mypassword\"\r\n");
+            pcSerialComStringWrite("\r\nPASSWORD,\"mypassword\"\r\n");
             pcSerialComStringWrite("and press the Enter key.\r\n");
 
             setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_PASSWORD;
 
-            parserInit( &parser, "+PASSWORD,\"\"\r", 
-                        strlen("+PASSWORD,\"\"\r"), 
+            parserInit( &parser, "PASSWORD,\"\"\r", 
+                        strlen("PASSWORD,\"\"\r"), 
                         PC_SERIAL_AP_CREDENTIALS_TIMEOUT );
         }
         if( parserStatus == PARSER_TIMEOUT ) {
@@ -513,7 +513,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         // Check transition conditions or end the FSM execution
         if( parserStatus == PARSER_PATTERN_MATCH ) {
             credentialBuffer[credentialBufferIdx-2] = '\0'; // Reemplazo el '\"\r' del final que me mandaron por un '\0' (NULL)
-            wifiModuleSetAP_Password( credentialBuffer + strlen("+PASSWORD,\"") ); // Guardo solo el password del usuario esquivando "+PASSWORD,"
+            wifiModuleSetAP_Password( credentialBuffer + strlen("PASSWORD,\"") ); // Guardo solo el password del usuario esquivando "PASSWORD,"
 
             pcSerialComStringWrite("\r\nThe Wi-Fi credentials provided are:");
             pcSerialComStringWrite("\r\n  SSID: ");
