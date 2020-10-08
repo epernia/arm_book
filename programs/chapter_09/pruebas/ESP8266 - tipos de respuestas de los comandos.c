@@ -131,7 +131,7 @@ AT+CIPSTART... - Establishes TCP, UDP or SSL Connection
     ALREADY	CONNECT
 
 -------------------------------------------------------------------------------
-Other responses: 
+Other responses:
 -------------------------------------------------------------------------------
 
 AT+CIPSTATUS - Gets the Connection Status

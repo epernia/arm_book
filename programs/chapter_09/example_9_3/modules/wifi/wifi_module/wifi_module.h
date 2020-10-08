@@ -7,195 +7,34 @@
 
 //=====[Declaration of public defines]=========================================
 
+#define WIFI_MODULE_CREDENTIAL_MAX_LEN   101
+
 //=====[Declaration of public data types]======================================
 
 typedef enum{
+    WIFI_MODULE_AP_SSID_SAVED,
+    WIFI_MODULE_AP_SSID_NOT_SAVED,
+    WIFI_MODULE_AP_PASSWORD_SAVED,
+    WIFI_MODULE_AP_PASSWORD_NOT_SAVED,
     WIFI_MODULE_BUSY,
-
     WIFI_MODULE_DETECTION_STARTED,
     WIFI_MODULE_DETECTED,
     WIFI_MODULE_NOT_DETECTED,
-
-    WIFI_MODULE_RESET_STARTED,
-    WIFI_MODULE_RESET_COMPLETE,
-
-    WIFI_MODULE_INIT_STARTED,
-    WIFI_MODULE_INIT_COMPLETE,
-
-    WIFI_MODULE_IS_CONNECTED_AP_STARTED,
-    WIFI_MODULE_IS_CONNECTED,
-    WIFI_MODULE_IS_NOT_CONNECTED,
-
-    WIFI_MODULE_CONNECT_AP_STARTED,
-    WIFI_MODULE_CONNECT_AP_ERR_TIMEOUT,
-    WIFI_MODULE_CONNECT_AP_ERR_WRONG_PASS,
-    WIFI_MODULE_CONNECT_AP_ERR_AP_NOT_FOUND,
-    WIFI_MODULE_CONNECT_AP_ERR_CONN_FAIL,
-
-    WIFI_MODULE_IP_GET_STARTED,
-    WIFI_MODULE_IP_GET_COMPLETE,
-
-    WIFI_MODULE_CREATE_TCP_SERVER_STARTED,
-    WIFI_MODULE_CREATE_TCP_SERVER_COMPLETE,
-    WIFI_MODULE_CREATE_TCP_SERVER_ERR,
-
-    WIFI_MODULE_DELETE_TCP_SERVER_STARTED,
-    WIFI_MODULE_DELETE_TCP_SERVER_COMPLETE,
-
-    WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED,
-    WIFI_MODULE_CLIENT_REQUEST_PENDING,
-    WIFI_MODULE_NO_CLIENT_REQUEST_PENDING,
-
-    WIFI_MODULE_RESPOND_TO_CLIENT_STARTED,
-    WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE,
-} wifiModuleRequestResult_t;
-
-/*
-typedef enum{
-    WIFI_MODULE_CLIENT_REQ_INDEX,
-} wifiComClientRequest_t;
-*/
+} wifiComRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-// Update module status -------------------------------------------------------
+void wifiComInit();
 
-void wifiModuleUpdate();
+wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
+wifiComRequestResult_t wifiModuleSetAP_Password( char const* password );
+char const* wifiModuleGetAP_SSID();
+char const* wifiModuleGetAP_Password();
 
-// Detect module --------------------------------------------------------------
-
-wifiModuleRequestResult_t wifiModuleStartDetection();
-// Responses:
-// WIFI_MODULE_DETECTION_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleDetectionResponse();
-// Responses:
-// WIFI_MODULE_DETECTED
-// WIFI_MODULE_NOT_DETECTED;
-// WIFI_MODULE_BUSY
-
-// Reset module ---------------------------------------------------------------
-
-wifiModuleRequestResult_t wifiModuleStartReset();
-// Responses:
-// WIFI_MODULE_RESET_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleResetResponse();
-// Responses:
-// WIFI_MODULE_RESET_COMPLETE
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// Initialize module ----------------------------------------------------------
-
-wifiModuleRequestResult_t wifiModuleStartInit();
-// Responses:
-// WIFI_MODULE_INIT_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleInitResponse();
-// Responses:
-// WIFI_MODULE_INIT_COMPLETE
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// AP connection --------------------------------------------------------------
-
-// Check if connected with AP
-
-wifiModuleRequestResult_t wifiModuleStartIsConnectedWithAP();
-// Responses:
-// WIFI_MODULE_IS_CONNECTED_AP_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip );
-// Responses:
-// WIFI_MODULE_IS_CONNECTED (and fill ip variable)
-// WIFI_MODULE_IS_NOT_CONNECTED
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// Connect with AP
-
-wifiModuleRequestResult_t wifiModuleStartConnectWithAP(
-    char const* ssid, char const* password );
-// Responses:
-// WIFI_MODULE_CONNECT_AP_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleConnectWithAPResponse( char* ip );
-// Responses:
-// WIFI_MODULE_IS_CONNECTED (and fill ip variable)
-// WIFI_MODULE_CONNECT_AP_ERR_TIMEOUT
-// WIFI_MODULE_CONNECT_AP_ERR_WRONG_PASS
-// WIFI_MODULE_CONNECT_AP_ERR_AP_NOT_FOUND
-// WIFI_MODULE_CONNECT_AP_ERR_CONN_FAIL
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// TCP Server -----------------------------------------------------------------
-
-// Create a TCP Server --------------
-
-wifiModuleRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port );
-// Responses:
-// WIFI_MODULE_CREATE_TCP_SERVER_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleCreateTCPServerAtPortResponse();
-// Responses:
-// WIFI_MODULE_CREATE_TCP_SERVER_COMPLETE
-// WIFI_MODULE_CREATE_TCP_SERVER_ERR
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// Delete TCP Server --------------
-
-wifiModuleRequestResult_t wifiModuleStartDeleteTCPServer();
-// Responses:
-// WIFI_MODULE_DELETE_TCP_SERVER_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleDeleteTCPServerResponse();
-// Responses:
-// WIFI_MODULE_DELETE_TCP_SERVER_COMPLETE
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// Check if are a client pending request --------------
-// Note: PC should also connect to the same Access Point.
-
-wifiModuleRequestResult_t wifiModuleStartIsAClientRequestPending();
-// Responses:
-// WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleIsAClientRequestPendingResponse( 
-    int* linkID );//, 
-//    wifiComClientRequest_t* clientRequest );
-// Responses:
-// WIFI_MODULE_CLIENT_REQUEST_PENDING
-// WIFI_MODULE_NO_CLIENT_REQUEST_PENDING
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
-
-// Response to a client request --------------
-
-wifiModuleRequestResult_t wifiModuleStartRespondToClientRequest( 
-    int linkID, 
-    char const* response );
-// Responses:
-// WIFI_MODULE_RESPOND_TO_CLIENT_STARTED
-// WIFI_MODULE_BUSY
-
-wifiModuleRequestResult_t wifiModuleRespondToClientRequestResponse();
-// Responses:
-// WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE
-// WIFI_MODULE_NOT_DETECTED
-// WIFI_MODULE_BUSY
+// Detect module
+wifiComRequestResult_t wifiModuleStartDetection();
+wifiComRequestResult_t wifiModuleDetectionResponse();
 
 //=====[#include guards - end]=================================================
 
-#endif // _WIFI_COM_H_
+#endif // _WIFI_MODULE_H_
