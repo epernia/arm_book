@@ -63,13 +63,13 @@ parserStatus_t parserPatternMatchOrTimeout(
    // Initial state
    case PARSER_RECEIVING:
       if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
-         (instance->stringIndex)++;
-         if( (instance->stringIndex) == (instance->stringPatternLen - 1) ) {
+         if( (instance->stringIndex) == (instance->stringPatternLen) ) {
             instance->state = PARSER_PATTERN_MATCH;
          }
+         (instance->stringIndex)++;
       }
       if( delayRead( &(instance->delay) ) ) {
-         instance->state = PARSER_TIMEOUT;
+         //instance->state = PARSER_TIMEOUT;
       }
       break;
 
