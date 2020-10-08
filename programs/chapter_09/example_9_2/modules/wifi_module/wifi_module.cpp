@@ -24,7 +24,9 @@ static Serial uartEsp8266( D42, D41 );
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool flagStartParser = true;
+static char credential_ssid[WIFI_MODULE_CREDENTIAL_MAX_LEN] = ""; 
+static char credential_password[WIFI_MODULE_CREDENTIAL_MAX_LEN] = "";
+
 static parser_t parser;
 static parserStatus_t parserStatus;
 
@@ -42,6 +44,50 @@ void wifiComInit()
 {  
     uartEsp8266.baud(ESP8266_BAUD_RATE);
     esp8266State = ESP8266_IDLE;
+}
+
+wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
+{
+    if( *ssid == '\0' ) {
+        return WIFI_MODULE_AP_SSID_NOT_SAVED;
+    }
+    int i=0;
+    while ( *ssid != '\0' && i<WIFI_MODULE_CREDENTIAL_MAX_LEN ) {
+        credential_ssid[i] = *ssid;
+        ssid++;
+        i++;
+    }
+    if( i >= WIFI_MODULE_CREDENTIAL_MAX_LEN ) {
+        return WIFI_MODULE_AP_SSID_NOT_SAVED;
+    }
+    return WIFI_MODULE_AP_SSID_SAVED;
+}
+
+wifiComRequestResult_t wifiModuleSetAP_Password( char const* password )
+{
+    if( *password == '\0' ) {
+        return WIFI_MODULE_AP_PASSWORD_NOT_SAVED;
+    }
+    int i=0;
+    while ( *password != '\0' && i<WIFI_MODULE_CREDENTIAL_MAX_LEN ) {
+        credential_password[i] = *password;
+        password++;
+        i++;
+    }
+    if( i >= WIFI_MODULE_CREDENTIAL_MAX_LEN ) {
+        return WIFI_MODULE_AP_PASSWORD_NOT_SAVED;
+    }
+    return WIFI_MODULE_AP_PASSWORD_SAVED;
+}
+
+char const* wifiModuleGetAP_SSID()
+{
+    return (char const*) credential_ssid;
+}
+
+char const* wifiModuleGetAP_Password()
+{
+    return (char const*) credential_password;
 }
 
 wifiComRequestResult_t wifiModuleStartDetection()

@@ -15,7 +15,7 @@
 //=====[Declaration and initialization of private global variables]============
 
 static char credential_ssid[WIFI_MODULE_CREDENTIAL_MAX_LEN] = ""; 
-static char credential_password[WIFI_MODULE_CREDENTIAL_MAX_LEN] = ""; 
+static char credential_password[WIFI_MODULE_CREDENTIAL_MAX_LEN] = "";
 
 //=====[Declarations (prototypes) of private functions]========================
 

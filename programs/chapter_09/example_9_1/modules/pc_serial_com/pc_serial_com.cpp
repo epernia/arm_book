@@ -52,13 +52,13 @@ char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 
 //=====[Declaration and initialization of private global variables]============
 
-static char fileName[40];
-
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfFileNameChar = 0;
+
+static char fileName[40];
 
 static int credentialBufferIdx = 0;
 static char credentialBuffer[PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN] = "";
@@ -67,7 +67,7 @@ static setWiFiAPCredentials_t setWiFiAPCredentialsState;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static void pcSerialComGetCodeUpdate( char const receivedChar );
+static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 static void pcSerialComGetFileName( char receivedChar );
 static void pcSerialComShowSdCardFile( char * readBuffer ) ;

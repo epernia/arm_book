@@ -69,7 +69,7 @@ parserStatus_t parserPatternMatchOrTimeout(
          (instance->stringIndex)++;
       }
       if( delayRead( &(instance->delay) ) ) {
-         //instance->state = PARSER_TIMEOUT;
+         instance->state = PARSER_TIMEOUT;
       }
       break;
 
