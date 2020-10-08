@@ -5,7 +5,8 @@
 
 //=====[Declaration of private defines]========================================
 
-#define ESP8266_BAUD_RATE   115200
+#define ESP8266_BAUD_RATE     115200
+#define ESP8266_CMD_TIMEOUT   50
 
 //=====[Declaration of private data types]=====================================
 
@@ -91,9 +92,9 @@ char const* wifiModuleGetAP_Password()
 }
 
 wifiComRequestResult_t wifiModuleStartDetection()
-{    
+{
     if( esp8266State == ESP8266_IDLE ){
-        parserInit( &parser, "OK\r\n", strlen("OK\r\n"), 50 );
+        parserInit( &parser, "OK\r\n", strlen("OK\r\n"), ESP8266_CMD_TIMEOUT );
         esp8266State = ESP8266_PROCESSING_AT_COMMAND;
         esp8266UartStringWrite( "AT\r\n" );
         return WIFI_MODULE_DETECTION_STARTED;
