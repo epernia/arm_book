@@ -44,8 +44,9 @@ static char const* msgWiFiSsidConfirmation2 = "? Please type OK\r\n (uppercase",
                                               " again\r\n and press the Enter",
                                               " key.\r\n\r\n";
 
-static char const* msgProvideWiFiPass = "Type the Wi-Fi password using the format:",
-                                        "\r\n +PASSWORD,\"mypassword\"\r\n",
+static char const* msgProvideWiFiPass = "Type the Wi-Fi password using the ",
+                                        "format:\r\n",
+                                        "+PASSWORD,\"mypassword\"\r\n",
                                         "and press the Enter key.\r\n\r\n";
 
 char const* msgWiFiCredentials = "The Wi-Fi credentials are:\r\n";
