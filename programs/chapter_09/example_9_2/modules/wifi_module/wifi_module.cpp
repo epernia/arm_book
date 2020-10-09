@@ -41,7 +41,7 @@ static void esp8266UartStringWrite( char const* str );
 
 //=====[Implementations of public functions]===================================
 
-void wifiComInit()
+void wifiModuleInit()
 {  
     uartEsp8266.baud(ESP8266_BAUD_RATE);
     esp8266State = ESP8266_IDLE;

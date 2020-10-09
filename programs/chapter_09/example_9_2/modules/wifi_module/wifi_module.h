@@ -24,8 +24,10 @@ typedef enum{
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void wifiComInit();
+// Init module and status
+void wifiModuleInit();
 
+// Set/Get AP credentials
 wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
 wifiComRequestResult_t wifiModuleSetAP_Password( char const* password );
 char const* wifiModuleGetAP_SSID();

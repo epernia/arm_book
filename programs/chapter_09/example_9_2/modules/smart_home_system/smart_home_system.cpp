@@ -39,7 +39,7 @@ void smartHomeSystemInit()
     fireAlarmInit();
     pcSerialComInit();
     sdCardInit();
-    wifiComInit();
+    wifiModuleInit();
     delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
 }
 

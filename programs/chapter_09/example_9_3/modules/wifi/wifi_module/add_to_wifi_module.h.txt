@@ -1,0 +1,84 @@
+
+
+
+
+    WIFI_MODULE_CREATE_TCP_SERVER_STARTED,
+    WIFI_MODULE_CREATE_TCP_SERVER_COMPLETE,
+    WIFI_MODULE_CREATE_TCP_SERVER_ERR,
+
+    WIFI_MODULE_DELETE_TCP_SERVER_STARTED,
+    WIFI_MODULE_DELETE_TCP_SERVER_COMPLETE,
+
+    WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED,
+    WIFI_MODULE_CLIENT_REQUEST_PENDING,
+    WIFI_MODULE_NO_CLIENT_REQUEST_PENDING,
+
+    WIFI_MODULE_RESPOND_TO_CLIENT_STARTED,
+    WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE,
+} wifiModuleRequestResult_t;
+
+
+
+
+
+
+
+// TCP Server -----------------------------------------------------------------
+
+// Create a TCP Server --------------
+
+wifiModuleRequestResult_t wifiModuleStartCreateTCPServerAtPort( int port );
+// Responses:
+// WIFI_MODULE_CREATE_TCP_SERVER_STARTED
+// WIFI_MODULE_BUSY
+
+wifiModuleRequestResult_t wifiModuleCreateTCPServerAtPortResponse();
+// Responses:
+// WIFI_MODULE_CREATE_TCP_SERVER_COMPLETE
+// WIFI_MODULE_CREATE_TCP_SERVER_ERR
+// WIFI_MODULE_NOT_DETECTED
+// WIFI_MODULE_BUSY
+
+// Delete TCP Server --------------
+
+wifiModuleRequestResult_t wifiModuleStartDeleteTCPServer();
+// Responses:
+// WIFI_MODULE_DELETE_TCP_SERVER_STARTED
+// WIFI_MODULE_BUSY
+
+wifiModuleRequestResult_t wifiModuleDeleteTCPServerResponse();
+// Responses:
+// WIFI_MODULE_DELETE_TCP_SERVER_COMPLETE
+// WIFI_MODULE_NOT_DETECTED
+// WIFI_MODULE_BUSY
+
+// Check if are a client pending request --------------
+// Note: PC should also connect to the same Access Point.
+
+wifiModuleRequestResult_t wifiModuleStartIsAClientRequestPending();
+// Responses:
+// WIFI_MODULE_CLIENT_PENDIG_REQUEST_STARTED
+// WIFI_MODULE_BUSY
+
+wifiModuleRequestResult_t wifiModuleIsAClientRequestPendingResponse( 
+    int* linkID ); //, 
+//    wifiComClientRequest_t* clientRequest )
+// Responses:
+// WIFI_MODULE_CLIENT_REQUEST_PENDING
+// WIFI_MODULE_NO_CLIENT_REQUEST_PENDING
+// WIFI_MODULE_NOT_DETECTED
+// WIFI_MODULE_BUSY
+
+// Response to a client request --------------
+
+wifiModuleRequestResult_t wifiModuleStartRespondToClientRequest( 
+    int linkID, 
+    char const* response );
+// Responses:
+// WIFI_MODULE_RESPOND_TO_CLIENT_STARTED
+// WIFI_MODULE_BUSY
+
+wifiModuleRequestResult_t wifiModuleRespondToClientRequestResponse();
+// Responses:
+// WIFI_MODULE_RESPOND_TO_CLIENT_COMPLETE
+// WIFI_MODULE_NOT_DETEC

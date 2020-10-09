@@ -20,12 +20,31 @@ typedef enum{
     WIFI_MODULE_DETECTION_STARTED,
     WIFI_MODULE_DETECTED,
     WIFI_MODULE_NOT_DETECTED,
+    WIFI_MODULE_RESET_STARTED,
+    WIFI_MODULE_RESET_COMPLETE,
+    WIFI_MODULE_INIT_STARTED,
+    WIFI_MODULE_INIT_COMPLETE,
+    WIFI_MODULE_IS_CONNECTED_AP_STARTED,
+    WIFI_MODULE_IS_CONNECTED,
+    WIFI_MODULE_IS_NOT_CONNECTED,
+    WIFI_MODULE_CONNECT_AP_STARTED,
+    WIFI_MODULE_CONNECT_AP_ERR_TIMEOUT,
+    WIFI_MODULE_CONNECT_AP_ERR_WRONG_PASS,
+    WIFI_MODULE_CONNECT_AP_ERR_AP_NOT_FOUND,
+    WIFI_MODULE_CONNECT_AP_ERR_CONN_FAIL,
+    WIFI_MODULE_IP_GET_STARTED,
+    WIFI_MODULE_IP_GET_COMPLETE,
 } wifiComRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void wifiComInit();
+// Init module and status
+void wifiModuleInit();
 
+// Update module status
+void wifiModuleUpdate();
+
+// Set/Get AP credentials
 wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
 wifiComRequestResult_t wifiModuleSetAP_Password( char const* password );
 char const* wifiModuleGetAP_SSID();
@@ -34,6 +53,22 @@ char const* wifiModuleGetAP_Password();
 // Detect module
 wifiComRequestResult_t wifiModuleStartDetection();
 wifiComRequestResult_t wifiModuleDetectionResponse();
+
+// Reset module
+wifiModuleRequestResult_t wifiModuleStartReset();
+wifiModuleRequestResult_t wifiModuleResetResponse();
+
+// Initialize module
+wifiModuleRequestResult_t wifiModuleStartInit();
+wifiModuleRequestResult_t wifiModuleInitResponse();
+
+// Check if connected with AP
+wifiModuleRequestResult_t wifiModuleStartIsConnectedWithAP();
+wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip );
+
+// Connect with AP
+wifiModuleRequestResult_t wifiModuleStartConnectWithAP();
+wifiModuleRequestResult_t wifiModuleConnectWithAPResponse( char* ip );
 
 //=====[#include guards - end]=================================================
 
