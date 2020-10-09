@@ -1,5 +1,5 @@
-#ifndef _WIFI_CREDENTIALS_H_
-#define _WIFI_CREDENTIALS_H_
+#ifndef _WIFI_DEFAULT_CREDENTIALS_H_
+#define _WIFI_DEFAULT_CREDENTIALS_H_
 
 // Define your own Wi-Fi credentials:
 
@@ -10,7 +10,7 @@
 #define WIFI_SSID       "NISUTA-Home"
 #define WIFI_PASSWORD   "CeMaThBe09241727"
 
-#endif // _WIFI_CREDENTIALS_H_
+#endif // _WIFI_DEFAULT_CREDENTIALS_H_
 
 /*
 AT+CWJAP="Wifi SweetHome","CeMaThBe09241727"

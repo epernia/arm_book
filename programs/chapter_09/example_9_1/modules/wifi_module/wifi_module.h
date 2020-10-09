@@ -7,7 +7,7 @@
 
 //=====[Declaration of public defines]=========================================
 
-#define WIFI_MODULE_CREDENTIAL_MAX_LEN   101
+#define WIFI_MODULE_CREDENTIAL_MAX_LEN   32
 
 //=====[Declaration of public data types]======================================
 

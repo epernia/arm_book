@@ -19,8 +19,8 @@
 
 //=====[Declaration of private defines]========================================
 
-#define PC_SERIAL_AP_CREDENTIALS_TIMEOUT          15000 // 15000 ms or 15 seconds
-#define PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN   WIFI_MODULE_CREDENTIAL_MAX_LEN + 20
+#define PC_SERIAL_AP_CREDENTIALS_TIMEOUT        15000 // 15000 ms or 15 seconds
+#define PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN WIFI_MODULE_CREDENTIAL_MAX_LEN - 1
 
 //=====[Declaration of private data types]=====================================
 
@@ -465,7 +465,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
                         PC_SERIAL_AP_CREDENTIALS_TIMEOUT );
         }
         if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
-            pcSerialComStringWrite("\r\n\r\nMaximum length of SSID is 100 ");
+            pcSerialComStringWrite("\r\n\r\nMaximum length of SSID is 30 ");
             pcSerialComStringWrite("characters. Press 'a' or 'A' to retry.\r\n" );
             pcSerialComMode = PC_SERIAL_COMMANDS;
         }
@@ -517,6 +517,8 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
             credentialBuffer[credentialBufferIdx-2] = '\0'; // Reemplazo el '\"\r' del final que me mandaron por un '\0' (NULL)
             wifiModuleSetAP_Password( credentialBuffer + strlen("PASSWORD,\"") ); // Guardo solo el password del usuario esquivando "PASSWORD,"
 
+            pcSerialComStringWrite("\r\nPassword saved.\r\n\r\n");
+
             pcSerialComStringWrite("\r\nThe Wi-Fi credentials provided are:");
             pcSerialComStringWrite("\r\n  SSID: ");
             pcSerialComStringWrite( wifiModuleGetAP_SSID() );
@@ -527,7 +529,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
             pcSerialComMode = PC_SERIAL_COMMANDS;
         }
         if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
-            pcSerialComStringWrite("\r\n\r\nMaximum length of password is 100");
+            pcSerialComStringWrite("\r\n\r\nMaximum length of password is 30");
             pcSerialComStringWrite(" characters. Press 'a' or 'A' to ");
             pcSerialComStringWrite("retry.\r\n" );
             pcSerialComMode = PC_SERIAL_COMMANDS;
