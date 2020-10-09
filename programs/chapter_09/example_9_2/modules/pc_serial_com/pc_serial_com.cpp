@@ -459,7 +459,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         if( parserStatus == PARSER_PATTERN_MATCH ) {
             credentialBuffer[credentialBufferIndex-1] = '\0'; // Reemplazo el '\r' del enter final que me mandaron por un '\0' (NULL)
  
-            pcSerialComStringWrite("\r\The Wi-Fi SSID is ");
+            pcSerialComStringWrite("\r\nThe Wi-Fi SSID is ");
             pcSerialComStringWrite( credentialBuffer + strlen("SSID:") ); // muestro solo el ssid del usuario esquivando "SSID:"
             pcSerialComStringWrite("?\r\n");
 

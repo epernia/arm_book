@@ -21,7 +21,7 @@
 
 #define PC_SERIAL_AP_CREDENTIALS_TIMEOUT        15000 // 15000 ms or 15 seconds
 #define PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN WIFI_MODULE_CREDENTIAL_MAX_LEN - 1
-F
+
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
@@ -450,7 +450,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         if( parserStatus == PARSER_PATTERN_MATCH ) {
             credentialBuffer[credentialBufferIndex-1] = '\0'; // Reemplazo el '\r' del enter final que me mandaron por un '\0' (NULL)
  
-            pcSerialComStringWrite("\r\The Wi-Fi SSID is ");
+            pcSerialComStringWrite("\r\nThe Wi-Fi SSID is ");
             pcSerialComStringWrite( credentialBuffer + strlen("SSID:") ); // muestro solo el ssid del usuario esquivando "SSID:"
             pcSerialComStringWrite("?\r\n");
 
