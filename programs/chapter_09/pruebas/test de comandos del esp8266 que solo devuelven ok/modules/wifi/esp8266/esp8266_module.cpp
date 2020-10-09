@@ -405,7 +405,7 @@ static void esp8266SendCommandWithOkResponse( char const* cmd )
 static esp8266Status_t esp8266CheckOkResponse()
 {
     // Update parser status
-    parserStatus = parserPatternMatchOrTimeout( &parser );
+    parserStatus = parserUpdate( &parser );
 
     // Chech parser response
     switch( parserStatus ) {

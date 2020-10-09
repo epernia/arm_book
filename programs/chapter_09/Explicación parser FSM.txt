@@ -1,6 +1,6 @@
 Buenas, es una máquina de estados que se actualiza cuando el usuario llama a la función:
 
-parserStatus_t parserPatternMatchOrTimeout(
+parserStatus_t parserUpdate(
     parser_t* instance, char const receivedChar )
 
 La máquina de estados aplica sobre una variable de estructura con varios campos, de esta forma se puede usar para parsear muchas cosas. Como si cada estructura fuera un objeto parser. Entre los campos de esta estructura esta la variable de estados de la máquina.
@@ -31,7 +31,7 @@ Entonces el uso es el siguiente (todas las funciones del módulo reciben al meno
 1 - Creo una variable del tipo parser_t
 2 - Con parserInit() incicializo dicha variable cargándole todos los campos., el estado inicial es PARSER_STOPPED
 3 - Con parserStart() arranco a ejecutar la FSM de parseo forzandola al estado PARSER_START.
-4 - Me quedo ejecutando la funcion que actualiza la FSM de parseo parserPatternMatchOrTimeout() pasandole el nuevo caracter que llegó cada vez que la ejecuto o un caracter nulo, hay que ejcutarla aunque no llegue nada por uart para chequear el timeout. Hay que ejecutarla mientras esté en el estado PARSER_RECEIVING.
+4 - Me quedo ejecutando la funcion que actualiza la FSM de parseo parserUpdate() pasandole el nuevo caracter que llegó cada vez que la ejecuto o un caracter nulo, hay que ejcutarla aunque no llegue nada por uart para chequear el timeout. Hay que ejecutarla mientras esté en el estado PARSER_RECEIVING.
 5 - La FSM avanza hasta que me dice que llegó la cadena patrón (se queda en el estado PARSER_PATTERN_MATCH) o que se venció el tiempo de timeout esperando dicha cadena: (se queda en el estado PARSER_TIMEOUT).
 
 Está diseñada de forma que las cadenas patrones se puedan poner así por ejemplo:
@@ -44,6 +44,6 @@ Espero que se entienda.
 
 En el dibujo para salir de PARSER_STOPPED a PARSER_START deven llamar a la función parserStart() esa es la condicion de transición. Como el estado lo guarda la variable que está dentro de la estructura parser_t podria decir que cada variable de estructura parser_t que cree tiene una máquina de estados que corre de forma independiente, se entiende eso? o sea la funcion que actualiza la FSM sabe la lógica de cambios de estados junto con las otras que fuerzan el estado y yo le tengo que pasar sobre qué variable de estados se aplica (el campo stare de la estructura parser_t).
 
-Para moverse entre los diferentes estados va a pasar mediante condiciones de transición de la funcion que actualiza la FSM (  parserPatternMatchOrTimeout() ) o mediante forzado externo ( parserInit(), parserStart() o parserStop())
+Para moverse entre los diferentes estados va a pasar mediante condiciones de transición de la funcion que actualiza la FSM (  parserUpdate() ) o mediante forzado externo ( parserInit(), parserStart() o parserStop())
 
 Espero que eso aclare. Cualquier duda escribime.

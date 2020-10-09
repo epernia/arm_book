@@ -644,7 +644,7 @@ static esp8266RequestResult_t esp8266CheckOkResponse()
     esp8266UartByteRead( &receivedChar );
 
     // Update parser status
-    parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+    parserStatus = parserUpdate( &parser, receivedChar );
 
     #ifdef ARMBOOK_DEBUG
         if( receivedChar != '\0' ) {
@@ -677,7 +677,7 @@ static esp8266RequestResult_t esp8266CheckParametersAndOkResponse(
     esp8266UartByteRead( &receivedChar );
 
     // Update parser status
-    parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+    parserStatus = parserUpdate( &parser, receivedChar );
 
     #ifdef ARMBOOK_DEBUG
         if( receivedChar != '\0' ) {

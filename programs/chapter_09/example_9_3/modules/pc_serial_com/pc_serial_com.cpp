@@ -447,7 +447,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
 
     case SET_AP_CREDENTIALS_WAIT_SSID:
         // Update outputs
-        parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+        parserStatus = parserUpdate( &parser, receivedChar );
         if( receivedChar != '\0' &&
             credentialBufferIdx < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
             credentialBuffer[credentialBufferIdx] = receivedChar;
@@ -485,7 +485,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
 
     case SET_AP_CREDENTIALS_WAIT_SSID_CONFIRMATION:
         // Update outputs
-        parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+        parserStatus = parserUpdate( &parser, receivedChar );
         // Check transition conditions or end the FSM execution
         if( parserStatus == PARSER_PATTERN_MATCH ) {
             wifiModuleSetAP_SSID( credentialBuffer + strlen("SSID:") ); // Guardo solo el ssid del usuario esquivando "SSID:"
@@ -513,7 +513,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
 
     case SET_AP_CREDENTIALS_WAIT_PASSWORD:
         // Update outputs
-        parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );   
+        parserStatus = parserUpdate( &parser, receivedChar );   
         if( receivedChar != '\0' &&
             credentialBufferIdx < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
             credentialBuffer[credentialBufferIdx] = receivedChar;

@@ -109,7 +109,7 @@ wifiModuleRequestResult_t wifiModuleDetectionResponse()
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );
     
-    parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
+    parserStatus = parserUpdate( &parser, receivedChar );
 
     switch( parserStatus ) {
         case PARSER_TIMEOUT:

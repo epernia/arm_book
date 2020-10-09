@@ -43,7 +43,7 @@ int main()
 
     while( true ) {
 
-        parserStatus = parserPatternMatchOrTimeout( &parser );
+        parserStatus = parserUpdate( &parser );
 
         // Si no lo recibe indica que salio de la funcion
         // waitForReceiveStringOrTimeoutBlocking  por timeout.

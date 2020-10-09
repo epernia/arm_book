@@ -75,7 +75,7 @@ void parserStart( parser_t* instance );
 void parserStop( parser_t* instance );
 
 // Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout( parser_t* instance );
+parserStatus_t parserUpdate( parser_t* instance );
 
 // Store bytes until receive a given pattern
 parserStatus_t parserSaveBytesUntilPatternMatchOrTimeout( 

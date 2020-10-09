@@ -61,7 +61,7 @@ esp8266Status_t esp8266TestAT()
     }
 
     // Update parser status
-    parserStatus = parserPatternMatchOrTimeout( &parser );
+    parserStatus = parserUpdate( &parser );
 
     // Chech parser response
     switch( parserStatus ) {
