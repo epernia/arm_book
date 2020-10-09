@@ -110,7 +110,9 @@ char pcSerialComCharRead()
 
 void pcSerialComCharWrite( char c )
 {
-    uartUsb.putc(c);
+    if( c != '\0' ) {
+        uartUsb.putc(c);
+    }
 }
 
 void pcSerialComStringWrite( const char* str )
@@ -428,7 +430,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
 {
     parserStatus_t parserStatus;
 
-    if( receivedChar != '\0' && receivedChar == '\r' ) {
+    if( receivedChar == '\r' ) {
         pcSerialComStringWrite( "\r\n" );
     } else {
         pcSerialComCharWrite( receivedChar );

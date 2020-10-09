@@ -21,7 +21,7 @@ static char credential_password[WIFI_MODULE_CREDENTIAL_MAX_LEN] = "";
 
 //=====[Implementations of public functions]===================================
 
-wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
+wifiModuleRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
 {
     if( *ssid == '\0' ) {
         return WIFI_MODULE_AP_SSID_NOT_SAVED;
@@ -38,7 +38,7 @@ wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
     return WIFI_MODULE_AP_SSID_SAVED;
 }
 
-wifiComRequestResult_t wifiModuleSetAP_Password( char const* password )
+wifiModuleRequestResult_t wifiModuleSetAP_Password( char const* password )
 {
     if( *password == '\0' ) {
         return WIFI_MODULE_AP_PASSWORD_NOT_SAVED;

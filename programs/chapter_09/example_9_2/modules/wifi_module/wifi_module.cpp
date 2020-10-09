@@ -47,7 +47,7 @@ void wifiModuleInit()
     esp8266State = ESP8266_IDLE;
 }
 
-wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
+wifiModuleRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
 {
     if( *ssid == '\0' ) {
         return WIFI_MODULE_AP_SSID_NOT_SAVED;
@@ -64,7 +64,7 @@ wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid )
     return WIFI_MODULE_AP_SSID_SAVED;
 }
 
-wifiComRequestResult_t wifiModuleSetAP_Password( char const* password )
+wifiModuleRequestResult_t wifiModuleSetAP_Password( char const* password )
 {
     if( *password == '\0' ) {
         return WIFI_MODULE_AP_PASSWORD_NOT_SAVED;
@@ -91,7 +91,7 @@ char const* wifiModuleGetAP_Password()
     return (char const*) credential_password;
 }
 
-wifiComRequestResult_t wifiModuleStartDetection()
+wifiModuleRequestResult_t wifiModuleStartDetection()
 {
     if( esp8266State == ESP8266_IDLE ){
         parserInit( &parser, "OK\r\n", strlen("OK\r\n"),
@@ -104,7 +104,7 @@ wifiComRequestResult_t wifiModuleStartDetection()
     }
 }
 
-wifiComRequestResult_t wifiModuleDetectionResponse()
+wifiModuleRequestResult_t wifiModuleDetectionResponse()
 {
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );

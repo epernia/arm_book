@@ -20,7 +20,7 @@ typedef enum{
     WIFI_MODULE_DETECTION_STARTED,
     WIFI_MODULE_DETECTED,
     WIFI_MODULE_NOT_DETECTED,
-} wifiComRequestResult_t;
+} wifiModuleRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -28,14 +28,14 @@ typedef enum{
 void wifiModuleInit();
 
 // Set/Get AP credentials
-wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
-wifiComRequestResult_t wifiModuleSetAP_Password( char const* password );
+wifiModuleRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
+wifiModuleRequestResult_t wifiModuleSetAP_Password( char const* password );
 char const* wifiModuleGetAP_SSID();
 char const* wifiModuleGetAP_Password();
 
 // Detect module
-wifiComRequestResult_t wifiModuleStartDetection();
-wifiComRequestResult_t wifiModuleDetectionResponse();
+wifiModuleRequestResult_t wifiModuleStartDetection();
+wifiModuleRequestResult_t wifiModuleDetectionResponse();
 
 //=====[#include guards - end]=================================================
 

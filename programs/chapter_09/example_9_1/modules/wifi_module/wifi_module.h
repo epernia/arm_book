@@ -16,12 +16,12 @@ typedef enum{
     WIFI_MODULE_AP_SSID_NOT_SAVED,
     WIFI_MODULE_AP_PASSWORD_SAVED,
     WIFI_MODULE_AP_PASSWORD_NOT_SAVED,
-} wifiComRequestResult_t;
+} wifiModuleRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
-wifiComRequestResult_t wifiModuleSetAP_Password( char const* password );
+wifiModuleRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
+wifiModuleRequestResult_t wifiModuleSetAP_Password( char const* password );
 char const* wifiModuleGetAP_SSID();
 char const* wifiModuleGetAP_Password();
 
