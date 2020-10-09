@@ -55,8 +55,7 @@ void parserInit( parser_t* instance,
 }
 
 // Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar )
+parserStatus_t parserUpdate( parser_t* instance, char const receivedChar )
 {
    switch( instance->state ) {
 

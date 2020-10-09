@@ -60,7 +60,7 @@ static int numberOfFileNameChar = 0;
 
 static char fileName[40];
 
-static int credentialBufferIdx = 0;
+static int credentialBufferIndex = 0;
 static char credentialBuffer[PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN] = "";
 static parser_t parser;
 static setWiFiAPCredentials_t setWiFiAPCredentialsState;
@@ -428,7 +428,7 @@ static void commandSetAPWifiCredentials()
     pcSerialComStringWrite("and press the Enter key.\r\n");
 
     setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_SSID;
-    credentialBufferIdx = 0;
+    credentialBufferIndex = 0;
     credentialBuffer[0] = '\0';
 
     parserInit( &parser, "SSID:\r", strlen("SSID:\r"), 
@@ -451,29 +451,29 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         // Update outputs
         parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );
         if( receivedChar != '\0' &&
-            credentialBufferIdx < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
-            credentialBuffer[credentialBufferIdx] = receivedChar;
-            credentialBufferIdx++;
+            credentialBufferIndex < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+            credentialBuffer[credentialBufferIndex] = receivedChar;
+            credentialBufferIndex++;
         }
         // Check transition conditions or end the FSM execution
         if( parserStatus == PARSER_PATTERN_MATCH ) {
-            credentialBuffer[credentialBufferIdx-1] = '\0'; // Reemplazo el '\r' del enter final que me mandaron por un '\0' (NULL)
+            credentialBuffer[credentialBufferIndex-1] = '\0'; // Reemplazo el '\r' del enter final que me mandaron por un '\0' (NULL)
  
-            pcSerialComStringWrite("\r\nYour Wi-Fi SSID is ");
+            pcSerialComStringWrite("\r\The Wi-Fi SSID is ");
             pcSerialComStringWrite( credentialBuffer + strlen("SSID:") ); // muestro solo el ssid del usuario esquivando "SSID:"
             pcSerialComStringWrite("?\r\n");
 
             pcSerialComStringWrite("Please type OK (uppercase) and press the"); 
             pcSerialComStringWrite(" Enter key to confirm.\r\n");
             pcSerialComStringWrite("If is not correct just wait until ");
-            pcSerialComStringWrite("timout.\r\n");
+            pcSerialComStringWrite("timeout.\r\n");
 
             setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_SSID_CONFIRMATION;
 
             parserInit( &parser, "OK\r", strlen("OK\r"), 
                         PC_SERIAL_AP_CREDENTIALS_TIMEOUT );
         }
-        if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+        if ( credentialBufferIndex >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
             pcSerialComStringWrite("\r\n\r\nMaximum length of SSID is 30 ");
             pcSerialComStringWrite("characters. Press 'a' or 'A' to retry.\r\n" );
             pcSerialComMode = PC_SERIAL_COMMANDS;
@@ -491,7 +491,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         // Check transition conditions or end the FSM execution
         if( parserStatus == PARSER_PATTERN_MATCH ) {
             wifiModuleSetAP_SSID( credentialBuffer + strlen("SSID:") ); // Guardo solo el ssid del usuario esquivando "SSID:"
-            credentialBufferIdx = 0;     // Reseteo las variables para guardar luego el password
+            credentialBufferIndex = 0;     // Reseteo las variables para guardar luego el password
             credentialBuffer[0] = '\0';
             pcSerialComStringWrite("\r\nSSID saved.\r\n\r\n");
 
@@ -517,13 +517,13 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         // Update outputs
         parserStatus = parserPatternMatchOrTimeout( &parser, receivedChar );   
         if( receivedChar != '\0' &&
-            credentialBufferIdx < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
-            credentialBuffer[credentialBufferIdx] = receivedChar;
-            credentialBufferIdx++;
+            credentialBufferIndex < PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+            credentialBuffer[credentialBufferIndex] = receivedChar;
+            credentialBufferIndex++;
         }
         // Check transition conditions or end the FSM execution
         if( parserStatus == PARSER_PATTERN_MATCH ) {
-            credentialBuffer[credentialBufferIdx-2] = '\0'; // Reemplazo el '\"\r' del final que me mandaron por un '\0' (NULL)
+            credentialBuffer[credentialBufferIndex-2] = '\0'; // Reemplazo el '\"\r' del final que me mandaron por un '\0' (NULL)
             wifiModuleSetAP_Password( credentialBuffer + strlen("PASSWORD,\"") ); // Guardo solo el password del usuario esquivando "PASSWORD,"
             pcSerialComStringWrite("\r\nPassword saved.\r\n\r\n");
 
@@ -536,7 +536,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
 
             pcSerialComMode = PC_SERIAL_COMMANDS;
         }
-        if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
+        if ( credentialBufferIndex >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
             pcSerialComStringWrite("\r\n\r\nMaximum length of password is 30");
             pcSerialComStringWrite(" characters. Press 'a' or 'A' to ");
             pcSerialComStringWrite("retry.\r\n" );

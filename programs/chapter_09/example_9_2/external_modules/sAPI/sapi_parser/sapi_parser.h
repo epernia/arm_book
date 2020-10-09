@@ -70,8 +70,7 @@ void parserInit( parser_t* instance,
                  tick_t timeout );
 
 // Check for Receive a given pattern
-parserStatus_t parserPatternMatchOrTimeout(
-    parser_t* instance, char const receivedChar );
+parserStatus_t parserUpdate( parser_t* instance, char const receivedChar );
 
 /*==================[end of file]============================================*/
 #endif
