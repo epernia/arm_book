@@ -35,7 +35,7 @@
 //==================[inclusions]===============================================
 
 #include "sapi_parser.h"
-#include "string.h"
+
 
 //==================[external functions declaration]===========================
 

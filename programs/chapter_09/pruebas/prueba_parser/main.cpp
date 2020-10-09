@@ -4,7 +4,7 @@
 #include <mbed.h>
 
 #include "sapi.h"     // <= sAPI header
-#include "string.h"
+
 
 /*==================[macros and definitions]=================================*/
 

@@ -44,7 +44,7 @@
 #include "sapi_delay.h"
 #include "pc_serial_com.h"
 
-#include <string.h>
+
 
 /*==================[c++]====================================================*/
 #ifdef __cplusplus

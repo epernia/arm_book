@@ -38,7 +38,7 @@
 
 #include "esp8266_http_server.h"
 #include "sapi_delay.h"
-#include <string.h>
+
 
 #include "mbed.h"
 #include "arm_book_lib.h"

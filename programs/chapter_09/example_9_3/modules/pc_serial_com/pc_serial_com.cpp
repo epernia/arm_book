@@ -15,7 +15,7 @@
 #include "sd_card.h"
 #include "sapi.h"
 #include "wifi_module.h"
-#include "string.h"
+
 
 //=====[Declaration of private defines]========================================
 

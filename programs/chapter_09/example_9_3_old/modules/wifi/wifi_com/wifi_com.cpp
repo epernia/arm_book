@@ -7,7 +7,7 @@
 #include "wifi_module.h"
 #include "wifi_credentials.h"
 #include "esp8266_at.h"
-#include "string.h"
+
 
 //=====[Declaration of private defines]========================================
 

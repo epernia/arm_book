@@ -5,7 +5,7 @@
 #include "sapi.h"
 #include "pc_serial_com.h"
 #include "wifi_module.h"
-#include "string.h"
+
 
 //=====[Declaration of private defines]========================================
 

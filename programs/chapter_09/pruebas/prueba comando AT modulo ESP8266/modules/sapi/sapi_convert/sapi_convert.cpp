@@ -35,7 +35,7 @@
 /*==================[inclusions]=============================================*/
 
 #include "sapi_convert.h"     // <= own header
-#include <string.h>
+
 
 /*==================[macros and definitions]=================================*/
 
