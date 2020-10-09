@@ -21,7 +21,7 @@
 
 #define PC_SERIAL_AP_CREDENTIALS_TIMEOUT        15000 // 15000 ms or 15 seconds
 #define PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN WIFI_MODULE_CREDENTIAL_MAX_LEN - 1
-
+F
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
@@ -530,8 +530,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         }
         if ( credentialBufferIndex >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
             pcSerialComStringWrite("\r\n\r\nMaximum length of password is 30");
-            pcSerialComStringWrite(" characters. Press 'a' or 'A' to ");
-            pcSerialComStringWrite("retry.\r\n" );
+            pcSerialComStringWrite(" characters. Press 'a' or 'A' to retry.\r\n" );
             pcSerialComMode = PC_SERIAL_COMMANDS;
         }
         if( parserStatus == PARSER_TIMEOUT ) {

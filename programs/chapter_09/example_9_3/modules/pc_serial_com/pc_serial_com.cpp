@@ -535,8 +535,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
         }
         if ( credentialBufferIdx >= PC_SERIAL_AP_CREDENTIALS_BUFFER_MAX_LEN ) {
             pcSerialComStringWrite("\r\n\r\nMaximum length of password is 100");
-            pcSerialComStringWrite(" characters. Press 'a' or 'A' to ");
-            pcSerialComStringWrite("retry.\r\n" );
+            pcSerialComStringWrite(" characters. Press 'a' or 'A' to retry.\r\n" );
             pcSerialComMode = PC_SERIAL_COMMANDS;
         }
         if( parserStatus == PARSER_TIMEOUT ) {

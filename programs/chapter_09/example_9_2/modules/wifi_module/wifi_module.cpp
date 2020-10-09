@@ -120,6 +120,7 @@ wifiModuleRequestResult_t wifiModuleDetectionResponse()
             esp8266State = ESP8266_IDLE;
             return WIFI_MODULE_DETECTED;
         break;
+        case PARSER_RECEIVING:
         default:
             return WIFI_MODULE_BUSY;
         break;
