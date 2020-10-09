@@ -437,7 +437,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
 {
     parserStatus_t parserStatus;
 
-    if( receivedChar != '\0' && receivedChar == '\r' ) {
+    if( receivedChar == '\r' ) {
         pcSerialComStringWrite( "\r\n" );
     } else {
         pcSerialComCharWrite( receivedChar );
