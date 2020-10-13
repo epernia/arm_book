@@ -411,7 +411,7 @@ static void commandSetAPWifiCredentials()
     pcSerialComStringWrite("\r\nPlease provide the SSID and password of the "); 
     pcSerialComStringWrite("Wi-Fi Access Point.\r\nNote that:\r\n");
     pcSerialComStringWrite(" - You have 15 seconds to complete each operation.");
-    pcSerialComStringWrite("\r\n - Maximum length of SSID or password is 100");
+    pcSerialComStringWrite("\r\n - Maximum length of SSID or password is 30");
     pcSerialComStringWrite(" characters.\r\n");
 
     pcSerialComStringWrite("\r\nType the Wi-Fi SSID using the format:\r\n");
