@@ -248,7 +248,7 @@ static void availableCommands()
     uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
     uartUsb.printf( "Press 'a' or 'A' to set Wi-Fi AP credentials\r\n" );
-    uartUsb.printf( "Press 'd' or 'D' to test if Wi-Fi module is detected\r\n" );
+    uartUsb.printf( "Press 'd' or 'D' to test if the Wi-Fi module is detected\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
