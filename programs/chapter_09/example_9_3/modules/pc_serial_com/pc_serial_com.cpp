@@ -464,7 +464,7 @@ static void pcSerialComGetWiFiAPCredentials( char receivedChar )
             pcSerialComStringWrite("Please type OK (uppercase) and press the"); 
             pcSerialComStringWrite(" Enter key to confirm.\r\n");
             pcSerialComStringWrite("If is not correct just wait until ");
-            pcSerialComStringWrite("timout.\r\n");
+            pcSerialComStringWrite("timeout.\r\n");
 
             setWiFiAPCredentialsState = SET_AP_CREDENTIALS_WAIT_SSID_CONFIRMATION;
 
