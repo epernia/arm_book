@@ -16,25 +16,33 @@ typedef enum{
     WIFI_MODULE_AP_SSID_NOT_SAVED,
     WIFI_MODULE_AP_PASSWORD_SAVED,
     WIFI_MODULE_AP_PASSWORD_NOT_SAVED,
+    
     WIFI_MODULE_BUSY,
+    
     WIFI_MODULE_DETECTION_STARTED,
     WIFI_MODULE_DETECTED,
     WIFI_MODULE_NOT_DETECTED,
+    
     WIFI_MODULE_RESET_STARTED,
     WIFI_MODULE_RESET_COMPLETE,
+    
     WIFI_MODULE_INIT_STARTED,
     WIFI_MODULE_INIT_COMPLETE,
+    
     WIFI_MODULE_IS_CONNECTED_AP_STARTED,
     WIFI_MODULE_IS_CONNECTED,
     WIFI_MODULE_IS_NOT_CONNECTED,
+    
     WIFI_MODULE_CONNECT_AP_STARTED,
-    WIFI_MODULE_CONNECT_AP_ERR_TIMEOUT,
-    WIFI_MODULE_CONNECT_AP_ERR_WRONG_PASS,
-    WIFI_MODULE_CONNECT_AP_ERR_AP_NOT_FOUND,
-    WIFI_MODULE_CONNECT_AP_ERR_CONN_FAIL,
+    WIFI_MODULE_CONNECT_AP_ERR_TIMEOUT      = 1,
+    WIFI_MODULE_CONNECT_AP_ERR_WRONG_PASS   = 2,
+    WIFI_MODULE_CONNECT_AP_ERR_AP_NOT_FOUND = 3,
+    WIFI_MODULE_CONNECT_AP_ERR_CONN_FAIL    = 4,
+    
     WIFI_MODULE_IP_GET_STARTED,
     WIFI_MODULE_IP_GET_COMPLETE,
-} wifiComRequestResult_t;
+    
+} wifiModuleRequestResult_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -45,14 +53,14 @@ void wifiModuleInit();
 void wifiModuleUpdate();
 
 // Set/Get AP credentials
-wifiComRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
-wifiComRequestResult_t wifiModuleSetAP_Password( char const* password );
+wifiModuleRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
+wifiModuleRequestResult_t wifiModuleSetAP_Password( char const* password );
 char const* wifiModuleGetAP_SSID();
 char const* wifiModuleGetAP_Password();
 
 // Detect module
-wifiComRequestResult_t wifiModuleStartDetection();
-wifiComRequestResult_t wifiModuleDetectionResponse();
+wifiModuleRequestResult_t wifiModuleStartDetection();
+wifiModuleRequestResult_t wifiModuleDetectionResponse();
 
 // Reset module
 wifiModuleRequestResult_t wifiModuleStartReset();
@@ -64,11 +72,15 @@ wifiModuleRequestResult_t wifiModuleInitResponse();
 
 // Check if connected with AP
 wifiModuleRequestResult_t wifiModuleStartIsConnectedWithAP();
-wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse( char* ip );
+wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse();
 
 // Connect with AP
 wifiModuleRequestResult_t wifiModuleStartConnectWithAP();
-wifiModuleRequestResult_t wifiModuleConnectWithAPResponse( char* ip );
+wifiModuleRequestResult_t wifiModuleConnectWithAPResponse();
+
+// Get IP address
+wifiModuleRequestResult_t wifiModuleStartIpGet();
+wifiModuleRequestResult_t wifiModuleIpGetResponse( char* ip );
 
 //=====[#include guards - end]=================================================
 

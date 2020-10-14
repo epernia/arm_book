@@ -6,7 +6,6 @@
 #include "pc_serial_com.h"
 #include "wifi_module.h"
 
-
 //=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
@@ -51,7 +50,7 @@ void wifiComInit()
 }
 
 void wifiComUpdate()
-{
+{/*
     switch ( wifiComFsmState ) {
         case WIFI_STATE_MODULE_DETECT: 
             runStateWifiModuleDetect();
@@ -74,7 +73,7 @@ void wifiComUpdate()
         default:
             wifiComFsmState = WIFI_STATE_MODULE_DETECT;
         break;
-    } 
+    }*/
 }
 
 //=====[Implementations of private functions]==================================
@@ -213,7 +212,7 @@ static void runStateWifiModuleCheckAPConnection()
             pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
             pcSerialComStringWrite( ip );
             pcSerialComStringWrite( "\r\n" );
-            wifiComFsmState = WIFI_STATE_COMMUNICATION_INIT;
+            wifiComFsmState = WIFI_STATE_COMMUNICATION;
         break;
         case WIFI_MODULE_IS_NOT_CONNECTED:
             pcSerialComStringWrite( "Wi-Fi module is not connected.\r\n" );
@@ -241,6 +240,7 @@ static void runStateWifiModuleNotConnected()
     static bool stateEntryFlag = false;
     char ip[20] = ""; 
     static bool isWaitingForNextTry = false;
+    static bool isWaitingForIp = false;
     static delay_t reintentsDelay;
     // ENTRY ----------------------------------------
     if( stateEntryFlag == false ){
@@ -256,17 +256,14 @@ static void runStateWifiModuleNotConnected()
     // CHECK TRANSITION CONDITIONS ------------------
     if( isWaitingForNextTry ) {       
         if( delayRead(&reintentsDelay) ) {
-            stateEntryFlag = false; // Asi relanzo el entry de este mismo estado
+            wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;
             isWaitingForNextTry = false;            
         }
         return;
     } else{
-        switch( wifiModuleConnectWithAPResponse( ip ) ) {
+        switch( wifiModuleConnectWithAPResponse() ) {
             case WIFI_MODULE_IS_CONNECTED:
-                pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
-                pcSerialComStringWrite( ip );
-                pcSerialComStringWrite( "\r\n" );
-                wifiComFsmState = WIFI_STATE_COMMUNICATION_INIT;
+                isWaitingForIp = true;
             break;
             case WIFI_MODULE_NOT_DETECTED:
                 wifiComFsmState = WIFI_STATE_MODULE_NOT_DETECTED;          
@@ -296,9 +293,18 @@ static void runStateWifiModuleNotConnected()
         if( isWaitingForNextTry ) {
             pcSerialComStringWrite( "Wi-Fi not connected!\r\n" );
             pcSerialComStringWrite( "It will re-intent automaticaly in 10 " );
-            pcSerialComStringWrite( "seconds...\r\n" );
+            pcSerialComStringWrite( "secondsr\nafter restet the module...\r\n" );
             delayInit( &reintentsDelay, 10000 );
         }
+    }
+    if( isWaitingForIp ){
+        
+        // ... TODO: FALTA ------------------------------------------------ ????????????????????
+        
+        pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
+        pcSerialComStringWrite( ip );
+        pcSerialComStringWrite( "\r\n" );
+        wifiComFsmState = WIFI_STATE_COMMUNICATION;
     }
 
     // EXIT ------------------------------------------

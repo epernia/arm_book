@@ -16,7 +16,6 @@
 #include "sapi.h"
 #include "wifi_module.h"
 
-
 //=====[Declaration of private defines]========================================
 
 #define PC_SERIAL_AP_CREDENTIALS_TIMEOUT          15000 // 15000 ms or 15 seconds
@@ -226,7 +225,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'a': case 'A': commandSetAPWifiCredentials(); break; 
         case 'd': case 'D': commandCheckIfWifiModuleIsDetected(); break;
         default: availableCommands(); break;
-    } 
+    }
 }
 
 static void availableCommands()

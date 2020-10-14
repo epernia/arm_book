@@ -8,7 +8,24 @@ AT - Test AT commands
 AT+CWMODE=<mode> - Wi-Fi Mode (Station, Soft AP, Station+ Soft AP)
 
 AT+CIPMUX=<mode> - Set connection type (single or multiple)
+
+
+    return esp8266SendCommandWithOneResponse(
+              "AT+CIPMUX=1\r\n", "OK\r\n", 
+              WIFI_MODULE_BUSY,
+              ESP8266_MOST_COMMON_AT_CMD_TIMEOUT );
+
+    return esp8266CheckCommandWithOneResponse( WIFI_MODULE_BUSY );
+
 AT+CIPSERVER=<mode>[,<port>] - Deletes/Creates TCP Server
+
+    return esp8266SendCommandWithOneResponse(
+              "AT+CIPSERVER=1,80\r\n", "OK\r\n", 
+              WIFI_MODULE_????????????????_STARTED,
+              ESP8266_MOST_COMMON_AT_CMD_TIMEOUT );
+              
+              
+    return esp8266CheckCommandWithOneResponse( WIFI_MODULE_????????_COMPLETE );
 
     AT+CIPMODE=<mode> - Set the Transmission Mode 
     (este comando no esta ver si lo agrego en modulo esp8266_module.c/h, el
@@ -137,6 +154,16 @@ Other responses:
 AT+CIPSTATUS - Gets the Connection Status
     STATUS:<stat>
     +CIPSTATUS:<link ID>,<type>,<remote	IP>,<remote	port>,<local port>,<tetype>
+
+Este responde antes que este creado el server:
+    STATUS:<stat>
+    
+    OK
+
+Si esta creado el server:
+
+charDigitToIntDigit(c)
+intDigitToCharDigit(n)
 
 -------------------------------------------------------------------------------
 
@@ -294,10 +321,18 @@ AT+CIFSR - Timeout: 50 ms
 ---------------------------------------------------
 AT+CIFSR
 
-+CIFSR:STAIP,"192.168.1.103"
-+CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
+En modo CWMODE=1:
+    +CIFSR:STAIP,"192.168.1.103"
+    +CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
 
-OK
+    OK
+En modo CWMODE=3:
+    +CIFSR:APIP,"192.168.4.1"
+    +CIFSR:APMAC,"5e:cf:7f:87:41:bb"
+    +CIFSR:STAIP,"192.168.1.103"
+    +CIFSR:STAMAC,"5c:cf:7f:87:41:bb"
+
+    OK
 
 ---------------------------------------------------
 Si no esta conectado tira
@@ -505,11 +540,18 @@ FSM
 AT                                                    50 ms
 AT+RST                                                10 s
 AT+CWMODE=1                                           50 ms
+
 AT+CIPSTATUS                                          VER
+
 AT+CWJAP="NISUTA-Home","CeMaThBe09241727"             20 s
+
 AT+CIFSR                                              50 ms
+
 AT+CIPMUX=1                                           50 ms
 AT+CIPSERVER=1,80                                     50 ms
+
+AT+CIPSTATUS                                          VER
+
 +IPD...
 AT+CIPSEND=0,54
 AT+CIPCLOSE=0

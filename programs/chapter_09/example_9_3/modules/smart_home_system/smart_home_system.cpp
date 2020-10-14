@@ -11,7 +11,7 @@
 #include "event_log.h"
 #include "sd_card.h"
 #include "sapi.h"
-#include "wifi_module.h"
+#include "wifi_com.h"
 
 //=====[Declaration of private defines]======================================
 
