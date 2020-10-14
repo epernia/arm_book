@@ -49,9 +49,6 @@ typedef enum{
 // Init module and status
 void wifiModuleInit();
 
-// Update module status
-void wifiModuleUpdate();
-
 // Set/Get AP credentials
 wifiModuleRequestResult_t wifiModuleSetAP_SSID( char const* ssid );
 wifiModuleRequestResult_t wifiModuleSetAP_Password( char const* password );

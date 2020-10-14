@@ -87,12 +87,6 @@ void wifiModuleInit()
     esp8266State = ESP8266_IDLE;
 }
 
-// Update module status -------------------------------------------------------
-
-void wifiModuleUpdate() {
-    //esp8266Update();
-}
-
 // Set/Get AP credentials -----------------------------------------------------
 
 // Responses:
