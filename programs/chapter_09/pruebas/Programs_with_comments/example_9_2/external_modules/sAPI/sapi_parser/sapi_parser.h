@@ -40,6 +40,9 @@
 #include <sapi_datatypes.h>
 #include <sapi_delay.h>
 
+#include <arm_book_lib.h>
+#include <mbed.h>
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/

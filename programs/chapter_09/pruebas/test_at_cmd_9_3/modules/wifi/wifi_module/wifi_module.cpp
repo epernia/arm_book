@@ -366,8 +366,7 @@ wifiModuleRequestResult_t wifiModuleIpGetResponse( char* ip )
         quotationMarksCounter++;
     }
     // Si el caracter recibido es digito o un punto ('.') me lo guardo 
-    if( (charIsDigit(receivedChar) || receivedChar == '.') && 
-            quotationMarksCounter <= 2 ) {
+    if( (charIsDigit(receivedChar) || receivedChar == '.') && quotationMarksCounter <= 2 ) {
         ip[i] = receivedChar;
         i++;
     }

@@ -50,7 +50,7 @@ void wifiComInit()
 }
 
 void wifiComUpdate()
-{
+{/*
     switch ( wifiComFsmState ) {
         case WIFI_STATE_MODULE_DETECT: 
             runStateWifiModuleDetect();
@@ -73,7 +73,7 @@ void wifiComUpdate()
         default:
             wifiComFsmState = WIFI_STATE_MODULE_DETECT;
         break;
-    }
+    }*/
 }
 
 //=====[Implementations of private functions]==================================
@@ -122,8 +122,7 @@ static void runStateWifiModuleNotDetected()
     // ENTRY ----------------------------------------
     if( stateEntryFlag == false ) {
         pcSerialComStringWrite( "\r\nERROR: Wi-Fi module not detected!\r\n" );
-        pcSerialComStringWrite( "It will re-intent automaticaly in 10 " );
-        pcSerialComStringWrite( "seconds...\r\n" );
+        pcSerialComStringWrite( "It will re-intent automaticaly in 10 seconds...\r\n" );
         delayInit( &reintentsDelay, 10000 );
         stateEntryFlag = true;
     }
@@ -193,8 +192,8 @@ static void runStateWifiModuleInit()
 }
 
 // Chequea si esta conectado y tiene IP.
-// Si esta conectado y tiene IP pasa al estado WIFI_STATE_COMMUNICATIONS_INIT
-// Si no esta conectado pasa al estado: WIFI_STATE_MODULE_NOT_CONNECTED
+// Si está conectado y tiene IP pasa al estado WIFI_STATE_COMMUNICATIONS_INIT
+// Si no está conectado pasa al estado: WIFI_STATE_MODULE_NOT_CONNECTED
 static void runStateWifiModuleCheckAPConnection()
 {
     static bool stateEntryFlag = false;
@@ -233,8 +232,8 @@ static void runStateWifiModuleCheckAPConnection()
     }
 }
 
-// Si no esta conectado reintenta conectarse cada 10 segundos.
-// Si no detecta el modulo vuelve a: 
+// Si no está conectado reintenta conectarse cada 10 segundos.
+// Si no detecta el módulo vuelve a: 
 //     WIFI_STATE_MODULE_NOT_DETECTED.
 static void runStateWifiModuleNotConnected()
 {
@@ -279,8 +278,7 @@ static void runStateWifiModuleNotConnected()
                 isWaitingForNextTry = true;
             break;
             case WIFI_MODULE_CONNECT_AP_ERR_AP_NOT_FOUND:
-                pcSerialComStringWrite( "\r\nERROR: Cannot find the target " );
-                pcSerialComStringWrite( "AP. " );
+                pcSerialComStringWrite( "\r\nERROR: Cannot find the target AP. " );
                 isWaitingForNextTry = true;
             break;
             case WIFI_MODULE_CONNECT_AP_ERR_CONN_FAIL:
@@ -295,8 +293,7 @@ static void runStateWifiModuleNotConnected()
         if( isWaitingForNextTry ) {
             pcSerialComStringWrite( "Wi-Fi not connected!\r\n" );
             pcSerialComStringWrite( "It will re-intent automaticaly in 10 " );
-            pcSerialComStringWrite( "secondsr\nafter restet the module..." );
-            pcSerialComStringWrite( "\r\n" );
+            pcSerialComStringWrite( "secondsr\nafter restet the module...\r\n" );
             delayInit( &reintentsDelay, 10000 );
         }
     }

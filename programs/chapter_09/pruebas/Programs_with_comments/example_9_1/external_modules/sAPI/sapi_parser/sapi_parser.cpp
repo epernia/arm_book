@@ -32,42 +32,56 @@
 
 // File creation date: 2016-03-01
 
-#ifndef _SAPI_PARSER_H_
-#define _SAPI_PARSER_H_
+//==================[inclusions]===============================================
 
-/*==================[inclusions]=============================================*/
+#include "sapi_parser.h"
 
-#include <sapi_datatypes.h>
-#include <sapi_delay.h>
+//==================[internal functions declaration]===========================
 
-/*==================[macros]=================================================*/
-
-/*==================[typedef]================================================*/
-
-typedef enum{
-   PARSER_PATTERN_MATCH,
-   PARSER_TIMEOUT,
-   PARSER_RECEIVING,
-} parserStatus_t;
-
-typedef struct{
-   parserStatus_t state;
-   char const*    stringPattern;
-   uint16_t       stringPatternLen;
-   uint16_t       stringIndex;
-   tick_t         timeout;
-   delay_t        delay;
-} parser_t;
-
-/*==================[external functions declaration]=========================*/
+//==================[external functions definition]============================
 
 // Initialize parser
 void parserInit( parser_t* instance,
                  char const* stringPattern, uint16_t stringPatternLen, 
-                 tick_t timeout );
+                 tick_t timeout )
+{
+    instance->state            = PARSER_RECEIVING;
+    instance->stringPattern    = stringPattern;
+    instance->stringPatternLen = stringPatternLen;
+    instance->timeout          = timeout;
+    
+    delayInit( &(instance->delay), instance->timeout );
+    instance->stringIndex = 0;
+}
 
 // Check for Receive a given pattern
-parserStatus_t parserUpdate( parser_t* instance, char const receivedChar );
+parserStatus_t parserUpdate( parser_t* instance, char const receivedChar )
+{
+   switch( instance->state ) {
 
-/*==================[end of file]============================================*/
-#endif
+   // Initial state
+   case PARSER_RECEIVING:
+      if( (instance->stringPattern)[(instance->stringIndex)] == receivedChar ) {
+         if( (instance->stringIndex) == (instance->stringPatternLen) ) {
+            instance->state = PARSER_PATTERN_MATCH;
+         }
+         (instance->stringIndex)++;
+      }
+      if( delayRead( &(instance->delay) ) ) {
+         instance->state = PARSER_TIMEOUT;
+      }
+      break;
+
+   // Final states
+   case PARSER_PATTERN_MATCH:
+   case PARSER_TIMEOUT:
+   default:
+      break;
+   }
+
+   return instance->state;
+}
+
+//==================[internal functions definition]============================
+
+//==================[end of file]==============================================
