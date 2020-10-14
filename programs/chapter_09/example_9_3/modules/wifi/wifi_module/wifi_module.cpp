@@ -66,8 +66,8 @@ static wifiModuleRequestResult_t esp8266SendCommandWithResponse(
     tick_t timeout );
 
 // Check response for previously sended commands that only have one response
-static wifiModuleRequestResult_t esp8266CheckCommandResponse(
-                                    char* resultMatch );
+static wifiModuleRequestResult_t
+esp8266CheckCommandResponse( wifiModuleRequestResult_t resultMatch );
 
 // Send commands that have two valid responses
 static wifiModuleRequestResult_t esp8266SendCommandWithTwoResponses( 
@@ -358,7 +358,7 @@ wifiModuleRequestResult_t wifiModuleIpGetResponse( char* ip )
     esp8266UartByteRead( &receivedChar );
     // Si el caracter recibido es digito o un punto ('.') me lo guardo 
     if( charIsDigit(receivedChar) || receivedChar == '.' ) {
-        *ip[i] = receivedChar;
+        ip[i] = receivedChar;
         i++;
     }
     // Actualizao el parser pasandole el caracter recibido
@@ -367,7 +367,7 @@ wifiModuleRequestResult_t wifiModuleIpGetResponse( char* ip )
     switch( parserStatus ) {
         case PARSER_PATTERN_MATCH:
             esp8266State = ESP8266_IDLE;
-            *ip[i] = '\0'; // Agrego el null para que la IP sea un string valido
+            ip[i] = '\0'; // Agrego el null para que la IP sea un string valido
             i = 0;
             return WIFI_MODULE_IP_GET_COMPLETE;
         break;
@@ -423,8 +423,8 @@ static wifiModuleRequestResult_t esp8266SendCommandWithResponse(
 }
 
 // Check response for previously sended commands that only have one response
-static wifiModuleRequestResult_t esp8266CheckCommandResponse(
-                                    char* resultMatch )
+static wifiModuleRequestResult_t
+esp8266CheckCommandResponse( wifiModuleRequestResult_t resultMatch )
 {
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );    
