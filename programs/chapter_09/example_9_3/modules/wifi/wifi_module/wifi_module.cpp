@@ -67,7 +67,7 @@ static wifiModuleRequestResult_t esp8266SendCommandWithResponse(
 
 // Check response for previously sended commands that only have one response
 static wifiModuleRequestResult_t esp8266CheckCommandResponse(
-                                    char const* resultMatch );
+                                    char* resultMatch );
 
 // Send commands that have two valid responses
 static wifiModuleRequestResult_t esp8266SendCommandWithTwoResponses( 
@@ -236,7 +236,7 @@ wifiModuleRequestResult_t wifiModuleIsConnectedWithAPResponse()
     esp8266UartByteRead( &receivedChar );
     // Si el caracter recibido es digito me lo guardo 
     if( charIsDigit(receivedChar) ) {
-        status = receivedChar;
+        status = (esp8266StationStatus_t) charDigitToIntDigit(receivedChar);
     }
     // Actualizao el parser pasandole el caracter recibido
     parserStatus = parserUpdate( &parser, receivedChar );
@@ -300,7 +300,7 @@ wifiModuleRequestResult_t wifiModuleConnectWithAPResponse()
     esp8266UartByteRead( &receivedChar );
     // Si el caracter recibido es digito me lo guardo 
     if( charIsDigit(receivedChar) ) {
-        status = receivedChar;
+        status = (wifiModuleRequestResult_t) charDigitToIntDigit(receivedChar);
     }
     // Actualizo los 2 parsers pasándole a cada uno el mismo caracter que llego, por esto decimos que actua en paralelo
     parserStatus = parserUpdate( &parser, receivedChar );
@@ -367,6 +367,7 @@ wifiModuleRequestResult_t wifiModuleIpGetResponse( char* ip )
     switch( parserStatus ) {
         case PARSER_PATTERN_MATCH:
             esp8266State = ESP8266_IDLE;
+            *ip[i] = '\0'; // Agrego el null para que la IP sea un string valido
             i = 0;
             return WIFI_MODULE_IP_GET_COMPLETE;
         break;
@@ -423,7 +424,7 @@ static wifiModuleRequestResult_t esp8266SendCommandWithResponse(
 
 // Check response for previously sended commands that only have one response
 static wifiModuleRequestResult_t esp8266CheckCommandResponse(
-                                    char const* resultMatch )
+                                    char* resultMatch )
 {
     char receivedChar = '\0';
     esp8266UartByteRead( &receivedChar );    

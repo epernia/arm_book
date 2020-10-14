@@ -207,7 +207,7 @@ static void runStateWifiModuleCheckAPConnection()
     }
 
     // CHECK TRANSITION CONDITIONS ------------------
-    switch( wifiModuleIsConnectedWithAPResponse( ip ) ) {
+    switch( wifiModuleIsConnectedWithAPResponse() ) {  // ??????????????????????????????????
         case WIFI_MODULE_IS_CONNECTED:
             pcSerialComStringWrite( "Wi-Fi module is connected. IP = " );
             pcSerialComStringWrite( ip );
