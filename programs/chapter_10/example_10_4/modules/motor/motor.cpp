@@ -4,6 +4,8 @@
 #include "arm_book_lib.h"
 
 #include "motor.h"
+#include "code.h"
+#include "siren.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -12,6 +14,7 @@
 bool motorDirection1LimitSwitchState;
 bool motorDirection2LimitSwitchState;
 int motorDirection;
+bool motorBlockedState;
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -34,6 +37,8 @@ void motorDirection1ButtonFall();
 void motorDirection2ButtonFall();
 void motorDirection1LimitSwitchFall();
 void motorDirection2LimitSwitchFall();
+static void motorUnblockUpdate();
+static void motorUnblock();
 
 //=====[Implementations of public functions]===================================
 
@@ -51,6 +56,7 @@ void motorControlInit()
 
     motorDirection1LimitSwitchState = OFF;
     motorDirection2LimitSwitchState = OFF;
+    motorBlockedState = OFF;
 
     motorM1Pin.mode(OpenDrain);
     motorM2Pin.mode(OpenDrain);
@@ -74,6 +80,40 @@ bool motorDirection1LimitSwitchStateRead()
 bool motorDirection2LimitSwitchStateRead()
 {
     return motorDirection2LimitSwitchState;
+}
+
+void motorCloseGate()
+{
+    if ( !motorDirection1LimitSwitchState ) {
+        motorM2Pin.input();
+        motorM1Pin.output();
+        motorM1Pin = LOW;
+        motorDirection = 1;
+        motorDirection2LimitSwitchState = OFF;
+    }
+    motorBlockedState = ON;
+    motorDirection1Button.fall(NULL);
+    motorDirection2Button.fall(NULL);    
+}
+
+void motorBlockedStateWrite( bool state )
+{
+    motorBlockedState = state;
+    
+    if  ( !state ) {
+        motorDirection1Button.fall(&motorDirection1ButtonFall);
+        motorDirection2Button.fall(&motorDirection2ButtonFall);
+    }
+}
+
+bool motorBlockedStateRead()
+{
+    return motorBlockedState;
+}
+
+void motorUpdate()
+{
+    motorUnblockUpdate();
 }
 
 //=====[Implementations of private functions]==================================
@@ -116,4 +156,20 @@ void motorDirection2LimitSwitchFall()
         motorDirection2LimitSwitchState = ON;
         motorM2Pin.input();
     }
+}
+
+static void motorUnblockUpdate()
+{
+    if ( motorBlockedStateRead() && motorBlockedState ) {
+        if ( codeMatchFrom(CODE_KEYPAD) ||
+             codeMatchFrom(CODE_PC_SERIAL) ) {
+            motorUnblock();
+        }
+    }
+}
+
+static void motorUnblock()
+{
+    motorBlockedStateWrite(OFF);
+    sirenStateWrite(OFF);
 }

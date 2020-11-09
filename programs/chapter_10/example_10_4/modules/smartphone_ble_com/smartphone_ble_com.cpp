@@ -1,9 +1,8 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
-#include "arm_book_lib.h"
 
-#include "pir.h"
+#include "smartphone_ble_com.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -11,7 +10,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn pirOutputSignal(PG_0);
+Serial uartBle(D1, D0);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -19,36 +18,14 @@ InterruptIn pirOutputSignal(PG_0);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool pirState;
-
 //=====[Declarations (prototypes) of private functions]========================
-
-void motionDetected();
-void motionCeased();
 
 //=====[Implementations of public functions]===================================
 
-void pirSensorInit()
+void smartphoneBleComWrite( const char* str )
 {
-    pirOutputSignal.rise(&motionDetected);
-    pirState = OFF;
-}
-
-bool pirSensorRead()
-{
-    return pirState;
+    uartBle.printf( "%s", str );
 }
 
 //=====[Implementations of private functions]==================================
 
-void motionDetected()
-{
-    pirState = ON;
-    pirOutputSignal.fall(&motionCeased);
-}
-
-void motionCeased()
-{
-    pirState = OFF;
-    pirOutputSignal.rise(&motionDetected);
-}

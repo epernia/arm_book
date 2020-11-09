@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _USER_INTERFACE_H_
+#define _USER_INTERFACE_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,11 +11,17 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorControlInit();
-int motorDirectionRead();
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
+void userInterfaceInit();
+void userInterfaceUpdate();
+bool userInterfaceCodeCompleteRead();
+void userInterfaceCodeCompleteWrite( bool state );
+
+bool incorrectCodeStateRead();
+void incorrectCodeStateWrite( bool state );
+
+bool systemBlockedStateRead();
+void systemBlockedStateWrite( bool state );
 
 //=====[#include guards - end]=================================================
 
-#endif // _MOTOR_H_
+#endif // _USER_INTERFACE_H_

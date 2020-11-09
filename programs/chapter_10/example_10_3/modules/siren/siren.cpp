@@ -3,7 +3,10 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "pir.h"
+#include "siren.h"
+
+#include "smart_home_system.h"
+#include "fire_alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -11,7 +14,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn pirOutputSignal(PG_0);
+DigitalOut alarmLed(LED1);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -19,36 +22,41 @@ InterruptIn pirOutputSignal(PG_0);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool pirState;
+static bool sirenState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-void motionDetected();
-void motionCeased();
-
 //=====[Implementations of public functions]===================================
 
-void pirSensorInit()
+void sirenInit()
 {
-    pirOutputSignal.rise(&motionDetected);
-    pirState = OFF;
+    alarmLed = OFF;
 }
 
-bool pirSensorRead()
+bool sirenStateRead()
 {
-    return pirState;
+    return sirenState;
+}
+
+void sirenStateWrite( bool state )
+{
+    sirenState = state;
+}
+
+void sirenIndicatorUpdate( int blinkTime )
+{
+    static int accumulatedTimeAlarm = 0;
+    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
+    
+    if( sirenState ) {
+        if( accumulatedTimeAlarm >= blinkTime ) {
+            accumulatedTimeAlarm = 0;
+            alarmLed = !alarmLed;
+        }
+    } else {
+        alarmLed = OFF;
+    }
 }
 
 //=====[Implementations of private functions]==================================
 
-void motionDetected()
-{
-    pirState = ON;
-    pirOutputSignal.fall(&motionCeased);
-}
-
-void motionCeased()
-{
-    pirState = OFF;
-    pirOutputSignal.rise(&motionDetected);
-}

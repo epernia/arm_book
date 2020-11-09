@@ -278,6 +278,9 @@ static void commandShowCurrentMotorState()
     if ( motorDirection2LimitSwitchStateRead() ) {
         uartUsb.printf( "Limit switch 2 is ON\r\n");
     } 
+    if ( motorBlockedStateRead() ) {
+        uartUsb.printf( "The motor is blocked\r\n");
+    } 
 }
 
 static void commandShowCurrentGasDetectorState()

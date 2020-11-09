@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _PIR_SENSOR_H_
+#define _PIR_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,11 +11,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorControlInit();
-int motorDirectionRead();
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
+void pirSensorInit();
+bool pirSensorRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _MOTOR_H_
+#endif // _PIR_SENSOR_H_

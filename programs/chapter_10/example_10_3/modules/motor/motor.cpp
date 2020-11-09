@@ -11,7 +11,7 @@
 
 bool motorDirection1LimitSwitchState;
 bool motorDirection2LimitSwitchState;
-int motorDirection;
+bool motorBlockedState;
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -19,8 +19,8 @@ InterruptIn motorDirection1Button(PF_9);
 InterruptIn motorDirection2Button(PF_8);
 InterruptIn motorDirection1LimitSwitch(PG_1);
 InterruptIn motorDirection2LimitSwitch(PF_7);
-DigitalInOut motorM1Pin(PF_2);
-DigitalInOut motorM2Pin(PE_3);
+DigitalOut motorM1Pin(PF_2);
+DigitalOut motorM2Pin(PE_3);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -51,19 +51,23 @@ void motorControlInit()
 
     motorDirection1LimitSwitchState = OFF;
     motorDirection2LimitSwitchState = OFF;
+    motorBlockedState = OFF;
 
     motorM1Pin.mode(OpenDrain);
     motorM2Pin.mode(OpenDrain);
     
-    motorM1Pin.input();
-    motorM2Pin.input();
-
-    motorDirection = 0;
+    motorM1Pin = HIGH;
+    motorM2Pin = HIGH;
 }
 
-int motorDirectionRead()
+bool motorM1PinRead()
 {
-    return motorDirection;
+    return motorM1Pin.read();
+}
+
+bool motorM2PinRead()
+{
+    return motorM2Pin.read();
 }
 
 bool motorDirection1LimitSwitchStateRead()
@@ -76,15 +80,34 @@ bool motorDirection2LimitSwitchStateRead()
     return motorDirection2LimitSwitchState;
 }
 
+void motorDirection1Move()
+{
+    if ( !motorDirection1LimitSwitchState ) {
+        motorM2Pin = HIGH;
+        motorM1Pin = LOW;
+    }
+    motorBlockedState = ON;
+    motorDirection1Button.fall(NULL);
+    motorDirection2Button.fall(NULL);    
+}
+
+void gateLockStateWrite( bool state )
+{
+    motorBlockedState = state;
+    
+    if  ( !state ) {
+        motorDirection1Button.fall(&motorDirection1ButtonFall);
+        motorDirection2Button.fall(&motorDirection2ButtonFall);
+    }
+}
+
 //=====[Implementations of private functions]==================================
 
 void motorDirection1ButtonFall()
 {
     if ( !motorDirection1LimitSwitchState ) {
-        motorM2Pin.input();
-        motorM1Pin.output();
+        motorM2Pin = HIGH;
         motorM1Pin = LOW;
-        motorDirection = 1;
         motorDirection2LimitSwitchState = OFF;
     }
 }
@@ -92,28 +115,20 @@ void motorDirection1ButtonFall()
 void motorDirection2ButtonFall()
 {
     if ( !motorDirection2LimitSwitchState ) {
-        motorM1Pin.input();
-        motorM2Pin.output();
+        motorM1Pin = HIGH;
         motorM2Pin = LOW;
-        motorDirection = 2;
         motorDirection1LimitSwitchState = OFF;
     }
 }
 
 void motorDirection1LimitSwitchFall()
 {
-    if ( motorDirection == 1 ) {
-        motorDirection = 0;
-        motorDirection1LimitSwitchState = ON;
-        motorM1Pin.input();
-    }
+    motorDirection1LimitSwitchState = ON;
+    motorM1Pin = HIGH;
 }
 
 void motorDirection2LimitSwitchFall()
 {
-    if ( motorDirection == 2 ) {
-        motorDirection = 0;
-        motorDirection2LimitSwitchState = ON;
-        motorM2Pin.input();
-    }
+    motorDirection2LimitSwitchState = ON;
+    motorM2Pin = HIGH;
 }

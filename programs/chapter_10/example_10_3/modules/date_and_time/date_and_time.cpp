@@ -1,9 +1,8 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
-#include "arm_book_lib.h"
 
-#include "pir.h"
+#include "date_and_time.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -11,44 +10,39 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn pirOutputSignal(PG_0);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool pirState;
-
 //=====[Declarations (prototypes) of private functions]========================
-
-void motionDetected();
-void motionCeased();
 
 //=====[Implementations of public functions]===================================
 
-void pirSensorInit()
+char* dateAndTimeRead()
 {
-    pirOutputSignal.rise(&motionDetected);
-    pirState = OFF;
+    time_t epochSeconds;
+    epochSeconds = time(NULL);
+    return ctime(&epochSeconds);    
 }
 
-bool pirSensorRead()
+void dateAndTimeWrite( int year, int month, int day, 
+                       int hour, int minute, int second )
 {
-    return pirState;
+    struct tm rtcTime;
+
+    rtcTime.tm_year = year - 1900;
+    rtcTime.tm_mon  = month - 1;
+    rtcTime.tm_mday = day;
+    rtcTime.tm_hour = hour;
+    rtcTime.tm_min  = minute;
+    rtcTime.tm_sec  = second;
+
+    rtcTime.tm_isdst = -1;
+
+    set_time( mktime( &rtcTime ) );
 }
 
 //=====[Implementations of private functions]==================================
 
-void motionDetected()
-{
-    pirState = ON;
-    pirOutputSignal.fall(&motionCeased);
-}
-
-void motionCeased()
-{
-    pirState = OFF;
-    pirOutputSignal.rise(&motionDetected);
-}

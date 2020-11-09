@@ -1,21 +1,25 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _FIRE_ALARM_H_
+#define _FIRE_ALARM_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
+
+
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorControlInit();
-int motorDirectionRead();
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
+void fireAlarmInit();
+void fireAlarmUpdate();
+bool gasDetectorStateRead();
+bool overTemperatureDetectorStateRead();
+bool gasDetectedRead();
+bool overTemperatureDetectedRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _MOTOR_H_
+#endif // _FIRE_ALARM_H_

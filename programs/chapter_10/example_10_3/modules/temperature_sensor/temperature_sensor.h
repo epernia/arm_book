@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _TEMPERATURE_SENSOR_H_
+#define _TEMPERATURE_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,11 +11,12 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorControlInit();
-int motorDirectionRead();
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
+void temperatureSensorInit();
+void temperatureSensorUpdate();
+float temperatureSensorReadCelsius();
+float temperatureSensorReadFahrenheit();
+float celsiusToFahrenheit( float tempInCelsiusDegrees );
 
 //=====[#include guards - end]=================================================
 
-#endif // _MOTOR_H_
+#endif // _TEMPERATURE_SENSOR_H_

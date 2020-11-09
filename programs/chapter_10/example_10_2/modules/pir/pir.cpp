@@ -11,7 +11,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn pir(PG_0);
+InterruptIn pirOutputSignal(PG_0);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -23,14 +23,14 @@ static bool pirState;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-void pirRise();
-void pirFall();
+void motionDetected();
+void motionCeased();
 
 //=====[Implementations of public functions]===================================
 
 void pirSensorInit()
 {
-    pir.rise(&pirRise);
+    pirOutputSignal.rise(&motionDetected);
     pirState = OFF;
 }
 
@@ -41,14 +41,14 @@ bool pirSensorRead()
 
 //=====[Implementations of private functions]==================================
 
-void pirRise()
+void motionDetected()
 {
-    pir.fall(&pirFall);
     pirState = ON;
+    pirOutputSignal.fall(&motionCeased);
 }
 
-void pirFall()
+void motionCeased()
 {
-    pir.rise(&pirRise);
     pirState = OFF;
+    pirOutputSignal.rise(&motionDetected);
 }

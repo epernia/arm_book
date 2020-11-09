@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _MATRIX_KEYPAD_H_
+#define _MATRIX_KEYPAD_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,11 +11,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorControlInit();
-int motorDirectionRead();
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
+void matrixKeypadInit( int updateTime_ms );
+char matrixKeypadUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _MOTOR_H_
+#endif // _MATRIX_KEYPAD_H_

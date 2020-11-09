@@ -12,9 +12,12 @@
 //=====[Declarations (prototypes) of public functions]=========================
 
 void motorControlInit();
-int motorDirectionRead();
+bool motorM1PinRead();
+bool motorM2PinRead();
 bool motorDirection1LimitSwitchStateRead();
 bool motorDirection2LimitSwitchStateRead();
+void motorDirection1Move();
+void gateLockStateWrite( bool state );
 
 //=====[#include guards - end]=================================================
 

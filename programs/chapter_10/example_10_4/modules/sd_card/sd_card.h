@@ -1,9 +1,11 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _SD_CARD_H_
+#define _SD_CARD_H_
 
 //=====[Libraries]=============================================================
+
+#define SD_CARD_FILENAME_MAX_LENGTH 32
 
 //=====[Declaration of public defines]=======================================
 
@@ -11,11 +13,12 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void motorControlInit();
-int motorDirectionRead();
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
+bool sdCardInit();
+bool sdCardWriteFile( const char* fileName, const char* writeBuffer );
+bool sdCardReadFile( const char * fileName, char * readBuffer );
+bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize );
+
 
 //=====[#include guards - end]=================================================
 
-#endif // _MOTOR_H_
+#endif // _SD_CARD_H_

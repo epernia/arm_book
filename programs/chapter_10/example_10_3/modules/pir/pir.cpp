@@ -43,12 +43,12 @@ bool pirSensorRead()
 
 void motionDetected()
 {
-    pirState = ON;
     pirOutputSignal.fall(&motionCeased);
+    pirState = ON;
 }
 
 void motionCeased()
 {
-    pirState = OFF;
     pirOutputSignal.rise(&motionDetected);
+    pirState = OFF;
 }

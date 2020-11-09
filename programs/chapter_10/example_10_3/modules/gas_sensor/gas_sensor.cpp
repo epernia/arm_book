@@ -1,9 +1,8 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
-#include "arm_book_lib.h"
 
-#include "pir.h"
+#include "gas_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -11,7 +10,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn pirOutputSignal(PG_0);
+DigitalIn gasDetector(D2);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -19,36 +18,24 @@ InterruptIn pirOutputSignal(PG_0);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool pirState;
-
 //=====[Declarations (prototypes) of private functions]========================
-
-void motionDetected();
-void motionCeased();
 
 //=====[Implementations of public functions]===================================
 
-void pirSensorInit()
+void gasSensorInit()
 {
-    pirOutputSignal.rise(&motionDetected);
-    pirState = OFF;
+    gasDetector.mode(PullDown);
 }
 
-bool pirSensorRead()
+void gasSensorUpdate()
 {
-    return pirState;
+    return;
+}
+
+float gasSensorRead()
+{
+    return (float)gasDetector;
 }
 
 //=====[Implementations of private functions]==================================
 
-void motionDetected()
-{
-    pirState = ON;
-    pirOutputSignal.fall(&motionCeased);
-}
-
-void motionCeased()
-{
-    pirState = OFF;
-    pirOutputSignal.rise(&motionDetected);
-}

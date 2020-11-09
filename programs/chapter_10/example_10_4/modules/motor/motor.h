@@ -13,8 +13,12 @@
 
 void motorControlInit();
 int motorDirectionRead();
+void motorCloseGate();
+void motorBlockedStateWrite( bool state );
 bool motorDirection1LimitSwitchStateRead();
 bool motorDirection2LimitSwitchStateRead();
+bool motorBlockedStateRead();
+void motorUpdate();
 
 //=====[#include guards - end]=================================================
 
