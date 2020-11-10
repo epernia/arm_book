@@ -160,7 +160,7 @@ void motorDirection2LimitSwitchFall()
 
 static void motorUnblockUpdate()
 {
-    if ( motorBlockedStateRead() && motorBlockedState ) {
+    if ( motorBlockedState ) {
         if ( codeMatchFrom(CODE_KEYPAD) ||
              codeMatchFrom(CODE_PC_SERIAL) ) {
             motorUnblock();
