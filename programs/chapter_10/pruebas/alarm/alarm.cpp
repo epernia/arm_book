@@ -3,10 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "siren.h"
-
-#include "smart_home_system.h"
-#include "fire_alarm.h"
+#include "alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -14,28 +11,26 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut alarmLed(LED1);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
+static bool alarmState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+void alarmInit()
 {
-    alarmLed = OFF;
+    alarmState = OFF;
 }
 
-bool sirenStateRead()
+bool alarmStateRead()
 {
-    return sirenState;
+    return alarmState;
 }
 
 void sirenStateWrite( bool state )

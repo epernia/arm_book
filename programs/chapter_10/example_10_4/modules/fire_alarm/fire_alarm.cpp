@@ -108,7 +108,7 @@ static void fireAlarmActivationUpdate()
 
 static void fireAlarmDeactivationUpdate()
 {
-    if ( overTemperatureDetected || gasDetected )  {
+    if ( overTemperatureDetected || gasDetected )  { 
         if ( codeMatchFrom(CODE_KEYPAD) ||
              codeMatchFrom(CODE_PC_SERIAL) ) {
             fireAlarmDeactivate();
