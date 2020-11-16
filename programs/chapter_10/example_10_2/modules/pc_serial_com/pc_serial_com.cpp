@@ -267,9 +267,11 @@ static void commandShowCurrentSirenState()
 static void commandShowCurrentMotorState()
 {
     switch ( motorDirectionRead() ) {
-        case 0: uartUsb.printf( "The motor is stopped\r\n"); break;
-        case 1: uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
-        case 2: uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
+        case STOPPED: uartUsb.printf( "The motor is stopped\r\n"); break;
+        case DIRECTION_1: 
+            uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
+        case DIRECTION_2: 
+            uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
     }
 
     if ( motorDirection1LimitSwitchStateRead() ) {
@@ -277,6 +279,9 @@ static void commandShowCurrentMotorState()
     } 
     if ( motorDirection2LimitSwitchStateRead() ) {
         uartUsb.printf( "Limit switch 2 is ON\r\n");
+    } 
+    if ( motorBlockedStateRead() ) {
+        uartUsb.printf( "The motor is blocked\r\n");
     } 
 }
 

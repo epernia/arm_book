@@ -12,7 +12,9 @@
 #include "sd_card.h"
 #include "sapi.h"
 #include "wifi_module.h"
-#include "pir.h"
+#include "motion_sensor.h"
+#include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -35,13 +37,15 @@ static delay_t smartHomeSystemDelay;
 
 void smartHomeSystemInit()
 {
-    tickInit(1); 
+    tickInit(1);          // Set 1 ms tick counter
     userInterfaceInit();
     fireAlarmInit();
     pcSerialComInit();
     sdCardInit();
     wifiModuleInit();
-    pirSensorInit();
+    motionSensorInit();
+    motorControlInit();
+    gateInit();
     delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
 }
 
@@ -51,6 +55,7 @@ void smartHomeSystemUpdate()
         userInterfaceUpdate();
         fireAlarmUpdate();
         eventLogUpdate();
+        motorUpdate();
     }
     pcSerialComUpdate();
 }

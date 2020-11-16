@@ -14,6 +14,7 @@
 #include "wifi_module.h"
 #include "pir.h"
 #include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -44,6 +45,7 @@ void smartHomeSystemInit()
     wifiModuleInit();
     pirSensorInit();
     motorControlInit();
+    gateInit();
     delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
 }
 
@@ -53,6 +55,7 @@ void smartHomeSystemUpdate()
         userInterfaceUpdate();
         fireAlarmUpdate();
         eventLogUpdate();
+        motorUpdate();
     }
     pcSerialComUpdate();
 }

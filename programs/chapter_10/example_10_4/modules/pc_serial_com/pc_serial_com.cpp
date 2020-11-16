@@ -5,6 +5,7 @@
 
 #include "pc_serial_com.h"
 
+#include "alarm.h"
 #include "siren.h"
 #include "fire_alarm.h"
 #include "code.h"
@@ -16,6 +17,7 @@
 #include "sapi.h"
 #include "wifi_module.h"
 #include "motor.h"
+#include "gate.h"
 
 
 //=====[Declaration of private defines]========================================
@@ -82,6 +84,7 @@ static void pcSerialComCommandUpdate( char receivedChar );
 static void availableCommands();
 static void commandShowCurrentSirenState();
 static void commandShowCurrentMotorState();
+static void commandShowCurrentGateState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTemperatureDetectorState();
 static void commandEnterCodeSequence();
@@ -230,6 +233,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'a': case 'A': commandSetAPWifiCredentials(); break; 
         case 'd': case 'D': commandCheckIfWifiModuleIsDetected(); break;
         case 'm': case 'M': commandShowCurrentMotorState(); break;
+        case 'g': case 'G': commandShowCurrentGateState(); break;
         default: availableCommands(); break;
     } 
 }
@@ -252,6 +256,8 @@ static void availableCommands()
     uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
     uartUsb.printf( "Press 'a' or 'A' to set Wi-Fi AP credentials\r\n" );
     uartUsb.printf( "Press 'd' or 'D' to test if the Wi-Fi module is detected\r\n" );
+    uartUsb.printf( "Press 'm' or 'M' to show the motor status\r\n" );
+    uartUsb.printf( "Press 'g' or 'G' to show the gate status\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -267,20 +273,23 @@ static void commandShowCurrentSirenState()
 static void commandShowCurrentMotorState()
 {
     switch ( motorDirectionRead() ) {
-        case 0: uartUsb.printf( "The motor is stopped\r\n"); break;
-        case 1: uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
-        case 2: uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
+        case STOPPED: uartUsb.printf( "The motor is stopped\r\n"); break;
+        case DIRECTION_1: 
+            uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
+        case DIRECTION_2: 
+            uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
     }
 
-    if ( motorDirection1LimitSwitchStateRead() ) {
-        uartUsb.printf( "Limit switch 1 is ON\r\n");
-    } 
-    if ( motorDirection2LimitSwitchStateRead() ) {
-        uartUsb.printf( "Limit switch 2 is ON\r\n");
-    } 
-    if ( motorBlockedStateRead() ) {
-        uartUsb.printf( "The motor is blocked\r\n");
-    } 
+}
+
+static void commandShowCurrentGateState()
+{
+    switch ( gateStatusRead() ) {
+        case GATE_CLOSED: uartUsb.printf( "The gate is closed\r\n"); break;
+        case GATE_OPEN: uartUsb.printf( "The gate is open\r\n"); break;
+        case GATE_OPENING: uartUsb.printf( "The gate is opening\r\n"); break;
+        case GATE_CLOSING: uartUsb.printf( "The gate is closing\r\n"); break;
+    }
 }
 
 static void commandShowCurrentGasDetectorState()
@@ -303,7 +312,7 @@ static void commandShowCurrentOverTemperatureDetectorState()
 
 static void commandEnterCodeSequence()
 {
-    if( sirenStateRead() ) {
+    if( alarmStateRead() ) {
         uartUsb.printf( "Please enter the four digits numeric code " );
         uartUsb.printf( "to deactivate the alarm.\r\n" );
         pcSerialComMode = PC_SERIAL_GET_CODE;

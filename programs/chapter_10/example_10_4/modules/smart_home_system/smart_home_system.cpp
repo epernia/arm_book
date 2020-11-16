@@ -4,16 +4,19 @@
 
 #include "smart_home_system.h"
 
+#include "alarm.h"
 #include "siren.h"
 #include "user_interface.h"
 #include "fire_alarm.h"
+#include "intruder_alarm.h"
 #include "pc_serial_com.h"
 #include "event_log.h"
 #include "sd_card.h"
 #include "sapi.h"
 #include "wifi_module.h"
-#include "pir.h"
+#include "motion_sensor.h"
 #include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -38,12 +41,15 @@ void smartHomeSystemInit()
 {
     tickInit(1);          // Set 1 ms tick counter
     userInterfaceInit();
+    alarmInit();
     fireAlarmInit();
+    intruderAlarmInit();
     pcSerialComInit();
     sdCardInit();
     wifiModuleInit();
-    pirSensorInit();
+    intruderAlarmInit();
     motorControlInit();
+    gateInit();
     delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );
 }
 
@@ -51,9 +57,11 @@ void smartHomeSystemUpdate()
 {
     if( delayRead(&smartHomeSystemDelay) ) {
         userInterfaceUpdate();
-        fireAlarmUpdate();
-        eventLogUpdate();
         motorUpdate();
+        fireAlarmUpdate();
+        intruderAlarmUpdate();
+        alarmUpdate();
+        eventLogUpdate();
     }
     pcSerialComUpdate();
 }

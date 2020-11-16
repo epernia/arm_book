@@ -42,7 +42,7 @@ Examples Ch 10
             typedef enum {
                GATE_CLOSE,
                GATE_OPEN,
-               GATE_OPPENING,
+               GATE_OPENING,
                GATE_CLOSING,
             } GateStatus_t;
 

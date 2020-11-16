@@ -4,6 +4,8 @@
 #include "arm_book_lib.h"
 
 #include "pir.h"
+#include "motor.h"
+#include "siren.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -44,6 +46,8 @@ bool pirSensorRead()
 void motionDetected()
 {
     pirState = ON;
+    //motorCloseGate();
+    //sirenStateWrite(ON);
     pirOutputSignal.fall(&motionCeased);
 }
 

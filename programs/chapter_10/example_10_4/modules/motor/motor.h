@@ -9,14 +9,20 @@
 
 //=====[Declaration of public data types]======================================
 
+typedef enum {
+    DIRECTION_1,
+    DIRECTION_2,
+    STOPPED
+} MotorDirection_t;
+
 //=====[Declarations (prototypes) of public functions]=========================
 
 void motorControlInit();
-int motorDirectionRead();
+void motorDirectionWrite( MotorDirection_t Direction );
+
+MotorDirection_t motorDirectionRead();
 void motorCloseGate();
 void motorBlockedStateWrite( bool state );
-bool motorDirection1LimitSwitchStateRead();
-bool motorDirection2LimitSwitchStateRead();
 bool motorBlockedStateRead();
 void motorUpdate();
 

@@ -15,6 +15,7 @@ void sirenInit();
 bool sirenStateRead();
 void sirenStateWrite( bool state );
 void sirenIndicatorUpdate( int blinkTime );
+int sirenBlinkTime();
 
 //=====[#include guards - end]=================================================
 

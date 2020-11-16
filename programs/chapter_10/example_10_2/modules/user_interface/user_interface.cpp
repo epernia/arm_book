@@ -15,6 +15,8 @@
 #include "matrix_keypad.h"
 #include "display.h"
 #include "GLCD_fire_alarm.h"
+#include "GLCD_intruder_alarm.h"
+#include "motor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -23,12 +25,15 @@
 
 //=====[Declaration of private data types]=====================================
 
-typedef enum{
+typedef enum {
     DISPLAY_ALARM_STATE,
     DISPLAY_REPORT_STATE
 } displayState_t;
 
 //=====[Declaration and initialization of public global objects]===============
+
+InterruptIn motorDirection1Button(PF_9);
+InterruptIn motorDirection2Button(PF_8);
 
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
@@ -43,6 +48,7 @@ char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
 
 static displayState_t displayState = DISPLAY_REPORT_STATE;
 static int displayAlarmGraphicSequence = 0;
+static int displayIntruderAlarmGraphicSequence = 0;
 static int displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
 
 static bool incorrectCodeState = OFF;
@@ -64,10 +70,19 @@ static void userInterfaceDisplayReportStateUpdate();
 static void userInterfaceDisplayAlarmStateInit();
 static void userInterfaceDisplayAlarmStateUpdate();
 
+static void motorDirection1ButtonCallback();
+static void motorDirection2ButtonCallback();
+
 //=====[Implementations of public functions]===================================
 
 void userInterfaceInit()
 {
+    motorDirection1Button.mode(PullUp);
+    motorDirection2Button.mode(PullUp);
+
+    motorDirection1Button.fall(&motorDirection1ButtonCallback);
+    motorDirection2Button.fall(&motorDirection2ButtonCallback);
+    
     incorrectCodeLed = OFF;
     systemBlockedLed = OFF;
     matrixKeypadInit( SYSTEM_TIME_INCREMENT_MS );
@@ -148,7 +163,7 @@ static void userInterfaceDisplayReportStateInit()
 {
     displayState = DISPLAY_REPORT_STATE;
     displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
-    
+
     displayModeWrite( DISPLAY_MODE_CHAR );
 
     displayCommandWrite(DISPLAY_CMD_CLEAR);
@@ -159,7 +174,7 @@ static void userInterfaceDisplayReportStateInit()
 
     displayCharPositionWrite ( 0,1 );
     displayStringWrite( "Gas:" );
-    
+
     displayCharPositionWrite ( 0,2 );
     displayStringWrite( "Alarm:" );
 }
@@ -167,7 +182,7 @@ static void userInterfaceDisplayReportStateInit()
 static void userInterfaceDisplayReportStateUpdate()
 {
     char temperatureString[2];
-    
+
     sprintf(temperatureString, "%.0f", temperatureSensorReadCelsius());
     displayCharPositionWrite ( 12,0 );
     displayStringWrite( temperatureString );
@@ -194,79 +209,96 @@ static void userInterfaceDisplayAlarmStateInit()
     delay(2);
 
     displayModeWrite( DISPLAY_MODE_GRAPHIC );
-   
+
     displayAlarmGraphicSequence = 0;
 }
 
 static void userInterfaceDisplayAlarmStateUpdate()
 {
-    switch( displayAlarmGraphicSequence ){
+    if ( ( gasDetectedRead() ) || ( overTemperatureDetectedRead() ) ) {
+        switch( displayAlarmGraphicSequence ) {
         case 0:
             displayBitmapWrite( GLCD_fire_alarm_0 );
             displayAlarmGraphicSequence++;
-        break;
+            break;
         case 1:
             displayBitmapWrite( GLCD_fire_alarm_1 );
             displayAlarmGraphicSequence++;
-        break;
+            break;
         case 2:
             displayBitmapWrite( GLCD_fire_alarm_2 );
             displayAlarmGraphicSequence++;
-        break;
+            break;
         case 3:
             displayBitmapWrite( GLCD_fire_alarm_3 );
             displayAlarmGraphicSequence = 0;
-        break;
+            break;
         default:
             displayBitmapWrite( GLCD_fire_alarm_0 );
             displayAlarmGraphicSequence = 1;
-        break;                   
+            break;
+        }
+    } else if ( motorBlockedStateRead() ) {
+        switch( displayIntruderAlarmGraphicSequence ) {
+        case 0:
+            displayBitmapWrite( GLCD_intruder_alarm_0 );
+            displayIntruderAlarmGraphicSequence++;
+            break;
+        case 1:
+            displayBitmapWrite( GLCD_intruder_alarm_1 );
+            displayIntruderAlarmGraphicSequence++;
+            break;
+        default:
+            displayBitmapWrite( GLCD_intruder_alarm_0 );
+            displayIntruderAlarmGraphicSequence = 0;
+            break;
+        }
     }
 }
 
 static void userInterfaceDisplayInit()
 {
     displayInit( DISPLAY_TYPE_GLCD_ST7920, DISPLAY_CONNECTION_SPI,
-                        16, 4,
-                        8, 16,
-                        128, 64 );
+                 16, 4,
+                 8, 16,
+                 128, 64 );
     userInterfaceDisplayReportStateInit();
 }
 
 static void userInterfaceDisplayUpdate()
 {
     static int accumulatedDisplayTime = 0;
-    
+
     if( accumulatedDisplayTime >=
         displayRefreshTimeMs ) {
 
         accumulatedDisplayTime = 0;
 
         switch ( displayState ) {
-            case DISPLAY_REPORT_STATE:
-                userInterfaceDisplayReportStateUpdate();
+        case DISPLAY_REPORT_STATE:
+            userInterfaceDisplayReportStateUpdate();
 
-                if ( sirenStateRead() ) {
-                    userInterfaceDisplayAlarmStateInit();
-                }
+            if ( sirenStateRead() ) {
+                userInterfaceDisplayAlarmStateInit();
+            }
             break;
 
-            case DISPLAY_ALARM_STATE:
-                userInterfaceDisplayAlarmStateUpdate();
+        case DISPLAY_ALARM_STATE:
+            userInterfaceDisplayAlarmStateUpdate();
 
-                if ( !sirenStateRead() ) {
-                    userInterfaceDisplayReportStateInit();
-                }
-            break;
-
-            default:
+            if ( !sirenStateRead() ) {
                 userInterfaceDisplayReportStateInit();
+            }
+            break;
+
+        default:
+            userInterfaceDisplayReportStateInit();
             break;
         }
 
-   } else {
+    } else {
         accumulatedDisplayTime =
-            accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;        
+            accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;
     }
 }
 
@@ -278,4 +310,14 @@ static void incorrectCodeIndicatorUpdate()
 static void systemBlockedIndicatorUpdate()
 {
     systemBlockedLed = systemBlockedState;
+}
+
+static void motorDirection1ButtonCallback()
+{
+    motorDirectionWrite( DIRECTION_1 );
+}
+
+static void motorDirection2ButtonCallback()
+{
+    motorDirectionWrite( DIRECTION_2 );
 }

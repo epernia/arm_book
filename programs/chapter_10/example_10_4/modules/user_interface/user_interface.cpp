@@ -6,9 +6,10 @@
 #include "user_interface.h"
 
 #include "code.h"
-#include "siren.h"
+#include "alarm.h"
 #include "smart_home_system.h"
 #include "fire_alarm.h"
+#include "intruder_alarm.h"
 #include "date_and_time.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
@@ -17,6 +18,7 @@
 #include "GLCD_fire_alarm.h"
 #include "GLCD_intruder_alarm.h"
 #include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -31,6 +33,9 @@ typedef enum {
 } displayState_t;
 
 //=====[Declaration and initialization of public global objects]===============
+
+InterruptIn gateOpenButton(PF_9);
+InterruptIn gateCloseButton(PF_8);
 
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
@@ -67,10 +72,19 @@ static void userInterfaceDisplayReportStateUpdate();
 static void userInterfaceDisplayAlarmStateInit();
 static void userInterfaceDisplayAlarmStateUpdate();
 
+static void gateOpenButtonCallback();
+static void gateCloseButtonCallback();
+
 //=====[Implementations of public functions]===================================
 
 void userInterfaceInit()
 {
+    gateOpenButton.mode(PullUp);
+    gateCloseButton.mode(PullUp);
+
+    gateOpenButton.fall(&gateOpenButtonCallback);
+    gateCloseButton.fall(&gateCloseButtonCallback);
+    
     incorrectCodeLed = OFF;
     systemBlockedLed = OFF;
     matrixKeypadInit( SYSTEM_TIME_INCREMENT_MS );
@@ -124,7 +138,7 @@ static void userInterfaceMatrixKeypadUpdate()
 
     if( keyReleased != '\0' ) {
 
-        if( sirenStateRead() && !systemBlockedStateRead() ) {
+        if( alarmStateRead() && !systemBlockedStateRead() ) {
             if( !incorrectCodeStateRead() ) {
                 codeSequenceFromUserInterface[numberOfCodeChars] = keyReleased;
                 numberOfCodeChars++;
@@ -226,7 +240,7 @@ static void userInterfaceDisplayAlarmStateUpdate()
             displayAlarmGraphicSequence = 1;
             break;
         }
-    } else if ( motorBlockedStateRead() ) {
+    } else if ( intruderDetectedRead() ) {
         switch( displayIntruderAlarmGraphicSequence ) {
         case 0:
             displayBitmapWrite( GLCD_intruder_alarm_0 );
@@ -266,7 +280,7 @@ static void userInterfaceDisplayUpdate()
         case DISPLAY_REPORT_STATE:
             userInterfaceDisplayReportStateUpdate();
 
-            if ( sirenStateRead() ) {
+            if ( alarmStateRead() ) {
                 userInterfaceDisplayAlarmStateInit();
             }
             break;
@@ -274,7 +288,7 @@ static void userInterfaceDisplayUpdate()
         case DISPLAY_ALARM_STATE:
             userInterfaceDisplayAlarmStateUpdate();
 
-            if ( !sirenStateRead() ) {
+            if ( !alarmStateRead() ) {
                 userInterfaceDisplayReportStateInit();
             }
             break;
@@ -298,4 +312,14 @@ static void incorrectCodeIndicatorUpdate()
 static void systemBlockedIndicatorUpdate()
 {
     systemBlockedLed = systemBlockedState;
+}
+
+static void gateOpenButtonCallback()
+{
+    gateOpen();
+}
+
+static void gateCloseButtonCallback()
+{
+    gateClose();
 }

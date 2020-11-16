@@ -15,7 +15,7 @@
 #include "sd_card.h"
 #include "sapi.h"
 #include "wifi_module.h"
-
+#include "motor.h"
 
 
 //=====[Declaration of private defines]========================================
@@ -81,7 +81,7 @@ static void pcSerialComCommandUpdate( char receivedChar );
 
 static void availableCommands();
 static void commandShowCurrentSirenState();
-
+static void commandShowCurrentMotorState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTemperatureDetectorState();
 static void commandEnterCodeSequence();
@@ -229,7 +229,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'l': case 'L': commandsdCardListFiles(); break;
         case 'a': case 'A': commandSetAPWifiCredentials(); break; 
         case 'd': case 'D': commandCheckIfWifiModuleIsDetected(); break;
-
+        case 'm': case 'M': commandShowCurrentMotorState(); break;
         default: availableCommands(); break;
     } 
 }
@@ -264,7 +264,26 @@ static void commandShowCurrentSirenState()
     }
 }
 
-
+static void commandShowCurrentMotorState()
+{
+    switch ( motorDirectionRead() ) {
+        case STOPPED: uartUsb.printf( "The motor is stopped\r\n"); break;
+        case DIRECTION_1: 
+            uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
+        case DIRECTION_2: 
+            uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
+    }
+/*
+    if ( motorDirection1LimitSwitchStateRead() ) {
+        uartUsb.printf( "Limit switch 1 is ON\r\n");
+    } 
+    if ( motorDirection2LimitSwitchStateRead() ) {
+        uartUsb.printf( "Limit switch 2 is ON\r\n");
+    } 
+    if ( motorBlockedStateRead() ) {
+        uartUsb.printf( "The motor is blocked\r\n");
+    } */
+}
 
 static void commandShowCurrentGasDetectorState()
 {
