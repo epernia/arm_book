@@ -52,17 +52,7 @@ MotorDirection_t motorDirectionRead()
 {
     return motorDirection;
 }
-
-bool motorDirection1LimitSwitchStateRead()
-{
-    return motorDirection1LimitSwitchState;
-}
-
-bool motorDirection2LimitSwitchStateRead()
-{
-    return motorDirection2LimitSwitchState;
-}
-
+/*
 void motorCloseGate()
 {
     if ( !motorDirection1LimitSwitchState ) {
@@ -70,13 +60,13 @@ void motorCloseGate()
         motorM1Pin.output();
         motorM1Pin = LOW;
         motorDirection = DIRECTION_1;
-        motorDirection2LimitSwitchState = OFF;
+        //motorDirection2LimitSwitchState = OFF;
     }
     motorBlockedState = ON;
     //motorDirection1Button.fall(NULL);
     //motorDirection2Button.fall(NULL);    
 }
-
+*/
 void motorBlockedStateWrite( bool state )
 {
     motorBlockedState = state;
@@ -100,31 +90,25 @@ void motorUpdate()
 void motorDirectionWrite( MotorDirection_t Direction )
 {
     switch ( Direction ) {
-    case DIRECTION_1:
-        if ( !motorDirection1LimitSwitchState ) {
+        case DIRECTION_1:
             motorM2Pin.input();
             motorM1Pin.output();
             motorM1Pin = LOW;
             motorDirection = DIRECTION_1;
-            motorDirection2LimitSwitchState = OFF;
-        }
-    break;
+        break;
 
-    case DIRECTION_2:
-        if ( !motorDirection2LimitSwitchState ) {
+        case DIRECTION_2:
             motorM1Pin.input();
             motorM2Pin.output();
             motorM2Pin = LOW;
             motorDirection = DIRECTION_2;
-            motorDirection1LimitSwitchState = OFF;
-        }
-    break;
+        break;
 
-    default:
-        motorM1Pin.input();
-        motorM2Pin.input();
-        motorDirection = STOPPED;
-    break;
+        default:
+            motorM1Pin.input();
+            motorM2Pin.input();
+            motorDirection = STOPPED;
+        break;
     }
 }
 

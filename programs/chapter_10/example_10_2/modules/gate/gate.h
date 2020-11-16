@@ -10,9 +10,9 @@
 //=====[Declaration of public data types]======================================
 
 typedef enum {
-    GATE_CLOSE,
+    GATE_CLOSED,
     GATE_OPEN,
-    GATE_OPPENING,
+    GATE_OPENING,
     GATE_CLOSING,
 } gateStatus_t;
 
@@ -26,7 +26,7 @@ void gateClose();
 void gateLock();
 void gateUnlock();
 
-gateStatus_t gateStatus();
+gateStatus_t gateStatusRead();
 
 //=====[#include guards - end]=================================================
 

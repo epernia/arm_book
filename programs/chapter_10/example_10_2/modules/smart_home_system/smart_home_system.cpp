@@ -12,7 +12,7 @@
 #include "sd_card.h"
 #include "sapi.h"
 #include "wifi_module.h"
-#include "pir.h"
+
 #include "motor.h"
 #include "gate.h"
 
@@ -43,7 +43,7 @@ void smartHomeSystemInit()
     pcSerialComInit();
     sdCardInit();
     wifiModuleInit();
-    pirSensorInit();
+
     motorControlInit();
     gateInit();
     delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );

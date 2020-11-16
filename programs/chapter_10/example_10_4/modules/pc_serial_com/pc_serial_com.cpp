@@ -5,7 +5,6 @@
 
 #include "pc_serial_com.h"
 
-#include "alarm.h"
 #include "siren.h"
 #include "fire_alarm.h"
 #include "code.h"
@@ -281,7 +280,6 @@ static void commandShowCurrentMotorState()
     }
 
 }
-
 static void commandShowCurrentGateState()
 {
     switch ( gateStatusRead() ) {
@@ -312,7 +310,7 @@ static void commandShowCurrentOverTemperatureDetectorState()
 
 static void commandEnterCodeSequence()
 {
-    if( alarmStateRead() ) {
+    if( sirenStateRead() ) {
         uartUsb.printf( "Please enter the four digits numeric code " );
         uartUsb.printf( "to deactivate the alarm.\r\n" );
         pcSerialComMode = PC_SERIAL_GET_CODE;

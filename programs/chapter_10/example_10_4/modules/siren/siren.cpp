@@ -7,19 +7,14 @@
 
 #include "smart_home_system.h"
 #include "fire_alarm.h"
-#include "intruder_alarm.h"
 
 //=====[Declaration of private defines]======================================
-
-#define SIREN_BLINKING_TIME_INTRUDER_ALARM          1000
-#define SIREN_BLINKING_TIME_FIRE_ALARM               500
-#define SIREN_BLINKING_TIME_FIRE_AND_INTRUDER_ALARM  100
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut sirenLed(LED1);
+DigitalOut alarmLed(LED1);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -35,7 +30,7 @@ static bool sirenState = OFF;
 
 void sirenInit()
 {
-    sirenLed = OFF;
+    alarmLed = OFF;
 }
 
 bool sirenStateRead()
@@ -56,28 +51,11 @@ void sirenIndicatorUpdate( int blinkTime )
     if( sirenState ) {
         if( accumulatedTimeAlarm >= blinkTime ) {
             accumulatedTimeAlarm = 0;
-            sirenLed = !sirenLed;
+            alarmLed = !alarmLed;
         }
     } else {
-        sirenLed = OFF;
+        alarmLed = OFF;
     }
 }
 
-int sirenBlinkTime()
-{
-    if ( ( gasDetectedRead() || overTemperatureDetectedRead() ) && 
-           intruderDetectedRead() ) {
-        return SIREN_BLINKING_TIME_FIRE_AND_INTRUDER_ALARM;
-
-    } else if ( gasDetectedRead() || overTemperatureDetectedRead() ) {
-        return SIREN_BLINKING_TIME_FIRE_ALARM;
-
-    } else if ( intruderDetectedRead() ) {
-        return SIREN_BLINKING_TIME_INTRUDER_ALARM;
-        
-    } else {
-        return 0;
-    }
-}
 //=====[Implementations of private functions]==================================
-

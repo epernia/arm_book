@@ -6,10 +6,9 @@
 #include "user_interface.h"
 
 #include "code.h"
-#include "alarm.h"
+#include "siren.h"
 #include "smart_home_system.h"
 #include "fire_alarm.h"
-#include "intruder_alarm.h"
 #include "date_and_time.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
@@ -138,7 +137,7 @@ static void userInterfaceMatrixKeypadUpdate()
 
     if( keyReleased != '\0' ) {
 
-        if( alarmStateRead() && !systemBlockedStateRead() ) {
+        if( sirenStateRead() && !systemBlockedStateRead() ) {
             if( !incorrectCodeStateRead() ) {
                 codeSequenceFromUserInterface[numberOfCodeChars] = keyReleased;
                 numberOfCodeChars++;
@@ -217,45 +216,31 @@ static void userInterfaceDisplayAlarmStateInit()
 
 static void userInterfaceDisplayAlarmStateUpdate()
 {
-    if ( ( gasDetectedRead() ) || ( overTemperatureDetectedRead() ) ) {
-        switch( displayAlarmGraphicSequence ) {
-        case 0:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence++;
-            break;
-        case 1:
-            displayBitmapWrite( GLCD_fire_alarm_1 );
-            displayAlarmGraphicSequence++;
-            break;
-        case 2:
-            displayBitmapWrite( GLCD_fire_alarm_2 );
-            displayAlarmGraphicSequence++;
-            break;
-        case 3:
-            displayBitmapWrite( GLCD_fire_alarm_3 );
-            displayAlarmGraphicSequence = 0;
-            break;
-        default:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence = 1;
-            break;
-        }
-    } else if ( intruderDetectedRead() ) {
-        switch( displayIntruderAlarmGraphicSequence ) {
-        case 0:
-            displayBitmapWrite( GLCD_intruder_alarm_0 );
-            displayIntruderAlarmGraphicSequence++;
-            break;
-        case 1:
-            displayBitmapWrite( GLCD_intruder_alarm_1 );
-            displayIntruderAlarmGraphicSequence++;
-            break;
-        default:
-            displayBitmapWrite( GLCD_intruder_alarm_0 );
-            displayIntruderAlarmGraphicSequence = 0;
-            break;
-        }
+
+    switch( displayAlarmGraphicSequence ) {
+    case 0:
+        displayBitmapWrite( GLCD_fire_alarm_0 );
+        displayAlarmGraphicSequence++;
+        break;
+    case 1:
+        displayBitmapWrite( GLCD_fire_alarm_1 );
+        displayAlarmGraphicSequence++;
+        break;
+    case 2:
+        displayBitmapWrite( GLCD_fire_alarm_2 );
+        displayAlarmGraphicSequence++;
+        break;
+    case 3:
+        displayBitmapWrite( GLCD_fire_alarm_3 );
+        displayAlarmGraphicSequence = 0;
+        break;
+    default:
+        displayBitmapWrite( GLCD_fire_alarm_0 );
+        displayAlarmGraphicSequence = 1;
+        break;
     }
+
+
 }
 
 static void userInterfaceDisplayInit()
@@ -280,7 +265,7 @@ static void userInterfaceDisplayUpdate()
         case DISPLAY_REPORT_STATE:
             userInterfaceDisplayReportStateUpdate();
 
-            if ( alarmStateRead() ) {
+            if ( sirenStateRead() ) {
                 userInterfaceDisplayAlarmStateInit();
             }
             break;
@@ -288,7 +273,7 @@ static void userInterfaceDisplayUpdate()
         case DISPLAY_ALARM_STATE:
             userInterfaceDisplayAlarmStateUpdate();
 
-            if ( !alarmStateRead() ) {
+            if ( !sirenStateRead() ) {
                 userInterfaceDisplayReportStateInit();
             }
             break;

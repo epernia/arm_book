@@ -12,7 +12,7 @@
 #include "pc_serial_com.h"
 #include "smartphone_ble_com.h"
 #include "sd_card.h"
-#include "pir.h"
+
 #include "motor.h"
 
 //=====[Declaration of private defines]======================================
@@ -38,7 +38,7 @@ static bool gasLastState            = OFF;
 static bool tempLastState           = OFF;
 static bool ICLastState             = OFF;
 static bool SBLastState             = OFF;
-static bool pirLastState            = OFF;
+
 static bool motorBlockedLastState   = OFF;
 static int eventsIndex              = 0;
 static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
@@ -73,9 +73,7 @@ void eventLogUpdate()
     eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
     SBLastState = currentState;
 
-    currentState = pirSensorRead();
-    eventLogElementStateUpdate( pirLastState ,currentState, "PIR_DET" );
-    pirLastState = currentState;
+
 
     currentState = motorBlockedStateRead();
     eventLogElementStateUpdate( motorBlockedLastState ,currentState, "MOT_BLK" );

@@ -42,8 +42,7 @@ void gateInit()
     gateCloseLimitSwitch.fall(&gateCloseLimitSwitchCallback);
 
     gateOpenLimitSwitchState = OFF;
-    gateCloseLimitSwitchState = ON;
-    gateStatus = GATE_CLOSED;
+    gateCloseLimitSwitchState = OFF;
 }
 
 void gateOpen()

@@ -17,6 +17,7 @@
 #include "GLCD_fire_alarm.h"
 #include "GLCD_intruder_alarm.h"
 #include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -32,8 +33,8 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn motorDirection1Button(PF_9);
-InterruptIn motorDirection2Button(PF_8);
+InterruptIn gateOpenButton(PF_9);
+InterruptIn gateCloseButton(PF_8);
 
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
@@ -70,18 +71,18 @@ static void userInterfaceDisplayReportStateUpdate();
 static void userInterfaceDisplayAlarmStateInit();
 static void userInterfaceDisplayAlarmStateUpdate();
 
-static void motorDirection1ButtonCallback();
-static void motorDirection2ButtonCallback();
+static void gateOpenButtonCallback();
+static void gateCloseButtonCallback();
 
 //=====[Implementations of public functions]===================================
 
 void userInterfaceInit()
 {
-    motorDirection1Button.mode(PullUp);
-    motorDirection2Button.mode(PullUp);
+    gateOpenButton.mode(PullUp);
+    gateCloseButton.mode(PullUp);
 
-    motorDirection1Button.fall(&motorDirection1ButtonCallback);
-    motorDirection2Button.fall(&motorDirection2ButtonCallback);
+    gateOpenButton.fall(&gateOpenButtonCallback);
+    gateCloseButton.fall(&gateCloseButtonCallback);
     
     incorrectCodeLed = OFF;
     systemBlockedLed = OFF;
@@ -215,45 +216,31 @@ static void userInterfaceDisplayAlarmStateInit()
 
 static void userInterfaceDisplayAlarmStateUpdate()
 {
-    if ( ( gasDetectedRead() ) || ( overTemperatureDetectedRead() ) ) {
-        switch( displayAlarmGraphicSequence ) {
-        case 0:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence++;
-            break;
-        case 1:
-            displayBitmapWrite( GLCD_fire_alarm_1 );
-            displayAlarmGraphicSequence++;
-            break;
-        case 2:
-            displayBitmapWrite( GLCD_fire_alarm_2 );
-            displayAlarmGraphicSequence++;
-            break;
-        case 3:
-            displayBitmapWrite( GLCD_fire_alarm_3 );
-            displayAlarmGraphicSequence = 0;
-            break;
-        default:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence = 1;
-            break;
-        }
-    } else if ( motorBlockedStateRead() ) {
-        switch( displayIntruderAlarmGraphicSequence ) {
-        case 0:
-            displayBitmapWrite( GLCD_intruder_alarm_0 );
-            displayIntruderAlarmGraphicSequence++;
-            break;
-        case 1:
-            displayBitmapWrite( GLCD_intruder_alarm_1 );
-            displayIntruderAlarmGraphicSequence++;
-            break;
-        default:
-            displayBitmapWrite( GLCD_intruder_alarm_0 );
-            displayIntruderAlarmGraphicSequence = 0;
-            break;
-        }
+
+    switch( displayAlarmGraphicSequence ) {
+    case 0:
+        displayBitmapWrite( GLCD_fire_alarm_0 );
+        displayAlarmGraphicSequence++;
+        break;
+    case 1:
+        displayBitmapWrite( GLCD_fire_alarm_1 );
+        displayAlarmGraphicSequence++;
+        break;
+    case 2:
+        displayBitmapWrite( GLCD_fire_alarm_2 );
+        displayAlarmGraphicSequence++;
+        break;
+    case 3:
+        displayBitmapWrite( GLCD_fire_alarm_3 );
+        displayAlarmGraphicSequence = 0;
+        break;
+    default:
+        displayBitmapWrite( GLCD_fire_alarm_0 );
+        displayAlarmGraphicSequence = 1;
+        break;
     }
+
+
 }
 
 static void userInterfaceDisplayInit()
@@ -312,12 +299,12 @@ static void systemBlockedIndicatorUpdate()
     systemBlockedLed = systemBlockedState;
 }
 
-static void motorDirection1ButtonCallback()
+static void gateOpenButtonCallback()
 {
-    motorDirectionWrite( DIRECTION_1 );
+    gateOpen();
 }
 
-static void motorDirection2ButtonCallback()
+static void gateCloseButtonCallback()
 {
-    motorDirectionWrite( DIRECTION_2 );
+    gateClose();
 }
