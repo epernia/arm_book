@@ -12,6 +12,7 @@
 #include "date_and_time.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
+#include "motion_sensor.h"
 #include "matrix_keypad.h"
 #include "display.h"
 #include "GLCD_fire_alarm.h"
@@ -155,6 +156,13 @@ static void userInterfaceMatrixKeypadUpdate()
                         incorrectCodeState = OFF;
                     }
                 }
+            }
+        } else if ( !systemBlockedStateRead() ) {
+            if( keyReleased == 'A' ) {
+                motionSensorActivate();
+            }
+            if( keyReleased == 'B' ) {
+                motionSensorDeactivate();
             }
         }
     }

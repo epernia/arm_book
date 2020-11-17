@@ -252,6 +252,7 @@ static void availableCommands()
     uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
     uartUsb.printf( "Press 'a' or 'A' to set Wi-Fi AP credentials\r\n" );
     uartUsb.printf( "Press 'd' or 'D' to test if the Wi-Fi module is detected\r\n" );
+    uartUsb.printf( "Press 'm' or 'M' to show the motor status\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -274,15 +275,6 @@ static void commandShowCurrentMotorState()
             uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
     }
 
-    if ( motorDirection1LimitSwitchStateRead() ) {
-        uartUsb.printf( "Limit switch 1 is ON\r\n");
-    } 
-    if ( motorDirection2LimitSwitchStateRead() ) {
-        uartUsb.printf( "Limit switch 2 is ON\r\n");
-    } 
-    if ( motorBlockedStateRead() ) {
-        uartUsb.printf( "The motor is blocked\r\n");
-    } 
 }
 
 static void commandShowCurrentGasDetectorState()

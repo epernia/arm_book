@@ -12,9 +12,7 @@
 #include "sd_card.h"
 #include "sapi.h"
 #include "wifi_module.h"
-
 #include "motor.h"
-#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -55,7 +53,6 @@ void smartHomeSystemUpdate()
         userInterfaceUpdate();
         fireAlarmUpdate();
         eventLogUpdate();
-        motorUpdate();
     }
     pcSerialComUpdate();
 }

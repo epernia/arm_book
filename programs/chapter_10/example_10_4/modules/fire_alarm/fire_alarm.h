@@ -19,6 +19,7 @@ bool gasDetectorStateRead();
 bool overTemperatureDetectorStateRead();
 bool gasDetectedRead();
 bool overTemperatureDetectedRead();
+void fireAlarmDeactivate();
 
 //=====[#include guards - end]=================================================
 

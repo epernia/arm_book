@@ -5,11 +5,13 @@
 
 #include "pc_serial_com.h"
 
+#include "alarm.h"
 #include "siren.h"
 #include "fire_alarm.h"
 #include "code.h"
 #include "date_and_time.h"
 #include "temperature_sensor.h"
+#include "motion_sensor.h"
 #include "gas_sensor.h"
 #include "event_log.h"
 #include "sd_card.h"
@@ -98,6 +100,8 @@ static void commandGetFileName();
 static void commandsdCardListFiles();
 static void commandSetAPWifiCredentials();
 static void commandCheckIfWifiModuleIsDetected();
+static void commandMotionSensorActivate();
+static void commandMotionSensorDeactivate();
 
 //=====[Implementations of public functions]===================================
 
@@ -233,6 +237,8 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'd': case 'D': commandCheckIfWifiModuleIsDetected(); break;
         case 'm': case 'M': commandShowCurrentMotorState(); break;
         case 'g': case 'G': commandShowCurrentGateState(); break;
+        case 'i': case 'I': commandMotionSensorActivate(); break;
+        case 'h': case 'H': commandMotionSensorDeactivate(); break;
         default: availableCommands(); break;
     } 
 }
@@ -257,6 +263,8 @@ static void availableCommands()
     uartUsb.printf( "Press 'd' or 'D' to test if the Wi-Fi module is detected\r\n" );
     uartUsb.printf( "Press 'm' or 'M' to show the motor status\r\n" );
     uartUsb.printf( "Press 'g' or 'G' to show the gate status\r\n" );
+    uartUsb.printf( "Press 'I' or 'I' to activate the motion sensor\r\n" );
+    uartUsb.printf( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -280,6 +288,7 @@ static void commandShowCurrentMotorState()
     }
 
 }
+
 static void commandShowCurrentGateState()
 {
     switch ( gateStatusRead() ) {
@@ -299,6 +308,16 @@ static void commandShowCurrentGasDetectorState()
     }    
 }
 
+static void commandMotionSensorActivate()
+{
+    motionSensorActivate();
+}
+
+static void commandMotionSensorDeactivate()
+{
+    motionSensorDeactivate();
+}
+
 static void commandShowCurrentOverTemperatureDetectorState()
 {
     if ( overTemperatureDetectorStateRead() ) {
@@ -310,7 +329,7 @@ static void commandShowCurrentOverTemperatureDetectorState()
 
 static void commandEnterCodeSequence()
 {
-    if( sirenStateRead() ) {
+    if( alarmStateRead() ) {
         uartUsb.printf( "Please enter the four digits numeric code " );
         uartUsb.printf( "to deactivate the alarm.\r\n" );
         pcSerialComMode = PC_SERIAL_GET_CODE;

@@ -55,7 +55,6 @@ void smartHomeSystemUpdate()
         userInterfaceUpdate();
         fireAlarmUpdate();
         eventLogUpdate();
-        motorUpdate();
     }
     pcSerialComUpdate();
 }

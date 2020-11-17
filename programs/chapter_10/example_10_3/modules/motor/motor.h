@@ -21,10 +21,6 @@ void motorControlInit();
 void motorDirectionWrite( MotorDirection_t Direction );
 
 MotorDirection_t motorDirectionRead();
-void motorCloseGate();
-void motorBlockedStateWrite( bool state );
-bool motorBlockedStateRead();
-void motorUpdate();
 
 //=====[#include guards - end]=================================================
 

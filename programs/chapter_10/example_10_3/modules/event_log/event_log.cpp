@@ -38,7 +38,6 @@ static bool gasLastState            = OFF;
 static bool tempLastState           = OFF;
 static bool ICLastState             = OFF;
 static bool SBLastState             = OFF;
-static bool motionLastState            = OFF;
 static bool motorBlockedLastState   = OFF;
 static int eventsIndex              = 0;
 static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
@@ -77,9 +76,7 @@ void eventLogUpdate()
     eventLogElementStateUpdate( motionLastState ,currentState, "MOTION" );
     motionLastState = currentState;
 
-    currentState = motorBlockedStateRead();
-    eventLogElementStateUpdate( motorBlockedLastState ,currentState, "MOT_BLK" );
-    motorBlockedLastState = currentState;
+
 }
 
 int eventLogNumberOfStoredEvents()
