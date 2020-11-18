@@ -15,7 +15,6 @@
 #include "matrix_keypad.h"
 #include "display.h"
 #include "GLCD_fire_alarm.h"
-#include "GLCD_intruder_alarm.h"
 #include "motor.h"
 #include "gate.h"
 
@@ -49,7 +48,6 @@ char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
 
 static displayState_t displayState = DISPLAY_REPORT_STATE;
 static int displayAlarmGraphicSequence = 0;
-static int displayIntruderAlarmGraphicSequence = 0;
 static int displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
 
 static bool incorrectCodeState = OFF;
@@ -216,7 +214,6 @@ static void userInterfaceDisplayAlarmStateInit()
 
 static void userInterfaceDisplayAlarmStateUpdate()
 {
-
     switch( displayAlarmGraphicSequence ) {
     case 0:
         displayBitmapWrite( GLCD_fire_alarm_0 );

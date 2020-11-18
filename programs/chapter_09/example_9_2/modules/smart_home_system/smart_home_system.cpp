@@ -34,7 +34,7 @@ static delay_t smartHomeSystemDelay;
 
 void smartHomeSystemInit()
 {
-    tickInit(1);          // Set 1 ms tick counter
+    tickInit(1);
     userInterfaceInit();
     fireAlarmInit();
     pcSerialComInit();

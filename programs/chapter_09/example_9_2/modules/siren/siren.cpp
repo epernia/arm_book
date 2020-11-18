@@ -59,4 +59,3 @@ void sirenIndicatorUpdate( int blinkTime )
 }
 
 //=====[Implementations of private functions]==================================
-

@@ -23,7 +23,7 @@
 
 //=====[Declaration of private data types]=====================================
 
-typedef enum{
+typedef enum {
     DISPLAY_ALARM_STATE,
     DISPLAY_REPORT_STATE
 } displayState_t;
@@ -148,7 +148,7 @@ static void userInterfaceDisplayReportStateInit()
 {
     displayState = DISPLAY_REPORT_STATE;
     displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
-    
+
     displayModeWrite( DISPLAY_MODE_CHAR );
 
     displayCommandWrite(DISPLAY_CMD_CLEAR);
@@ -159,7 +159,7 @@ static void userInterfaceDisplayReportStateInit()
 
     displayCharPositionWrite ( 0,1 );
     displayStringWrite( "Gas:" );
-    
+
     displayCharPositionWrite ( 0,2 );
     displayStringWrite( "Alarm:" );
 }
@@ -167,7 +167,7 @@ static void userInterfaceDisplayReportStateInit()
 static void userInterfaceDisplayReportStateUpdate()
 {
     char temperatureString[2];
-    
+
     sprintf(temperatureString, "%.0f", temperatureSensorReadCelsius());
     displayCharPositionWrite ( 12,0 );
     displayStringWrite( temperatureString );
@@ -194,79 +194,79 @@ static void userInterfaceDisplayAlarmStateInit()
     delay(2);
 
     displayModeWrite( DISPLAY_MODE_GRAPHIC );
-   
+
     displayAlarmGraphicSequence = 0;
 }
 
 static void userInterfaceDisplayAlarmStateUpdate()
 {
-    switch( displayAlarmGraphicSequence ){
-        case 0:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence++;
+    switch( displayAlarmGraphicSequence ) {
+    case 0:
+        displayBitmapWrite( GLCD_fire_alarm_0 );
+        displayAlarmGraphicSequence++;
         break;
-        case 1:
-            displayBitmapWrite( GLCD_fire_alarm_1 );
-            displayAlarmGraphicSequence++;
+    case 1:
+        displayBitmapWrite( GLCD_fire_alarm_1 );
+        displayAlarmGraphicSequence++;
         break;
-        case 2:
-            displayBitmapWrite( GLCD_fire_alarm_2 );
-            displayAlarmGraphicSequence++;
+    case 2:
+        displayBitmapWrite( GLCD_fire_alarm_2 );
+        displayAlarmGraphicSequence++;
         break;
-        case 3:
-            displayBitmapWrite( GLCD_fire_alarm_3 );
-            displayAlarmGraphicSequence = 0;
+    case 3:
+        displayBitmapWrite( GLCD_fire_alarm_3 );
+        displayAlarmGraphicSequence = 0;
         break;
-        default:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence = 1;
-        break;                   
+    default:
+        displayBitmapWrite( GLCD_fire_alarm_0 );
+        displayAlarmGraphicSequence = 1;
+        break;
     }
 }
 
 static void userInterfaceDisplayInit()
 {
     displayInit( DISPLAY_TYPE_GLCD_ST7920, DISPLAY_CONNECTION_SPI,
-                        16, 4,
-                        8, 16,
-                        128, 64 );
+                 16, 4,
+                 8, 16,
+                 128, 64 );
     userInterfaceDisplayReportStateInit();
 }
 
 static void userInterfaceDisplayUpdate()
 {
     static int accumulatedDisplayTime = 0;
-    
+
     if( accumulatedDisplayTime >=
         displayRefreshTimeMs ) {
 
         accumulatedDisplayTime = 0;
 
         switch ( displayState ) {
-            case DISPLAY_REPORT_STATE:
-                userInterfaceDisplayReportStateUpdate();
+        case DISPLAY_REPORT_STATE:
+            userInterfaceDisplayReportStateUpdate();
 
-                if ( sirenStateRead() ) {
-                    userInterfaceDisplayAlarmStateInit();
-                }
+            if ( sirenStateRead() ) {
+                userInterfaceDisplayAlarmStateInit();
+            }
             break;
 
-            case DISPLAY_ALARM_STATE:
-                userInterfaceDisplayAlarmStateUpdate();
+        case DISPLAY_ALARM_STATE:
+            userInterfaceDisplayAlarmStateUpdate();
 
-                if ( !sirenStateRead() ) {
-                    userInterfaceDisplayReportStateInit();
-                }
-            break;
-
-            default:
+            if ( !sirenStateRead() ) {
                 userInterfaceDisplayReportStateInit();
+            }
+            break;
+
+        default:
+            userInterfaceDisplayReportStateInit();
             break;
         }
 
-   } else {
+    } else {
         accumulatedDisplayTime =
-            accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;        
+            accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;
     }
 }
 

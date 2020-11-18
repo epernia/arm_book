@@ -274,7 +274,6 @@ static void commandShowCurrentMotorState()
         case DIRECTION_2: 
             uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
     }
-
 }
 
 static void commandShowCurrentGasDetectorState()

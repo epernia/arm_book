@@ -13,7 +13,7 @@ typedef enum {
     GATE_CLOSED,
     GATE_OPEN,
     GATE_OPENING,
-    GATE_CLOSING
+    GATE_CLOSING,
 } gateStatus_t;
 
 //=====[Declarations (prototypes) of public functions]=========================

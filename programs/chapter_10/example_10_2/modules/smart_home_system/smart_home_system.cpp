@@ -13,6 +13,7 @@
 #include "sapi.h"
 #include "wifi_module.h"
 #include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -35,13 +36,12 @@ static delay_t smartHomeSystemDelay;
 
 void smartHomeSystemInit()
 {
-    tickInit(1);          // Set 1 ms tick counter
+    tickInit(1);
     userInterfaceInit();
     fireAlarmInit();
     pcSerialComInit();
     sdCardInit();
     wifiModuleInit();
-
     motorControlInit();
     gateInit();
     delayInit( &smartHomeSystemDelay, SYSTEM_TIME_INCREMENT_MS );

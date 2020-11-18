@@ -58,9 +58,7 @@ void fireAlarmUpdate()
 {
     fireAlarmActivationUpdate();
     fireAlarmDeactivationUpdate();
-    if ( overTemperatureDetected || gasDetected )  {
-        sirenIndicatorUpdate( fireAlarmBlinkTime() );
-    }
+    sirenIndicatorUpdate( fireAlarmBlinkTime() );
 }
 
 bool gasDetectorStateRead()
@@ -108,7 +106,7 @@ static void fireAlarmActivationUpdate()
 
 static void fireAlarmDeactivationUpdate()
 {
-    if ( overTemperatureDetected || gasDetected )  { 
+    if ( sirenStateRead() ) {
         if ( codeMatchFrom(CODE_KEYPAD) ||
              codeMatchFrom(CODE_PC_SERIAL) ) {
             fireAlarmDeactivate();

@@ -11,7 +11,6 @@
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
 #include "matrix_keypad.h"
-#include "motor.h"
 
 //=====[Declaration of private defines]======================================
 

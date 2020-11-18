@@ -13,7 +13,6 @@
 #include "smartphone_ble_com.h"
 #include "sd_card.h"
 #include "motion_sensor.h"
-#include "motor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -38,7 +37,7 @@ static bool gasLastState            = OFF;
 static bool tempLastState           = OFF;
 static bool ICLastState             = OFF;
 static bool SBLastState             = OFF;
-static bool motorBlockedLastState   = OFF;
+static bool motionLastState         = OFF;
 static int eventsIndex              = 0;
 static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
@@ -75,8 +74,6 @@ void eventLogUpdate()
     currentState = motionSensorRead();
     eventLogElementStateUpdate( motionLastState ,currentState, "MOTION" );
     motionLastState = currentState;
-
-
 }
 
 int eventLogNumberOfStoredEvents()
