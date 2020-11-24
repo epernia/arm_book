@@ -79,5 +79,6 @@ int sirenBlinkTime()
         return 0;
     }
 }
+
 //=====[Implementations of private functions]==================================
 
