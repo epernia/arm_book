@@ -34,9 +34,6 @@ static bool overTemperatureDetectorState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static void fireAlarmActivationUpdate();
-static int fireAlarmBlinkTime();
-
 //=====[Implementations of public functions]===================================
 
 void fireAlarmInit()
@@ -47,7 +44,21 @@ void fireAlarmInit()
 
 void fireAlarmUpdate()
 {
-    fireAlarmActivationUpdate();
+    temperatureSensorUpdate();
+    gasSensorUpdate();
+
+    overTemperatureDetectorState = temperatureSensorReadCelsius() > 
+                                   TEMPERATURE_C_LIMIT_ALARM;
+
+    if ( overTemperatureDetectorState ) {
+        overTemperatureDetected = ON;
+    }
+
+    gasDetectorState = gasSensorRead() > GAS_CONCENTRATION_LIMIT_ALARM;
+
+    if ( gasDetectorState ) {
+        gasDetected = ON;
+    }
 }
 
 bool gasDetectorStateRead()
@@ -78,21 +89,4 @@ void fireAlarmDeactivate()
 
 //=====[Implementations of private functions]==================================
 
-static void fireAlarmActivationUpdate()
-{
-    temperatureSensorUpdate();
-    gasSensorUpdate();
 
-    overTemperatureDetectorState = temperatureSensorReadCelsius() > 
-                                   TEMPERATURE_C_LIMIT_ALARM;
-
-    if ( overTemperatureDetectorState ) {
-        overTemperatureDetected = ON;
-    }
-
-    gasDetectorState = gasSensorRead() > GAS_CONCENTRATION_LIMIT_ALARM;
-
-    if ( gasDetectorState ) {
-        gasDetected = ON;
-    }
-}

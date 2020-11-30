@@ -59,6 +59,7 @@ void motorDirectionWrite( MotorDirection_t Direction )
             motorDirection = DIRECTION_2;
         break;
 
+        case STOPPED:
         default:
             motorM1Pin.input();
             motorM2Pin.input();

@@ -13,12 +13,10 @@
 
 void intruderAlarmInit();
 void intruderAlarmUpdate();
-bool intruderAlarmStateRead();
-
-bool intruderDetectedRead();
-bool intruderDetectorStateRead();
-
 void intruderAlarmDeactivate();
+
+bool intruderDetectorStateRead();
+bool intruderDetectedRead();
 
 //=====[#include guards - end]=================================================
 

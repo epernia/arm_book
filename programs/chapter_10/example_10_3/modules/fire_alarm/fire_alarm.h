@@ -7,8 +7,6 @@
 
 //=====[Declaration of public defines]=======================================
 
-
-
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================

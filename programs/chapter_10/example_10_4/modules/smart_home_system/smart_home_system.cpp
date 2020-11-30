@@ -43,7 +43,6 @@ void smartHomeSystemInit()
     userInterfaceInit();
     alarmInit();
     fireAlarmInit();
-    motionSensorInit();
     intruderAlarmInit();
     pcSerialComInit();
     sdCardInit();

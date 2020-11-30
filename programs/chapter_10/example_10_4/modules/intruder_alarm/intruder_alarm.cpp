@@ -18,7 +18,6 @@
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool intruderAlarmState           = ON;
 static bool intruderDetected             = OFF;
 static bool intruderDetectorState        = OFF;
 
@@ -33,14 +32,10 @@ void intruderAlarmInit()
 
 void intruderAlarmUpdate()
 {
-    if ( motionSensorRead() ) {
-        intruderDetected = ON;
-    }
-
     intruderDetectorState = motionSensorRead();
-    
-    if ( intruderDetected && intruderAlarmState )  {
-        intruderDetectorState = ON;
+
+    if ( intruderDetectorState ) {
+        intruderDetected = ON;
     }
 }
 
@@ -52,11 +47,6 @@ bool intruderDetectorStateRead()
 bool intruderDetectedRead()
 {
     return intruderDetected;
-}
-
-bool intruderAlarmStateRead()
-{
-    return intruderAlarmState;
 }
 
 void intruderAlarmDeactivate()

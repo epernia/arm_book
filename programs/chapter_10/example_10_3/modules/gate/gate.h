@@ -23,9 +23,6 @@ void gateInit();
 void gateOpen();
 void gateClose();
 
-void gateLock();
-void gateUnlock();
-
 gateStatus_t gateStatusRead();
 
 //=====[#include guards - end]=================================================
