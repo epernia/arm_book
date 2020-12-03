@@ -41,7 +41,7 @@ int main()
 {
     tickInit(1);
 
-    delayInit( &signalTime1, onTime );
+    delayInit( &signalTime1, onTime1 );
     delayInit( &signalTime2, 20 );
     delayInit( &signalTime3, 2 );
 
@@ -88,18 +88,18 @@ int main()
         }
 
         if ( !period1Button ) {
-            onTime = 200;
-            offTime = 800;
+            onTime1 = 200;
+            offTime1 = 800;
         }
 
         if ( !period2Button ) {
-            onTime = 20;
-            offTime = 80;
+            onTime1 = 20;
+            offTime1 = 80;
         }
 
         if ( !period3Button ) {
-            onTime = 2;
-            offTime = 8;
+            onTime1 = 2;
+            offTime1 = 8;
         }
     }
 }
