@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _POTENTIOMETER_H_
-#define _POTENTIOMETER_H_
+#ifndef _TEMPERATURE_SENSOR_H_
+#define _TEMPERATURE_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,12 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void potentiometerInit();
-void potentiometerUpdate();
-float potentiometerRead();
+void temperatureSensorInit();
+void temperatureSensorUpdate();
+float temperatureSensorReadCelsius();
+float temperatureSensorReadFahrenheit();
+float celsiusToFahrenheit( float tempInCelsiusDegrees );
 
 //=====[#include guards - end]=================================================
 
-#endif // _POTENTIOMETER_H_
+#endif // _TEMPERATURE_SENSOR_H_

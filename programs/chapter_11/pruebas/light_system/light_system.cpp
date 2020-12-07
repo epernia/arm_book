@@ -2,7 +2,7 @@
 
 #include "mbed.h"
 
-#include "potentiometer.h"
+#include "light_level_control.h"
 
 #include "smart_home_system.h"
 
@@ -32,12 +32,12 @@ static void shiftPoteAvgReadingsArray();
 
 //=====[Implementations of public functions]===================================
 
-void potentiometerInit()
+void lightLevelControlInit()
 {
     return;
 }
 
-void potentiometerUpdate()
+void lightLevelControlUpdate()
 {
     static int accumulatedTimePote = 0;
     static int poteSampleIndex     = 0;
@@ -69,7 +69,7 @@ void potentiometerUpdate()
     }
 }
 
-float potentiometerRead()
+float lightLevelControlRead()
 {
     return poteReadingsMovingAverage;
 }
