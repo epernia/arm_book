@@ -93,7 +93,7 @@ static void commandEnterCodeSequence();
 static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
 static void commandShowCurrentTemperatureInFahrenheit();
-static void commandShowCurrentPotentiometerValue();
+static void commandShowCurrentLightLevelControlValue();
 static void commandSetDateAndTime();
 static void commandShowDateAndTime();
 static void commandShowStoredEvents();
@@ -229,7 +229,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case '5': commandEnterNewCode(); break;
         case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
         case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
-        case 'p': case 'P': commandShowCurrentPotentiometerValue(); break;
+        case 'p': case 'P': commandShowCurrentLightLevelControlValue(); break;
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
         case 'e': case 'E': commandShowStoredEvents(); break;
@@ -256,7 +256,7 @@ static void availableCommands()
     uartUsb.printf( "Press '5' to enter a new code to deactivate the alarm\r\n" );
     uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
     uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
-    uartUsb.printf( "Press 'p' or 'P' to get potentiometer reading\r\n" );
+    uartUsb.printf( "Press 'p' or 'P' to get light level control reading\r\n" );
     uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
     uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
     uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
@@ -364,9 +364,9 @@ static void commandShowCurrentTemperatureInFahrenheit()
                     temperatureSensorReadFahrenheit() );    
 }
 
-static void commandShowCurrentPotentiometerValue()
+static void commandShowCurrentLightLevelControlValue()
 {
-    uartUsb.printf( "Potentiometer: %.2f\r\n", 
+    uartUsb.printf( "Light Level Control: %.2f\r\n", 
                     lightLevelControlRead() );    
 }
 

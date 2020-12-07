@@ -21,9 +21,6 @@
 //=====[Declaration and initialization of private global variables]============
 
 static float dutyCycle = 0.5;
-static bool changeBrightnessLedRgbRed = true;
-static bool changeBrightnessLedRgbGreen = true;
-static bool changeBrightnessLedRgbBlue = true;
 
 //=====[Implementations of public functions]===================================
 
@@ -36,26 +33,9 @@ void lightSystemUpdate()
 {
 	dutyCycle = lightLevelControlRead();
 
-    if ( changeBrightnessLedRgbRed ) setDutyCycle( LED_RGB_RED, dutyCycle );
-    if ( changeBrightnessLedRgbGreen ) setDutyCycle( LED_RGB_GREEN, dutyCycle );
-    if ( changeBrightnessLedRgbBlue ) setDutyCycle( LED_RGB_BLUE, dutyCycle );
-}
-
-void lightSystemSetBrightness( lightSystem_t light, bool state )
-{
-    switch( light ) {
-        case LED_RGB_RED:
-            changeBrightnessLedRgbRed = state;
-        break;
-        case LED_RGB_GREEN:
-            changeBrightnessLedRgbGreen = state;
-        break;
-        case LED_RGB_BLUE:
-            changeBrightnessLedRgbBlue = state;
-        break;
-        default:
-        break;
-    }
+    setDutyCycle( LED_RGB_RED, dutyCycle );
+    setDutyCycle( LED_RGB_GREEN, dutyCycle );
+    setDutyCycle( LED_RGB_BLUE, dutyCycle );
 }
 
 //=====[Implementations of private functions]==================================

@@ -29,13 +29,7 @@ static bool changeBrightnessLedRgbBlue = true;
 
 void lightSystemInit()
 {
-    setPeriod( LED_RGB_RED, 0.01f );
-    setPeriod( LED_RGB_GREEN, 0.01f );
-    setPeriod( LED_RGB_BLUE, 0.01f );
-
-    setDutyCycle( LED_RGB_RED, dutyCycle );
-    setDutyCycle( LED_RGB_GREEN, dutyCycle );
-    setDutyCycle( LED_RGB_BLUE, dutyCycle );
+    brighControlInit();
 }
 
 void lightSystemUpdate()

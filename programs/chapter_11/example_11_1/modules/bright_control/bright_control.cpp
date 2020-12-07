@@ -28,13 +28,8 @@ tick_t tickRateMSBrightControl = 1;
 
 //=====[Declaration and initialization of private global variables]============
 
-static delay_t signalTime1[LEDS_QUANTITY];
-
 static int onTime[LEDS_QUANTITY];
 static int offTime[LEDS_QUANTITY];
-
-static int previousOnTime[LEDS_QUANTITY];
-static int previousOffTime[LEDS_QUANTITY];
 
 volatile tick_t tickCounter[LEDS_QUANTITY];
 
@@ -67,20 +62,8 @@ void setPeriod( lightSystem_t light, float period )
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )
 {
-    //static int i = 0;
-
     onTime[light] = int ( ( periodSFloat[light] * dutyCycle ) * 1000 );
     offTime[light] = int ( periodSFloat[light] * 1000) - onTime[light];
-    /*if (i > 100) {
-        i=0;
-        pcSerialComStringWrite("ON:");
-        pcSerialComIntWrite( onTime[light] );
-        pcSerialComStringWrite("\r\n");
-        pcSerialComStringWrite("OFF:");
-        pcSerialComIntWrite( offTime[light] );
-        pcSerialComStringWrite("\r\n");
-    }
-    i++;*/
 }
 
 //=====[Implementations of private functions]==================================

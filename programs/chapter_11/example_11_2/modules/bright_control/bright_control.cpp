@@ -17,6 +17,9 @@
 
 DigitalOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
 
+Ticker tickerBrightControl;
+tick_t tickRateMSBrightControl = 1;
+
 //=====[Declaration and initialization of private global objects]===============
 
 //=====[Declaration of external public global variables]=======================
@@ -25,62 +28,43 @@ DigitalOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
 
 //=====[Declaration and initialization of private global variables]============
 
-static delay_t signalTime[LEDS_QUANTITY];
-
 static int onTime[LEDS_QUANTITY];
 static int offTime[LEDS_QUANTITY];
+
+volatile tick_t tickCounter[LEDS_QUANTITY];
 
 static float periodSFloat[LEDS_QUANTITY];
 
 //=====[Declarations (prototypes) of private functions]========================
 
+static void tickerCallbackBrightControl( );
+
 //=====[Implementations of public functions]===================================
 
 void brighControlInit()
 {
-    int i;
+    tickerBrightControl.attach( tickerCallbackBrightControl, 
+                              ( (float) tickRateMSBrightControl) / 1000.0 );
 
-    for (i = 0 ; i < LEDS_QUANTITY ; i++) {
-        onTime[i] = 5;
-        offTime[i] = 5;
-        periodMS[i] = onTime[i] + offTime[i];
+    setPeriod( LED_RGB_RED, 0.01f );
+    setPeriod( LED_RGB_GREEN, 0.01f );
+    setPeriod( LED_RGB_BLUE, 0.01f );
 
-        delayInit( &signalTime[i], onTime[i] );
-    }
+    setDutyCycle( LED_RGB_RED, 0.5 );
+    setDutyCycle( LED_RGB_GREEN, 0.5 );
+    setDutyCycle( LED_RGB_BLUE, 0.5 );
+}
+
+void setPeriod( lightSystem_t light, float period )
+{
+    periodSFloat[light] = period;
 }
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )
 {
-    onTime[light] = int ( ( periodMS[light] * dutyCycle ) * 1000 );
-    offTime[light] = int ( periodMS[light] * 1000) - onTime[light];
 
-    int i;
-
-    for (i = 0 ; i < LEDS_QUANTITY ; i++) {
-        if ( ledRBG[i].read() == ON ) {
-            if( tickCounter[i] > onTime[i] ) {
-                tickCounter[i] = 1;
-                if ( offTime[i] ) ledRBG[i] = OFF;
-                
-            }
-        } else {
-            if( tickCounter[i] > offTime[i] ) { 
-                tickCounter[i] = 1;
-                if ( onTime[i] ) ledRBG[i] = ON;
-            }
-        }
-    }
-
-    /*if (i > 100) {
-        i=0;
-        pcSerialComStringWrite("ON:");
-        pcSerialComIntWrite( onTime[light] );
-        pcSerialComStringWrite("\r\n");
-        pcSerialComStringWrite("OFF:");
-        pcSerialComIntWrite( offTime[light] );
-        pcSerialComStringWrite("\r\n");
-    }
-    i++;*/
+    onTime[light] = int ( ( periodSFloat[light] * dutyCycle ) * 1000 );
+    offTime[light] = int ( periodSFloat[light] * 1000) - onTime[light];
 }
 
 //=====[Implementations of private functions]==================================
