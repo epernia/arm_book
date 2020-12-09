@@ -137,6 +137,11 @@ void pcSerialComIntWrite( int number )
     uartUsb.printf( "%d", number );
 }
 
+void pcSerialComFloatWrite( float number )
+{
+    uartUsb.printf( "%0.4f", number );
+}
+
 void pcSerialComUpdate()
 {
     if( wifiModuleDetectionMustBeChecked ) {

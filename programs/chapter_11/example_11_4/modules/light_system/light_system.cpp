@@ -6,6 +6,7 @@
 #include "bright_control.h"
 #include "light_level_control.h"
 #include "ldr_sensor.h"
+#include "pc_serial_com.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -37,6 +38,8 @@ void lightSystemInit()
 
 void lightSystemUpdate()
 {
+    LDRSensorUpdate();
+
     dutyCycle = dutyCycle + lightSystemLoopGain
                             * (lightLevelControlRead() - LDRSensorRead());
 
