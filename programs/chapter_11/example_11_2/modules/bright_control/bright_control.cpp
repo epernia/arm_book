@@ -62,7 +62,6 @@ void setPeriod( lightSystem_t light, float period )
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )
 {
-
     onTime[light] = int ( ( periodSFloat[light] * dutyCycle ) * 1000 );
     offTime[light] = int ( periodSFloat[light] * 1000) - onTime[light];
 }

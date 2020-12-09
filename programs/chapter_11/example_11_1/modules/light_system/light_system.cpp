@@ -31,7 +31,7 @@ void lightSystemInit()
 
 void lightSystemUpdate()
 {
-	dutyCycle = lightLevelControlRead();
+    dutyCycle = lightLevelControlRead();
 
     setDutyCycle( LED_RGB_RED, dutyCycle );
     setDutyCycle( LED_RGB_GREEN, dutyCycle );
