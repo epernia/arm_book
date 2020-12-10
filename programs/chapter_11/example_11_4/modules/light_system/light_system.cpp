@@ -21,7 +21,7 @@
 
 //=====[Declaration and initialization of private global variables]============
 
-static float dutyCycle = 0.5;
+static float dutyCycle = 0.5f;
 static float lightSystemLoopGain = 0.01;
 
 static bool brightnessRGBLedRedChangeEnabled = true;

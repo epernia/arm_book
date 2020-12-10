@@ -32,7 +32,7 @@ static AnalogIn setPoint(A2);
 static float setPointAveragedValue = 0.0;
 static float setPointReadingsArray[NUMBER_OF_AVERAGED_SAMPLES];
 
-static float dutyCycle = 0.5;
+static float dutyCycle = 0.5f;
 static float Gain = 0.01;
 
 //=====[Implementations of public functions]===================================

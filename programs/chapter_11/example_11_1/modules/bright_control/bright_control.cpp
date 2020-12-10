@@ -51,9 +51,9 @@ void brightControlInit()
     setPeriod( RGB_LED_GREEN, 0.01f );
     setPeriod( RGB_LED_BLUE, 0.01f );
 
-    setDutyCycle( RGB_LED_RED, 0.5 );
-    setDutyCycle( RGB_LED_GREEN, 0.5 );
-    setDutyCycle( RGB_LED_BLUE, 0.5 );
+    setDutyCycle( RGB_LED_RED, 0.5f );
+    setDutyCycle( RGB_LED_GREEN, 0.5f );
+    setDutyCycle( RGB_LED_BLUE, 0.5f );
 }
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )

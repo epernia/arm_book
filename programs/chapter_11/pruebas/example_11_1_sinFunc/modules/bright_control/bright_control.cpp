@@ -55,8 +55,8 @@ void setDutyCycle( lightSystem_t light, float dutyCycle )
     for (i = 0 ; i < LEDS_QUANTITY ; i++) {
         if( delayRead( &signalTime[i] ) ) {
             if (RGBLed[i].read() == ON) {
-                if ( previousOnTime[i] != int (onTime[i] + 0.5) ) {
-                    previousOnTime[i] = int (onTime[i] + 0.5);
+                if ( previousOnTime[i] != int (onTime[i] + 0.5f) ) {
+                    previousOnTime[i] = int (onTime[i] + 0.5f);
                 }
                 delayWrite( &signalTime[i], offTime[i] );
                 RGBLed[i] = OFF;

@@ -127,7 +127,7 @@ bool_t uint64ToString2Digits( uint64_t value, char* result, uint8_t base )
 
 #define MAX_PRECISION   (10)
 static const double rounders[MAX_PRECISION + 1] = {
-   0.5,            // 0
+   0.5f,            // 0
    0.05,           // 1
    0.005,          // 2
    0.0005,         // 3

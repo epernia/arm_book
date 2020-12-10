@@ -22,7 +22,7 @@
 
 //=====[Declaration and initialization of private global variables]============
 
-static float dutyCycle = 0.5;
+static float dutyCycle = 0.5f;
 static float lightSystemLoopGain = 0.01;
 
 static bool brightnessRGBLedRedChangeEnabled = true;
@@ -59,7 +59,8 @@ void lightSystemUpdate()
         pcSerialComFloatWrite( dutyCycle );
         pcSerialComStringWrite(" | ");
         pcSerialComStringWrite("Added: ");
-        pcSerialComFloatWrite( lightSystemLoopGain * (lightLevelControlRead() - LDRSensorRead()) );
+        pcSerialComFloatWrite( lightSystemLoopGain 
+                               * (lightLevelControlRead() - LDRSensorRead()) );
         pcSerialComStringWrite("\r\n");
     }
     i++;
