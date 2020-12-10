@@ -14,7 +14,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
+DigitalOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
 
 //=====[Declaration and initialization of private global objects]===============
 
@@ -38,14 +38,14 @@ static int previousOffTime[LEDS_QUANTITY];
 
 //=====[Implementations of public functions]===================================
 
-void brighControlInit()
+void brightControlInit()
 {
     delayInit( &signalTime1, onTime );
 }
 
 void setPeriod( lightSystem_t light, float period )
 {
-    ledRBG[light].period(period);
+    RGBLed[light].period(period);
 }
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )
@@ -54,16 +54,16 @@ void setDutyCycle( lightSystem_t light, float dutyCycle )
 
     for (i = 0 ; i < LEDS_QUANTITY ; i++) {
         if( delayRead( &signalTime[i] ) ) {
-            if (ledRBG[i].read() == ON) {
+            if (RGBLed[i].read() == ON) {
                 if ( previousOnTime[i] != int (onTime[i] + 0.5) ) {
                     previousOnTime[i] = int (onTime[i] + 0.5);
                 }
                 delayWrite( &signalTime[i], offTime[i] );
-                ledRBG[i] = OFF;
+                RGBLed[i] = OFF;
                 
             } else {
                 delayWrite( &signalTime[i], onTime[i] );
-                ledRBG[i] = ON;
+                RGBLed[i] = ON;
             }
         }
     }

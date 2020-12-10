@@ -26,16 +26,17 @@ static float dutyCycle = 0.5;
 
 void lightSystemInit()
 {
-    brighControlInit();
+    brightControlInit();
 }
 
 void lightSystemUpdate()
 {
     dutyCycle = lightLevelControlRead();
 
-    setDutyCycle( LED_RGB_RED, dutyCycle );
-    setDutyCycle( LED_RGB_GREEN, dutyCycle );
-    setDutyCycle( LED_RGB_BLUE, dutyCycle );
+    setDutyCycle( RGB_LED_RED, dutyCycle );
+    setDutyCycle( RGB_LED_GREEN, dutyCycle );
+    setDutyCycle( RGB_LED_BLUE, dutyCycle );
+
 }
 
 //=====[Implementations of private functions]==================================

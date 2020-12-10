@@ -15,7 +15,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
+DigitalOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
 
 //=====[Declaration and initialization of private global objects]===============
 
@@ -36,7 +36,7 @@ static float periodSFloat[LEDS_QUANTITY];
 
 //=====[Implementations of public functions]===================================
 
-void brighControlInit()
+void brightControlInit()
 {
     int i;
 
@@ -57,16 +57,16 @@ void setDutyCycle( lightSystem_t light, float dutyCycle )
     int i;
 
     for (i = 0 ; i < LEDS_QUANTITY ; i++) {
-        if ( ledRBG[i].read() == ON ) {
+        if ( RGBLed[i].read() == ON ) {
             if( tickCounter[i] > onTime[i] ) {
                 tickCounter[i] = 1;
-                if ( offTime[i] ) ledRBG[i] = OFF;
+                if ( offTime[i] ) RGBLed[i] = OFF;
                 
             }
         } else {
             if( tickCounter[i] > offTime[i] ) { 
                 tickCounter[i] = 1;
-                if ( onTime[i] ) ledRBG[i] = ON;
+                if ( onTime[i] ) RGBLed[i] = ON;
             }
         }
     }
@@ -91,16 +91,16 @@ static void tickerCallbackBrightControl( )
 
     for (i = 0 ; i < LEDS_QUANTITY ; i++) {
         tickCounter[i]++;
-        if ( ledRBG[i].read() == ON ) {
+        if ( RGBLed[i].read() == ON ) {
             if( tickCounter[i] > onTime[i] ) {
                 tickCounter[i] = 1;
-                if ( offTime[i] ) ledRBG[i] = OFF;
+                if ( offTime[i] ) RGBLed[i] = OFF;
                 
             }
         } else {
             if( tickCounter[i] > offTime[i] ) { 
                 tickCounter[i] = 1;
-                if ( onTime[i] ) ledRBG[i] = ON;
+                if ( onTime[i] ) RGBLed[i] = ON;
             }
         }
     }

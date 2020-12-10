@@ -21,7 +21,6 @@
 #include "motor.h"
 #include "gate.h"
 #include "light_level_control.h"
-#include "light_system.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -169,24 +168,6 @@ static void userInterfaceMatrixKeypadUpdate()
             }
             if( keyReleased == 'B' ) {
                 motionSensorDeactivate();
-            }
-            if( keyReleased == '1' ) {
-                lightSystemSetBrightness( LED_RGB_RED, true );
-            }
-            if( keyReleased == '2' ) {
-                lightSystemSetBrightness( LED_RGB_GREEN, true );
-            }
-            if( keyReleased == '3' ) {
-                lightSystemSetBrightness( LED_RGB_BLUE, true );
-            }
-            if( keyReleased == '4' ) {
-                lightSystemSetBrightness( LED_RGB_RED, false );
-            }
-            if( keyReleased == '5' ) {
-                lightSystemSetBrightness( LED_RGB_GREEN, false );
-            }
-            if( keyReleased == '6' ) {
-                lightSystemSetBrightness( LED_RGB_BLUE, false );
             }
         }
     }

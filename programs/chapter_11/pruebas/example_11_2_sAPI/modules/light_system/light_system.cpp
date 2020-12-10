@@ -21,37 +21,37 @@
 //=====[Declaration and initialization of private global variables]============
 
 static float dutyCycle = 0.5;
-static bool changeBrightnessLedRgbRed = true;
-static bool changeBrightnessLedRgbGreen = true;
-static bool changeBrightnessLedRgbBlue = true;
+static bool brightnessRGBLedRedChangeEnabled = true;
+static bool brightnessRGBLedGreenChangeEnabled = true;
+static bool brightnessRGBLedBlueChangeEnabled = true;
 
 //=====[Implementations of public functions]===================================
 
 void lightSystemInit()
 {
-    brighControlInit();
+    brightControlInit();
 }
 
 void lightSystemUpdate()
 {
 	dutyCycle = lightLevelControlRead();
 
-    if ( changeBrightnessLedRgbRed ) setDutyCycle( LED_RGB_RED, dutyCycle );
-    if ( changeBrightnessLedRgbGreen ) setDutyCycle( LED_RGB_GREEN, dutyCycle );
-    if ( changeBrightnessLedRgbBlue ) setDutyCycle( LED_RGB_BLUE, dutyCycle );
+    if ( brightnessRGBLedRedChangeEnabled ) setDutyCycle( RGB_LED_RED, dutyCycle );
+    if ( brightnessRGBLedGreenChangeEnabled ) setDutyCycle( RGB_LED_GREEN, dutyCycle );
+    if ( brightnessRGBLedBlueChangeEnabled ) setDutyCycle( RGB_LED_BLUE, dutyCycle );
 }
 
-void lightSystemSetBrightness( lightSystem_t light, bool state )
+void lightSystemBrightnessChangeEnable( lightSystem_t light, bool state )
 {
     switch( light ) {
-        case LED_RGB_RED:
-            changeBrightnessLedRgbRed = state;
+        case RGB_LED_RED:
+            brightnessRGBLedRedChangeEnabled = state;
         break;
-        case LED_RGB_GREEN:
-            changeBrightnessLedRgbGreen = state;
+        case RGB_LED_GREEN:
+            brightnessRGBLedGreenChangeEnabled = state;
         break;
-        case LED_RGB_BLUE:
-            changeBrightnessLedRgbBlue = state;
+        case RGB_LED_BLUE:
+            brightnessRGBLedBlueChangeEnabled = state;
         break;
         default:
         break;

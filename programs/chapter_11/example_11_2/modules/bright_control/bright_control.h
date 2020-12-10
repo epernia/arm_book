@@ -13,8 +13,7 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void brighControlInit();
-void setPeriod( lightSystem_t light, float period );
+void brightControlInit();
 void setDutyCycle( lightSystem_t light, float dutyCycle );
 
 //=====[#include guards - end]=================================================

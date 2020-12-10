@@ -12,7 +12,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-PwmOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
+PwmOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
 
 //=====[Declaration and initialization of private global objects]===============
 
@@ -22,27 +22,29 @@ PwmOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
 
 //=====[Declaration and initialization of private global variables]============
 
+static void setPeriod( lightSystem_t light, float period );
+
 //=====[Implementations of public functions]===================================
 
-void brighControlInit()
+void brightControlInit()
 {
-    setPeriod( LED_RGB_RED, 0.01f );
-    setPeriod( LED_RGB_GREEN, 0.01f );
-    setPeriod( LED_RGB_BLUE, 0.01f );
+    setPeriod( RGB_LED_RED, 0.01f );
+    setPeriod( RGB_LED_GREEN, 0.01f );
+    setPeriod( RGB_LED_BLUE, 0.01f );
 
-    setDutyCycle( LED_RGB_RED, 0.5 );
-    setDutyCycle( LED_RGB_GREEN, 0.5 );
-    setDutyCycle( LED_RGB_BLUE, 0.5 );
-}
-
-void setPeriod( lightSystem_t light, float period )
-{
-    ledRBG[light].period(period);
+    setDutyCycle( RGB_LED_RED, 0.5 );
+    setDutyCycle( RGB_LED_GREEN, 0.5 );
+    setDutyCycle( RGB_LED_BLUE, 0.5 );
 }
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )
 {
-    ledRBG[light].write(dutyCycle);
+    RGBLed[light].write(dutyCycle);
 }
 
 //=====[Implementations of private functions]==================================
+
+static void setPeriod( lightSystem_t light, float period )
+{
+    RGBLed[light].period(period);
+}

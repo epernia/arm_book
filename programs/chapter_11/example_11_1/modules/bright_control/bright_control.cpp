@@ -15,10 +15,9 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut ledRBG[] = {(PE_14), (PA_0), (PD_12)};
+DigitalOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
 
 Ticker tickerBrightControl;
-tick_t tickRateMSBrightControl = 1;
 
 //=====[Declaration and initialization of private global objects]===============
 
@@ -31,33 +30,30 @@ tick_t tickRateMSBrightControl = 1;
 static int onTime[LEDS_QUANTITY];
 static int offTime[LEDS_QUANTITY];
 
+tick_t tickRateMSBrightControl = 1;
 volatile tick_t tickCounter[LEDS_QUANTITY];
 
 static float periodSFloat[LEDS_QUANTITY];
 
 //=====[Declarations (prototypes) of private functions]========================
 
+static void setPeriod( lightSystem_t light, float period );
 static void tickerCallbackBrightControl( );
 
 //=====[Implementations of public functions]===================================
 
-void brighControlInit()
+void brightControlInit()
 {
     tickerBrightControl.attach( tickerCallbackBrightControl, 
                               ( (float) tickRateMSBrightControl) / 1000.0 );
 
-    setPeriod( LED_RGB_RED, 0.01f );
-    setPeriod( LED_RGB_GREEN, 0.01f );
-    setPeriod( LED_RGB_BLUE, 0.01f );
+    setPeriod( RGB_LED_RED, 0.01f );
+    setPeriod( RGB_LED_GREEN, 0.01f );
+    setPeriod( RGB_LED_BLUE, 0.01f );
 
-    setDutyCycle( LED_RGB_RED, 0.5 );
-    setDutyCycle( LED_RGB_GREEN, 0.5 );
-    setDutyCycle( LED_RGB_BLUE, 0.5 );
-}
-
-void setPeriod( lightSystem_t light, float period )
-{
-    periodSFloat[light] = period;
+    setDutyCycle( RGB_LED_RED, 0.5 );
+    setDutyCycle( RGB_LED_GREEN, 0.5 );
+    setDutyCycle( RGB_LED_BLUE, 0.5 );
 }
 
 void setDutyCycle( lightSystem_t light, float dutyCycle )
@@ -68,22 +64,27 @@ void setDutyCycle( lightSystem_t light, float dutyCycle )
 
 //=====[Implementations of private functions]==================================
 
+static void setPeriod( lightSystem_t light, float period )
+{
+    periodSFloat[light] = period;
+}
+
 static void tickerCallbackBrightControl( )
 {
     int i;
 
     for (i = 0 ; i < LEDS_QUANTITY ; i++) {
         tickCounter[i]++;
-        if ( ledRBG[i].read() == ON ) {
+        if ( RGBLed[i].read() == ON ) {
             if( tickCounter[i] > onTime[i] ) {
                 tickCounter[i] = 1;
-                if ( offTime[i] ) ledRBG[i] = OFF;
+                if ( offTime[i] ) RGBLed[i] = OFF;
                 
             }
         } else {
             if( tickCounter[i] > offTime[i] ) { 
                 tickCounter[i] = 1;
-                if ( onTime[i] ) ledRBG[i] = ON;
+                if ( onTime[i] ) RGBLed[i] = ON;
             }
         }
     }

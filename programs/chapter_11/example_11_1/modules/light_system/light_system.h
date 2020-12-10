@@ -10,9 +10,9 @@
 //=====[Declaration of public data types]======================================
 
 typedef enum {
-    LED_RGB_RED,
-    LED_RGB_GREEN,
-    LED_RGB_BLUE,
+    RGB_LED_RED,
+    RGB_LED_GREEN,
+    RGB_LED_BLUE,
 } lightSystem_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
