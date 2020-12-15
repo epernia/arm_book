@@ -1,8 +1,10 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
+#include "arm_book_lib.h"
 
-#include "gas_sensor.h"
+#include "intruder_alarm.h"
+#include "motion_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -10,32 +12,45 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalIn mq2(PB_4);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
+static bool intruderDetected             = OFF;
+static bool intruderDetectorState        = OFF;
+
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void gasSensorInit()
+void intruderAlarmInit()
 {
-    return;
+    motionSensorInit();
 }
 
-void gasSensorUpdate()
+void intruderAlarmUpdate()
 {
-    return;
+    intruderDetectorState = motionSensorRead();
+
+    if ( intruderDetectorState ) {
+        intruderDetected = ON;
+    }
 }
 
-bool gasSensorRead()
+bool intruderDetectorStateRead()
 {
-    return mq2;
+    return intruderDetectorState;
 }
 
+bool intruderDetectedRead()
+{
+    return intruderDetected;
+}
+
+void intruderAlarmDeactivate()
+{
+    intruderDetected = OFF;
+}
 //=====[Implementations of private functions]==================================
-

@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _TEMPERATURE_SENSOR_H_
+#define _TEMPERATURE_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,12 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void temperatureSensorInit();
+void temperatureSensorUpdate();
+float temperatureSensorReadCelsius();
+float temperatureSensorReadFahrenheit();
+float celsiusToFahrenheit( float tempInCelsiusDegrees );
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _TEMPERATURE_SENSOR_H_

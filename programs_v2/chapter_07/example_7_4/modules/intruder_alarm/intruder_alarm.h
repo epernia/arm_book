@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _INTRUDER_ALARM_H_
+#define _INTRUDER_ALARM_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,13 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void intruderAlarmInit();
+void intruderAlarmUpdate();
+void intruderAlarmDeactivate();
+
+bool intruderDetectorStateRead();
+bool intruderDetectedRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _INTRUDER_ALARM_H_

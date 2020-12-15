@@ -5,15 +5,20 @@
 
 #include "pc_serial_com.h"
 
+#include "alarm.h"
 #include "siren.h"
 #include "fire_alarm.h"
 #include "code.h"
 #include "date_and_time.h"
 #include "temperature_sensor.h"
+#include "motion_sensor.h"
 #include "gas_sensor.h"
 #include "event_log.h"
+#include "motor.h"
+#include "gate.h"
 
-//=====[Declaration of private defines]======================================
+
+//=====[Declaration of private defines]=======================================
 
 //=====[Declaration of private data types]=====================================
 
@@ -47,7 +52,9 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 static void pcSerialComCommandUpdate( char receivedChar );
 
 static void availableCommands();
-static void commandShowCurrentAlarmState();
+static void commandShowCurrentSirenState();
+static void commandShowCurrentMotorState();
+static void commandShowCurrentGateState();
 static void commandShowCurrentGasDetectorState();
 static void commandShowCurrentOverTemperatureDetectorState();
 static void commandEnterCodeSequence();
@@ -57,6 +64,8 @@ static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
 static void commandShowDateAndTime();
 static void commandShowStoredEvents();
+static void commandMotionSensorActivate();
+static void commandMotionSensorDeactivate();
 
 //=====[Implementations of public functions]===================================
 
@@ -144,7 +153,7 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar )
 static void pcSerialComCommandUpdate( char receivedChar )
 {
     switch (receivedChar) {
-        case '1': commandShowCurrentAlarmState(); break;
+        case '1': commandShowCurrentSirenState(); break;
         case '2': commandShowCurrentGasDetectorState(); break;
         case '3': commandShowCurrentOverTemperatureDetectorState(); break;
         case '4': commandEnterCodeSequence(); break;
@@ -154,6 +163,10 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
         case 'e': case 'E': commandShowStoredEvents(); break;
+        case 'm': case 'M': commandShowCurrentMotorState(); break;
+        case 'g': case 'G': commandShowCurrentGateState(); break;
+        case 'i': case 'I': commandMotionSensorActivate(); break;
+        case 'h': case 'H': commandMotionSensorDeactivate(); break;
         default: availableCommands(); break;
     } 
 }
@@ -171,15 +184,41 @@ static void availableCommands()
     uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
     uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
     uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
+    uartUsb.printf( "Press 'm' or 'M' to show the motor status\r\n" );
+    uartUsb.printf( "Press 'g' or 'G' to show the gate status\r\n" );
+    uartUsb.printf( "Press 'I' or 'I' to activate the motion sensor\r\n" );
+    uartUsb.printf( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
-static void commandShowCurrentAlarmState()
+static void commandShowCurrentSirenState()
 {
-    if ( sirenStateRead() ) {
+    if ( alarmStateRead() ) {
         uartUsb.printf( "The alarm is activated\r\n");
     } else {
         uartUsb.printf( "The alarm is not activated\r\n");
+    }
+}
+
+static void commandShowCurrentMotorState()
+{
+    switch ( motorDirectionRead() ) {
+        case STOPPED: uartUsb.printf( "The motor is stopped\r\n"); break;
+        case DIRECTION_1: 
+            uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
+        case DIRECTION_2: 
+            uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
+    }
+
+}
+
+static void commandShowCurrentGateState()
+{
+    switch ( gateStatusRead() ) {
+        case GATE_CLOSED: uartUsb.printf( "The gate is closed\r\n"); break;
+        case GATE_OPEN: uartUsb.printf( "The gate is open\r\n"); break;
+        case GATE_OPENING: uartUsb.printf( "The gate is opening\r\n"); break;
+        case GATE_CLOSING: uartUsb.printf( "The gate is closing\r\n"); break;
     }
 }
 
@@ -190,6 +229,16 @@ static void commandShowCurrentGasDetectorState()
     } else {
         uartUsb.printf( "Gas is not being detected\r\n");
     }    
+}
+
+static void commandMotionSensorActivate()
+{
+    motionSensorActivate();
+}
+
+static void commandMotionSensorDeactivate()
+{
+    motionSensorDeactivate();
 }
 
 static void commandShowCurrentOverTemperatureDetectorState()
@@ -203,7 +252,7 @@ static void commandShowCurrentOverTemperatureDetectorState()
 
 static void commandEnterCodeSequence()
 {
-    if( sirenStateRead() ) {
+    if( alarmStateRead() ) {
         uartUsb.printf( "Please enter the four digits numeric code " );
         uartUsb.printf( "to deactivate the alarm.\r\n" );
         pcSerialComMode = PC_SERIAL_GET_CODE;
@@ -220,7 +269,6 @@ static void commandEnterNewCode()
     uartUsb.printf( "to deactivate the alarm.\r\n" );
     numberOfCodeChars = 0;
     pcSerialComMode = PC_SERIAL_SAVE_NEW_CODE;
-
 }
 
 static void commandShowCurrentTemperatureInCelsius()
@@ -282,10 +330,12 @@ static void commandShowDateAndTime()
 
 static void commandShowStoredEvents()
 {
-    char str[100];
+    char str[EVENT_STR_LENGTH];
     int i;
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
         uartUsb.printf( "%s\r\n", str );                       
     }
 }
+
+

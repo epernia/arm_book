@@ -1,8 +1,19 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
+#include "arm_book_lib.h"
 
-#include "gas_sensor.h"
+#include "smart_home_system.h"
+
+#include "alarm.h"
+#include "siren.h"
+#include "user_interface.h"
+#include "fire_alarm.h"
+#include "intruder_alarm.h"
+#include "pc_serial_com.h"
+#include "event_log.h"
+#include "motion_sensor.h"
+#include "motor.h"
+#include "gate.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -10,11 +21,11 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalIn mq2(PB_4);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
+
+char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 //=====[Declaration and initialization of private global variables]============
 
@@ -22,20 +33,28 @@ DigitalIn mq2(PB_4);
 
 //=====[Implementations of public functions]===================================
 
-void gasSensorInit()
+void smartHomeSystemInit()
 {
-    return;
+
+    userInterfaceInit();
+    alarmInit();
+    fireAlarmInit();
+    intruderAlarmInit();
+    pcSerialComInit();
+    motorControlInit();
+    gateInit();
 }
 
-void gasSensorUpdate()
+void smartHomeSystemUpdate()
 {
-    return;
-}
+    userInterfaceUpdate();
+    fireAlarmUpdate();
+    intruderAlarmUpdate();
+    alarmUpdate();
+    eventLogUpdate();
 
-bool gasSensorRead()
-{
-    return mq2;
+    pcSerialComUpdate();
+    delay(SYSTEM_TIME_INCREMENT_MS);
 }
 
 //=====[Implementations of private functions]==================================
-

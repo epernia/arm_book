@@ -6,6 +6,7 @@
 #include "fire_alarm.h"
 
 #include "siren.h"
+#include "strobe_light.h"
 #include "user_interface.h"
 #include "code.h"
 #include "date_and_time.h"
@@ -16,14 +17,15 @@
 //=====[Declaration of private defines]======================================
 
 #define TEMPERATURE_C_LIMIT_ALARM               50.0
-#define GAS_CONCENTRATION_LIMIT_ALARM            0.0 // TODO: Ver que valor de umbral poner
-#define SIREN_BLINKING_TIME_GAS               1000
-#define SIREN_BLINKING_TIME_OVER_TEMP          500
-#define SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP  100
+#define STROBE_TIME_GAS               1000
+#define STROBE_TIME_OVER_TEMP          500
+#define STROBE_TIME_GAS_AND_OVER_TEMP  100
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
+
+DigitalIn alarmTestButton(PA_4);
 
 //=====[Declaration and initialization of private global variables]============
 
@@ -43,7 +45,7 @@ static bool overTemperatureDetectorState = OFF;
 static void fireAlarmActivationUpdate();
 static void fireAlarmDeactivationUpdate();
 static void fireAlarmDeactivate();
-static int fireAlarmBlinkTime();
+static int fireAlarmStrobeTime();
 
 //=====[Implementations of public functions]===================================
 
@@ -52,13 +54,17 @@ void fireAlarmInit()
     temperatureSensorInit();
     gasSensorInit();
     sirenInit();
+    strobeLightInit();	
+	
+	alarmTestButton.mode(PullDown); 
 }
 
 void fireAlarmUpdate()
 {
     fireAlarmActivationUpdate();
     fireAlarmDeactivationUpdate();
-    sirenIndicatorUpdate( fireAlarmBlinkTime() );
+    sirenUpdate( fireAlarmStrobeTime() );
+    strobeLightUpdate( fireAlarmStrobeTime() );	
 }
 
 bool gasDetectorStateRead()
@@ -94,13 +100,22 @@ static void fireAlarmActivationUpdate()
     if ( overTemperatureDetectorState ) {
         overTemperatureDetected = ON;
         sirenStateWrite(ON);
+        strobeLightStateWrite(ON);
     }
 
-    gasDetectorState = gasSensorRead() > GAS_CONCENTRATION_LIMIT_ALARM;
+    gasDetectorState = !gasSensorRead();
 
     if ( gasDetectorState ) {
         gasDetected = ON;
         sirenStateWrite(ON);
+        strobeLightStateWrite(ON);
+    }
+	
+    if( alarmTestButton ) {             
+        overTemperatureDetected = ON;
+        gasDetected = ON;
+        sirenStateWrite(ON);
+        strobeLightStateWrite(ON);
     }
 }
 
@@ -117,18 +132,19 @@ static void fireAlarmDeactivationUpdate()
 static void fireAlarmDeactivate()
 {
     sirenStateWrite(OFF);
+	strobeLightStateWrite(OFF);
     overTemperatureDetected = OFF;
     gasDetected             = OFF;    
 }
 
-static int fireAlarmBlinkTime()
+static int fireAlarmStrobeTime()
 {
     if( gasDetectedRead() && overTemperatureDetectedRead() ) {
-        return SIREN_BLINKING_TIME_GAS_AND_OVER_TEMP;
+        return STROBE_TIME_GAS_AND_OVER_TEMP;
     } else if ( gasDetectedRead() ) {
-        return SIREN_BLINKING_TIME_GAS;
+        return STROBE_TIME_GAS;
     } else if ( overTemperatureDetectedRead() ) {
-        return SIREN_BLINKING_TIME_OVER_TEMP;
+        return STROBE_TIME_OVER_TEMP;
     } else {
         return 0;
     }

@@ -7,14 +7,19 @@
 
 #include "smart_home_system.h"
 #include "fire_alarm.h"
+#include "intruder_alarm.h"
 
 //=====[Declaration of private defines]======================================
+
+#define SIREN_BLINKING_TIME_INTRUDER_ALARM          1000
+#define SIREN_BLINKING_TIME_FIRE_ALARM               500
+#define SIREN_BLINKING_TIME_FIRE_AND_INTRUDER_ALARM  100
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_8);
+DigitalOut sirenLed(LED1);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -30,8 +35,7 @@ static bool sirenState = OFF;
 
 void sirenInit()
 {
-    sirenPin.mode(OpenDrain);
-    sirenPin.input(); 
+    sirenLed = OFF;
 }
 
 bool sirenStateRead()
@@ -44,24 +48,35 @@ void sirenStateWrite( bool state )
     sirenState = state;
 }
 
-void sirenUpdate( int strobeTime )
+void sirenIndicatorUpdate( int blinkTime )
 {
     static int accumulatedTimeAlarm = 0;
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
+        if( accumulatedTimeAlarm >= blinkTime ) {
             accumulatedTimeAlarm = 0;
-            sirenPin.output();
-            if( sirenPin == LOW ) {	
-                sirenPin = HIGH;
-            }
-            else {
-				sirenPin = LOW;
-            }
+            sirenLed = !sirenLed;
         }
     } else {
-        sirenPin.input();  
+        sirenLed = OFF;
+    }
+}
+
+int sirenBlinkTime()
+{
+    if ( ( gasDetectedRead() || overTemperatureDetectedRead() ) && 
+           intruderDetectedRead() ) {
+        return SIREN_BLINKING_TIME_FIRE_AND_INTRUDER_ALARM;
+
+    } else if ( gasDetectedRead() || overTemperatureDetectedRead() ) {
+        return SIREN_BLINKING_TIME_FIRE_ALARM;
+
+    } else if ( intruderDetectedRead() ) {
+        return SIREN_BLINKING_TIME_INTRUDER_ALARM;
+        
+    } else {
+        return 0;
     }
 }
 

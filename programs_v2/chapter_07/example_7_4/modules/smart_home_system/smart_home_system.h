@@ -1,20 +1,21 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _SMART_HOME_SYSTEM_H_
+#define _SMART_HOME_SYSTEM_H_
 
 //=====[Libraries]=============================================================
 
 //=====[Declaration of public defines]=======================================
 
+#define SYSTEM_TIME_INCREMENT_MS   10
+
 //=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void smartHomeSystemInit();
+void smartHomeSystemUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _SMART_HOME_SYSTEM_H_

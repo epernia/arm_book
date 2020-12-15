@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SMARTPHONE_BLE_COM_H_
-#define _SMARTPHONE_BLE_COM_H_
+#ifndef _GAS_SENSOR_H_
+#define _GAS_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,8 +11,10 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void smartphoneBleComWrite( const char* str );
+void gasSensorInit();
+void gasSensorUpdate();
+bool gasSensorRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _SMARTPHONE_BLE_COM_H_
+#endif // _GAS_SENSOR_H_

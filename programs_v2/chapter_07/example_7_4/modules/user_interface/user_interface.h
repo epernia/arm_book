@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _USER_INTERFACE_H_
+#define _USER_INTERFACE_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,17 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void userInterfaceInit();
+void userInterfaceUpdate();
+bool userInterfaceCodeCompleteRead();
+void userInterfaceCodeCompleteWrite( bool state );
+
+bool incorrectCodeStateRead();
+void incorrectCodeStateWrite( bool state );
+
+bool systemBlockedStateRead();
+void systemBlockedStateWrite( bool state );
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _USER_INTERFACE_H_

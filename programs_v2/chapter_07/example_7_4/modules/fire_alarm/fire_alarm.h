@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _FIRE_ALARM_H_
+#define _FIRE_ALARM_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,16 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void fireAlarmInit();
+void fireAlarmUpdate();
+void fireAlarmDeactivate();
+
+bool gasDetectorStateRead();
+bool gasDetectedRead();
+
+bool overTemperatureDetectorStateRead();
+bool overTemperatureDetectedRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _FIRE_ALARM_H_

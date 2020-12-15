@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _SIREN_H_
+#define _SIREN_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,12 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void sirenInit();
+bool sirenStateRead();
+void sirenStateWrite( bool state );
+void sirenIndicatorUpdate( int blinkTime );
+int sirenBlinkTime();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _SIREN_H_

@@ -10,6 +10,7 @@
 #include "user_interface.h"
 #include "date_and_time.h"
 #include "pc_serial_com.h"
+#include "motion_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -36,6 +37,7 @@ static bool gasLastState   = OFF;
 static bool tempLastState  = OFF;
 static bool ICLastState    = OFF;
 static bool SBLastState    = OFF;
+static bool motionLastState         = OFF;
 static int eventsIndex     = 0;
 static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
@@ -68,6 +70,10 @@ void eventLogUpdate()
     currentState = systemBlockedStateRead();
     eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
     SBLastState = currentState;
+
+    currentState = motionSensorRead();
+    eventLogElementStateUpdate( motionLastState ,currentState, "MOTION" );
+    motionLastState = currentState;
 }
 
 int eventLogNumberOfStoredEvents()

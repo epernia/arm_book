@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _STROBE_LIGHT_H_
+#define _STROBE_LIGHT_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,11 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void strobeLightInit();
+bool strobeLightStateRead();
+void strobeLightStateWrite( bool state );
+void strobeLightUpdate( int strobeTime );
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _STROBE_LIGHT_H_

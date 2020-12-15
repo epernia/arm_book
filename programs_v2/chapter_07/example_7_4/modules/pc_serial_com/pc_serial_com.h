@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _PC_SERIAL_COM_H_
+#define _PC_SERIAL_COM_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,13 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void pcSerialComInit();
+char pcSerialComCharRead();
+void pcSerialComStringWrite( const char* str );
+void pcSerialComUpdate();
+bool pcSerialComCodeCompleteRead();
+void pcSerialComCodeCompleteWrite( bool state );
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _PC_SERIAL_COM_H_

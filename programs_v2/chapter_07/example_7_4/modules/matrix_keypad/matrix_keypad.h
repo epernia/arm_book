@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _MATRIX_KEYPAD_H_
+#define _MATRIX_KEYPAD_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void matrixKeypadInit( int updateTime_ms );
+char matrixKeypadUpdate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _MATRIX_KEYPAD_H_

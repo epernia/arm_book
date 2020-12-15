@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _MOTION_SENSOR_H_
+#define _MOTION_SENSOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -11,10 +11,11 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void motionSensorInit();
+bool motionSensorRead();
+void motionSensorActivate();
+void motionSensorDeactivate();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _MOTION_SENSOR_H_

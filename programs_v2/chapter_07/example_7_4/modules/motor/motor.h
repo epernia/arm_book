@@ -1,7 +1,7 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _GAS_SENSOR_H_
-#define _GAS_SENSOR_H_
+#ifndef _MOTOR_H_
+#define _MOTOR_H_
 
 //=====[Libraries]=============================================================
 
@@ -9,12 +9,19 @@
 
 //=====[Declaration of public data types]======================================
 
+typedef enum {
+    DIRECTION_1,
+    DIRECTION_2,
+    STOPPED
+} MotorDirection_t;
+
 //=====[Declarations (prototypes) of public functions]=========================
 
-void gasSensorInit();
-void gasSensorUpdate();
-bool gasSensorRead();
+void motorControlInit();
+void motorDirectionWrite( MotorDirection_t Direction );
+
+MotorDirection_t motorDirectionRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _GAS_SENSOR_H_
+#endif // _MOTOR_H_
