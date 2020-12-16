@@ -276,6 +276,8 @@ void displayCharPositionWrite( uint8_t charPositionX,
 {
     // Start in (x,y) = (0,0)
     static uint8_t firstCharAdress[4];
+    
+    char divFactor;
 
     if( display.type == DISPLAY_TYPE_LCD_HD44780 ) {
         // Char LCD display positions
@@ -283,15 +285,17 @@ void displayCharPositionWrite( uint8_t charPositionX,
         firstCharAdress[1] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x40;        // 0xC0 
         firstCharAdress[2] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x14;        // 0x94
         firstCharAdress[3] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x40 + 0x14; // 0xD4
+        divFactor = 1;
     } else if( display.type == DISPLAY_TYPE_GLCD_ST7920 ) {
         // GLCD display positions
         firstCharAdress[0] = DISPLAY_CMD_SET_DDRAM_ADDR;        // 0x80
         firstCharAdress[1] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x10; // 0x90 
         firstCharAdress[2] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x08; // 0x88
         firstCharAdress[3] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x18; // 0x98
+        divFactor = 2;
     }
 
-    displayCommandWrite( firstCharAdress[charPositionY] + charPositionX/2 );
+    displayCommandWrite( firstCharAdress[charPositionY] + charPositionX/devFactor );
     displayDelay_us( DISPLAY_POSITION_WAIT_US );
 }
 

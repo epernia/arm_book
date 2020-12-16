@@ -33,7 +33,6 @@
 
 void smartHomeSystemInit()
 {
-
     userInterfaceInit();
     alarmInit();
     fireAlarmInit();
