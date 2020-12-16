@@ -15,7 +15,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-PwmOut audioOut(PF_7);
+PwmOut audioOut(PE_6);
 
 //=====[Declaration of external public global variables]=======================
 
