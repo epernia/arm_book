@@ -25,8 +25,6 @@
 
 //=====[Declaration and initialization of public global variables]=============
 
-char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
-
 //=====[Declaration and initialization of private global variables]============
 
 //=====[Declarations (prototypes) of private functions]========================
@@ -52,7 +50,6 @@ void smartHomeSystemUpdate()
     intruderAlarmUpdate();
     alarmUpdate();
     eventLogUpdate();
-
     pcSerialComUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
 }

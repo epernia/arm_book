@@ -25,7 +25,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalIn alarmTestButton(PA_4);
+DigitalIn alarmTestButton(BUTTON1);
 
 //=====[Declaration and initialization of private global variables]============
 

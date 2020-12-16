@@ -16,6 +16,7 @@
 #include "motion_sensor.h"
 #include "matrix_keypad.h"
 #include "display.h"
+#include "GLCD_clear_screen.h"
 #include "GLCD_fire_alarm.h"
 #include "GLCD_intruder_alarm.h"
 #include "motor.h"
@@ -50,7 +51,7 @@ char codeSequenceFromUserInterface[CODE_NUMBER_OF_KEYS];
 //=====[Declaration and initialization of private global variables]============
 
 static displayState_t displayState = DISPLAY_REPORT_STATE;
-static int displayAlarmGraphicSequence = 0;
+static int displayFireAlarmGraphicSequence = 0;
 static int displayIntruderAlarmGraphicSequence = 0;
 static int displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
 
@@ -176,8 +177,7 @@ static void userInterfaceDisplayReportStateInit()
 
     displayModeWrite( DISPLAY_MODE_CHAR );
 
-    displayCommandWrite(DISPLAY_CMD_CLEAR);
-    delay(2);
+    displayClear();
 
     displayCharPositionWrite ( 0,0 );
     displayStringWrite( "Temperature:" );
@@ -215,51 +215,47 @@ static void userInterfaceDisplayAlarmStateInit()
     displayState = DISPLAY_ALARM_STATE;
     displayRefreshTimeMs = DISPLAY_REFRESH_TIME_ALARM_MS;
 
-    displayCommandWrite(DISPLAY_CMD_CLEAR);
-    delay(2);
+    displayClear();
 
     displayModeWrite( DISPLAY_MODE_GRAPHIC );
 
-    displayAlarmGraphicSequence = 0;
+    displayFireAlarmGraphicSequence = 0;
 }
 
 static void userInterfaceDisplayAlarmStateUpdate()
 {
     if ( ( gasDetectedRead() ) || ( overTemperatureDetectedRead() ) ) {
-        switch( displayAlarmGraphicSequence ) {
+        switch( displayFireAlarmGraphicSequence ) {
         case 0:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence++;
+            displayBitmapWrite( GLCD_fire_alarm[0] );
+            displayFireAlarmGraphicSequence++;
             break;
         case 1:
-            displayBitmapWrite( GLCD_fire_alarm_1 );
-            displayAlarmGraphicSequence++;
+            displayBitmapWrite( GLCD_fire_alarm[1] );
+            displayFireAlarmGraphicSequence++;
             break;
         case 2:
-            displayBitmapWrite( GLCD_fire_alarm_2 );
-            displayAlarmGraphicSequence++;
+            displayBitmapWrite( GLCD_fire_alarm[2] );
+            displayFireAlarmGraphicSequence++;
             break;
         case 3:
-            displayBitmapWrite( GLCD_fire_alarm_3 );
-            displayAlarmGraphicSequence = 0;
+            displayBitmapWrite( GLCD_fire_alarm[3] );
+            displayFireAlarmGraphicSequence = 0;
             break;
         default:
-            displayBitmapWrite( GLCD_fire_alarm_0 );
-            displayAlarmGraphicSequence = 1;
+            displayBitmapWrite( GLCD_ClearScreen );
+            displayFireAlarmGraphicSequence = 0;
             break;
         }
     } else if ( intruderDetectedRead() ) {
         switch( displayIntruderAlarmGraphicSequence ) {
         case 0:
-            displayBitmapWrite( GLCD_intruder_alarm_0 );
+            displayBitmapWrite( GLCD_intruder_alarm );
             displayIntruderAlarmGraphicSequence++;
             break;
         case 1:
-            displayBitmapWrite( GLCD_intruder_alarm_1 );
-            displayIntruderAlarmGraphicSequence++;
-            break;
         default:
-            displayBitmapWrite( GLCD_intruder_alarm_0 );
+            displayBitmapWrite( GLCD_ClearScreen );
             displayIntruderAlarmGraphicSequence = 0;
             break;
         }
@@ -268,10 +264,7 @@ static void userInterfaceDisplayAlarmStateUpdate()
 
 static void userInterfaceDisplayInit()
 {
-    displayInit( DISPLAY_TYPE_GLCD_ST7920, DISPLAY_CONNECTION_SPI,
-                 16, 4,
-                 8, 16,
-                 128, 64 );
+    displayInit( DISPLAY_TYPE_GLCD_ST7920, DISPLAY_CONNECTION_SPI );
     userInterfaceDisplayReportStateInit();
 }
 

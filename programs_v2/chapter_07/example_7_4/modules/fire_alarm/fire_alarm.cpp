@@ -13,11 +13,12 @@
 //=====[Declaration of private defines]======================================
 
 #define TEMPERATURE_C_LIMIT_ALARM               50.0
-#define GAS_CONCENTRATION_LIMIT_ALARM            0.0 // TODO: Ver que valor de umbral poner
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
+
+DigitalIn fireAlarmTestButton(BUTTON1);
 
 //=====[Declaration and initialization of private global variables]============
 
@@ -40,6 +41,7 @@ void fireAlarmInit()
 {
     temperatureSensorInit();
     gasSensorInit();
+    fireAlarmTestButton.mode(PullDown); 
 }
 
 void fireAlarmUpdate()
@@ -54,9 +56,14 @@ void fireAlarmUpdate()
         overTemperatureDetected = ON;
     }
 
-    gasDetectorState = gasSensorRead() > GAS_CONCENTRATION_LIMIT_ALARM;
+    gasDetectorState = !gasSensorRead();
 
     if ( gasDetectorState ) {
+        gasDetected = ON;
+    }
+
+    if( fireAlarmTestButton ) {             
+        overTemperatureDetected = ON;
         gasDetected = ON;
     }
 }
@@ -88,5 +95,3 @@ void fireAlarmDeactivate()
 }
 
 //=====[Implementations of private functions]==================================
-
-

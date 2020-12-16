@@ -6,20 +6,14 @@
 #include "siren.h"
 
 #include "smart_home_system.h"
-#include "fire_alarm.h"
-#include "intruder_alarm.h"
 
 //=====[Declaration of private defines]======================================
-
-#define SIREN_BLINKING_TIME_INTRUDER_ALARM          1000
-#define SIREN_BLINKING_TIME_FIRE_ALARM               500
-#define SIREN_BLINKING_TIME_FIRE_AND_INTRUDER_ALARM  100
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut sirenLed(LED1);
+DigitalInOut sirenPin(PE_11);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -35,7 +29,8 @@ static bool sirenState = OFF;
 
 void sirenInit()
 {
-    sirenLed = OFF;
+    sirenPin.mode(OpenDrain);
+    sirenPin.input(); 
 }
 
 bool sirenStateRead()
@@ -48,35 +43,24 @@ void sirenStateWrite( bool state )
     sirenState = state;
 }
 
-void sirenIndicatorUpdate( int blinkTime )
+void sirenUpdate( int strobeTime )
 {
     static int accumulatedTimeAlarm = 0;
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
     if( sirenState ) {
-        if( accumulatedTimeAlarm >= blinkTime ) {
+        if( accumulatedTimeAlarm >= strobeTime ) {
             accumulatedTimeAlarm = 0;
-            sirenLed = !sirenLed;
+            sirenPin.output();
+            if( sirenPin == LOW ) {	
+                sirenPin = HIGH;
+            }
+            else {
+				sirenPin = LOW;
+            }
         }
     } else {
-        sirenLed = OFF;
-    }
-}
-
-int sirenBlinkTime()
-{
-    if ( ( gasDetectedRead() || overTemperatureDetectedRead() ) && 
-           intruderDetectedRead() ) {
-        return SIREN_BLINKING_TIME_FIRE_AND_INTRUDER_ALARM;
-
-    } else if ( gasDetectedRead() || overTemperatureDetectedRead() ) {
-        return SIREN_BLINKING_TIME_FIRE_ALARM;
-
-    } else if ( intruderDetectedRead() ) {
-        return SIREN_BLINKING_TIME_INTRUDER_ALARM;
-        
-    } else {
-        return 0;
+        sirenPin.input();  
     }
 }
 

@@ -18,8 +18,8 @@
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool intruderDetected             = OFF;
-static bool intruderDetectorState        = OFF;
+static bool intruderDetected = OFF;
+static bool intruderDetectorState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 

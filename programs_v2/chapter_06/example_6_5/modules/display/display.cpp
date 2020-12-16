@@ -291,7 +291,7 @@ void displayCharPositionWrite( uint8_t charPositionX,
         firstCharAdress[3] = DISPLAY_CMD_SET_DDRAM_ADDR + 0x18; // 0x98
     }
 
-    displayCommandWrite( firstCharAdress[charPositionY] + charPositionX );
+    displayCommandWrite( firstCharAdress[charPositionY] + charPositionX/2 );
     displayDelay_us( DISPLAY_POSITION_WAIT_US );
 }
 

@@ -63,7 +63,6 @@ static void commandShowCurrentTemperatureInCelsius();
 static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
 static void commandShowDateAndTime();
-static void commandShowStoredEvents();
 static void commandMotionSensorActivate();
 static void commandMotionSensorDeactivate();
 
@@ -162,7 +161,6 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
         case 's': case 'S': commandSetDateAndTime(); break;
         case 't': case 'T': commandShowDateAndTime(); break;
-        case 'e': case 'E': commandShowStoredEvents(); break;
         case 'm': case 'M': commandShowCurrentMotorState(); break;
         case 'g': case 'G': commandShowCurrentGateState(); break;
         case 'i': case 'I': commandMotionSensorActivate(); break;
@@ -327,15 +325,3 @@ static void commandShowDateAndTime()
 {
     uartUsb.printf("Date and Time = %s", dateAndTimeRead());
 }
-
-static void commandShowStoredEvents()
-{
-    char str[EVENT_STR_LENGTH];
-    int i;
-    for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
-        eventLogRead( i, str );
-        uartUsb.printf( "%s\r\n", str );                       
-    }
-}
-
-

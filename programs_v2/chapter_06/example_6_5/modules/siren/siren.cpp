@@ -6,7 +6,6 @@
 #include "siren.h"
 
 #include "smart_home_system.h"
-#include "fire_alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -14,7 +13,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_8);
+DigitalInOut sirenPin(PE_11);
 
 //=====[Declaration of external public global variables]=======================
 

@@ -6,7 +6,7 @@
 #include "strobe_light.h"
 
 #include "smart_home_system.h"
-#include "fire_alarm.h"
+#include "alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -59,4 +59,3 @@ void strobeLightUpdate( int strobeTime )
 }
 
 //=====[Implementations of private functions]==================================
-
