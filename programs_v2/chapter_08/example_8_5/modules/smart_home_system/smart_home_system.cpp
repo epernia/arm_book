@@ -55,6 +55,7 @@ void smartHomeSystemUpdate()
     eventLogUpdate();
     pcSerialComUpdate();
     lightSystemUpdate();
+    delay(SYSTEM_TIME_INCREMENT_MS);
 }
 
 //=====[Implementations of private functions]==================================
