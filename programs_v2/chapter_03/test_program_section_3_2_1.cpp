@@ -1,59 +1,3 @@
-/*
--------------------------------------------------------------------------------
-Programa de prueba de conexionado 4.2.1.
--------------------------------------------------------------------------------
-
-Programa con menu de opciones:
-    'a' y 'A' Lee el potenciometro crudo 0 a 1.
-    'b' y 'B' Lee el LM35 crudo.
-    'c' y 'C' Lee el LM35 escalado en Celsius.
-    'd' y 'D' Lee el LM35 escalado en Fahrenheit.
-    'e' y 'E' Comparar LM35 y pote ecalado Celsius para que se vea el ruido.
-    'f' y 'F' Comparar LM35 y pote ecalado Fahrenheit para que se vea el ruido.
-
-Prueba el potenciometro y el LM35 (se puso cada 57 ms para que con lo que 
-tarda en enviar por UART más lo que tarda en el wait() en total sean cerca de 
-100ms).
-
-El lector va a mover el potenciómetro de 0.0 a 50.0. Se le puede pedir que
-ponga el potenciómetro al mismo valor que la temperatura que marca el LM35.
-
-El sensor de temperatura LM35 si le apoya un dedo (sin tocar los terminales) o
-le acerca un fósforo de costado cambia el valor.
-
-Nótese que el sensor de temperatura fluctua mucho a diferencia del
-potenciómetro que mantien valores mas estables (tiene menos ruido el pote).
-
-Al variar la temperatura (utilice por ejemplo un secador de pelo en calor),
-nótese que la temperatura al variar da ciertos saltos de ruido hasta que se
-establece.
-
-Poner un gráfico mostrando los 2 sensores para que los vea graficados 
-(si llegamos).
-
--------------------------------------------------------------------------------
-
-ADC pin:
-
-  0 V <---> adcPin.read() = 0.0 
-3.3 V <---> adcPin.read() = 1.0
-
--------------------------------------------------------------------------------
-
-LM35 output: 10 mV/°C (2°C to 150°C)
-
-  Convert to Celsius degrees:
-
-    adcPin[V] = adcPin.read() * 3.3
-    LM35_T[°C] = adcPin[V] * 100.0
-    
-    ==> T[°C] = adcPin.read() * 330.0  
-  
-  Convert to Fahrenheit degrees:
-  
-    T[°F] = 9.0/5.0 * T[°C] + 32.0
-*/
-
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
@@ -65,6 +9,8 @@ Serial uartUsb(USBTX, USBRX);
 
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1); // 10 mV/°C
+DigitalInOut sirenPin(PE_10);
+DigitalIn mq2(PF_15);
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -95,6 +41,8 @@ float potentiometerScaledToFahrenheit( float analogValue );
 
 int main()
 {
+    sirenPin.mode(OpenDrain);
+    sirenPin.input();
     availableCommands();
     while( true ) {
         uartTask();
@@ -128,8 +76,11 @@ void availableCommands()
     uartUsb.printf("LM35 expressed in ºF and the potentiometer reading ");
     uartUsb.printf("scaled by the same factor\r\n");
 
+    uartUsb.printf(" - 'g' the reading of the DOUT signal of the ");
+    uartUsb.printf("MQ-2 gas sensor \r\n");
+
     uartUsb.printf("\r\nWARNING: The readings are printed continuously ");
-    uartUsb.printf("until "q" or "Q" are pressed.\r\n\r\n");
+    uartUsb.printf("until 'q' or 'Q' are pressed.\r\n\r\n");
 }
 
 void uartTask()
@@ -145,7 +96,7 @@ void uartTask()
                 potentiometerReading = potentiometer.read();
                 uartUsb.printf("Potentiometer reading: %f\r\n",
                                potentiometerReading);
-                wait_ms( 100 - (7+25) );
+                delay( 100 - (7+25) );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -159,7 +110,7 @@ void uartTask()
             while( !(receivedChar == 'q' || receivedChar == 'Q') ) {
                 lm35Reading = lm35.read();
                 uartUsb.printf("LM35 reading: %f\r\n", lm35Reading);
-                wait_ms( 100 - (7+16) );
+                delay( 100 - (7+16) );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -174,7 +125,7 @@ void uartTask()
                 lm35Reading = lm35.read();
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
                 uartUsb.printf("LM35: %f °C\r\n", lm35TempC);
-                wait_ms( 100 - (9+11) );
+                delay( 100 - (9+11) );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -190,7 +141,7 @@ void uartTask()
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
                 lm35TempF = celsiusToFahrenheit(lm35TempC);
                 uartUsb.printf("LM35: %f °F\r\n", lm35TempF);
-                wait_ms( 100 - (9+11) );
+                delay( 100 - (9+11) );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -208,7 +159,7 @@ void uartTask()
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
                 uartUsb.printf("LM35: %f °C, Potentiometer scaled to °C: %f\r\n",
                                lm35TempC, potentiometerScaledToC);
-                wait_ms( 100 - (9+9+38) );
+                delay( 100 - (9+9+38) );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -227,7 +178,25 @@ void uartTask()
                 lm35TempF = celsiusToFahrenheit(lm35TempC);
                 uartUsb.printf("LM35: %f °F, Potentiometer scaled to °F: %f\r\n",
                                lm35TempF, potentiometerScaledToF);
-                wait_ms( 100 - (9+9+38) );
+                delay( 100 - (9+9+38) );
+                if( uartUsb.readable() ) {
+                    receivedChar = uartUsb.getc();
+                }
+            }
+            break;
+
+        case 'g':
+        case 'G':
+            while( !(receivedChar == 'q' || receivedChar == 'Q') ) {
+                if ( !mq2 ) {
+                    uartUsb.printf( "Gas is being detected\r\n");
+                    sirenPin.output();                                     
+                    sirenPin = LOW;	                    
+                } else {
+                    uartUsb.printf( "Gas is not being detected\r\n");
+                    sirenPin.input();
+                }
+                delay( 100 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }

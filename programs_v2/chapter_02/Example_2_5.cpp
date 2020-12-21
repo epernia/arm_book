@@ -192,7 +192,7 @@ void uartTask()
             uartUsb.printf( " 'C' = not pressed," );
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
-l
+
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {

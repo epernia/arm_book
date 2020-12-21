@@ -14,7 +14,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_8);
+DigitalInOut sirenPin(PE_10);
 
 //=====[Declaration of external public global variables]=======================
 

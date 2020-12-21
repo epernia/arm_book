@@ -6,32 +6,31 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
-//#define STRING_MAX_LENGTH                       30  // Esta linea cambió
+
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-#define LM35_SAMPLE_TIME                       100
-#define NUMBER_OF_AVG_SAMPLES                   10
+
+#define NUMBER_OF_AVG_SAMPLES                   100
 #define OVER_TEMP_LEVEL                         50
 
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
-DigitalIn alarmTestButton(D2);        // Esta linea cambió
+DigitalIn alarmTestButton(D2);
 DigitalIn aButton(D4);
 DigitalIn bButton(D5);
 DigitalIn cButton(D6);
 DigitalIn dButton(D7);
-DigitalIn mq2(PG_0);        // Esta linea cambió
+DigitalIn mq2(PF_15);
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
-DigitalInOut sirenPin(PG_1);   // Esta linea cambió
+DigitalInOut sirenPin(PE_10);
 
 Serial uartUsb(USBTX, USBRX);
-//Serial uartBle(D1, D0);
 
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
@@ -47,17 +46,11 @@ int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm = 0;
-int accumulatedTimeLm35  = 0;
+
 int lm35SampleIndex      = 0;
 
 char receivedChar = '\0';
-//char bleReceivedString[STRING_MAX_LENGTH];
 
-/*bool alarmLastTransmittedState = OFF;
-bool gasLastTransmittedState   = OFF;
-bool tempLastTransmittedState  = OFF;
-bool ICLastTransmittedState    = OFF;
-bool SBLastTransmittedState    = OFF;*/
 bool gasDetectorState          = OFF;
 bool overTempDetectorState     = OFF;
 
@@ -78,16 +71,9 @@ void alarmDeactivationUpdate();
 void uartTask();
 void availableCommands();
 bool areEqual();
-/*void bleTask();
-
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState, 
-                                         bool currentState, 
-                                         char* elementName );
-
-void bleGetTheSmartphoneButtonsState( char* buttonName, int index );*/
-
 float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
+void lm35ReadingsArrayInit();
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -99,7 +85,6 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
-//        bleTask();
     }
 }
 
@@ -107,13 +92,15 @@ int main()
 
 void inputsInit()
 {
-    alarmTestButton.mode(PullDown);  // Esta linea cambió
+    lm35ReadingsArrayInit();
+    alarmTestButton.mode(PullDown);
+    mq2.mode(PullUp);
     aButton.mode(PullDown);
     bButton.mode(PullDown);
     cButton.mode(PullDown);
     dButton.mode(PullDown);
-	sirenPin.mode(OpenDrain);          // Esta linea cambió
-	sirenPin.input();                  // Esta linea cambió
+    sirenPin.mode(OpenDrain);
+    sirenPin.input();
 }
 
 void outputsInit()
@@ -125,36 +112,30 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
+    static int lm35SampleIndex = 0;
     int i = 0;
-
     delay(10);
 
-    accumulatedTimeLm35 = accumulatedTimeLm35 + 10;
-
-    if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
-        if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
-            lm35ReadingsArray[lm35SampleIndex] = lm35.read();
-            lm35SampleIndex++;
-        } else {
-            lm35ReadingsSum = 0;
-			for( i=0; i<NUMBER_OF_AVG_SAMPLES ; i++ ) {
-                lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
-            }
-            lm35SampleIndex = 0;
-            lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
-            lm35TempC = 
-                analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );
-        }
-        accumulatedTimeLm35 = 0;
+    lm35ReadingsArray[lm35SampleIndex] = lm35.read();
+	   lm35SampleIndex++;
+    if ( lm35SampleIndex >= NUMBER_OF_AVG_SAMPLES) {
+        lm35SampleIndex = 0;
     }
-
+	
+	   lm35ReadingsSum = 0.0;
+    for (i = 0; i < NUMBER_OF_AVG_SAMPLES; i++) {
+        lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
+    }
+    lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
+	   lm35TempC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );	
+	
     if ( lm35TempC > OVER_TEMP_LEVEL ) {
         overTempDetector = ON;
     } else {
         overTempDetector = OFF;
     }
 
-    if( !mq2) {          // Esta linea cambió             
+    if( !mq2) {                      
         gasDetectorState = ON;
         alarmState = ON;
     }
@@ -162,14 +143,14 @@ void alarmActivationUpdate()
         overTempDetectorState = ON;
         alarmState = ON;
     }
-    if( alarmTestButton ) {             // Todo este IF es nuevo  
+    if( alarmTestButton ) {             
         overTempDetectorState = ON;
 		gasDetectorState = ON;
         alarmState = ON;
     }	
     if( alarmState ) { 
         accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
-        sirenPin.output();                                    // Esta linea cambió  
+        sirenPin.output();                                     
         sirenPin = LOW;		                                
 	
         if( gasDetectorState && overTempDetectorState ) {
@@ -192,7 +173,7 @@ void alarmActivationUpdate()
         alarmLed = OFF;
         gasDetectorState = OFF;
         overTempDetectorState = OFF;
-        sirenPin.input();                                 // Esta linea cambió  
+        sirenPin.input();                                  
     }
 }
 
@@ -234,7 +215,7 @@ void uartTask()
             break;
 
         case '2':
-            if ( !mq2 ) {                                       // Esta linea cambió                
+            if ( !mq2 ) {
                 uartUsb.printf( "Gas is being detected\r\n");
             } else {
                 uartUsb.printf( "Gas is not being detected\r\n");
@@ -379,84 +360,10 @@ float celsiusToFahrenheit( float tempInCelsiusDegrees )
     return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
 }
 
-/*void bleTask()
+void lm35ReadingsArrayInit()
 {
-    bleSendElementStateToTheSmartphone( alarmLastTransmittedState, 
-                                        alarmState, "ALARM" );
-    alarmLastTransmittedState = alarmState;
-
-    bleSendElementStateToTheSmartphone( gasLastTransmittedState, 
-                                        gasDetector, "GAS_DET" );
-    gasLastTransmittedState = gasDetector;
-
-    bleSendElementStateToTheSmartphone( tempLastTransmittedState, 
-                                        overTempDetector, "OVER_TEMP" );
-    tempLastTransmittedState = overTempDetector;
-
-    bleSendElementStateToTheSmartphone( ICLastTransmittedState, 
-                                        incorrectCodeLed, "LED_IC" );
-    ICLastTransmittedState = incorrectCodeLed;
-
-    bleSendElementStateToTheSmartphone( SBLastTransmittedState, 
-                                        systemBlockedLed, "LED_SB" );
-    SBLastTransmittedState = systemBlockedLed;
-
-    if( uartBle.readable() ) {
-        uartBle.scanf("%s", bleReceivedString);
-
-        bleGetTheSmartphoneButtonsState( "A", 0 );
-        bleGetTheSmartphoneButtonsState( "B", 1 );
-        bleGetTheSmartphoneButtonsState( "C", 2 );
-        bleGetTheSmartphoneButtonsState( "D", 3 );
-
-        bleGetTheSmartphoneButtonsState( "ENTER", -1 );
-
-        while ( uartBle.readable() ) {
-            uartBle.getc();
-        }
-    } 
-    
-}
-
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState, 
-                                         bool currentState, 
-                                         char* elementName )
-{
-    if ( lastTransmittedState != currentState ) {
-        uartBle.printf(elementName);
-        if ( currentState ) {
-            uartBle.printf("_ON\r\n");
-        } else {
-            uartBle.printf("_OFF\r\n");
-        }
+    int i;
+    for( i=0; i<NUMBER_OF_AVG_SAMPLES ; i++ ) {
+        lm35ReadingsArray[i] = 0;
     }
 }
-
-void bleGetTheSmartphoneButtonsState( char* buttonName, int index )
-{
-    char str[30];
-
-    str[0] = 0;
-    strncat( str, buttonName, strlen(buttonName) );
-    strncat( str, "_PRESSED", strlen("_PRESSED") );
-
-    if ( strcmp(bleReceivedString, str) == 0 )  {
-        uartUsb.printf("Button '%s' has been pressed", buttonName );
-        uartUsb.printf("in the smartphone application\r\n\r\n");
-        if ( index >= 0 ) {
-            buttonsPressed[index] = 1;
-        }
-    }
-
-    str[0] = 0;
-    strncat( str, buttonName, strlen(buttonName) );
-    strncat( str, "_RELEASED", strlen("_RELEASED") );
-
-    if ( strcmp(bleReceivedString, str) == 0 )  {
-        if ( index >= 0 ) {
-            buttonsPressed[index] = 0;
-        }
-        uartUsb.printf("Button '%s' has been released", buttonName );
-        uartUsb.printf("in the smartphone application\r\n\r\n");
-    }
-}*/

@@ -10,12 +10,14 @@
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-#define POTENTIOMETER_OVER_TEMP_LEVEL           50 // Now in °C
+#define POTENTIOMETER_OVER_TEMP_LEVEL            0.3
 
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
+
+
 DigitalIn aButton(D4);
 DigitalIn bButton(D5);
 DigitalIn cButton(D6);
@@ -26,7 +28,6 @@ DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
-Serial uartBle(D1, D0);
 
 AnalogIn potentiometer(A0);
 
@@ -41,20 +42,10 @@ int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm = 0;
-
 char receivedChar = '\0';
-char bleReceivedString[STRING_MAX_LENGTH];
 
-bool alarmLastTransmittedState = OFF;
-bool gasLastTransmittedState   = OFF;
-bool tempLastTransmittedState  = OFF;
-bool ICLastTransmittedState    = OFF;
-bool SBLastTransmittedState    = OFF;
-bool gasDetectorState          = OFF;
-bool overTempDetectorState     = OFF;
 
-float potentiometerReading       = 0.0;
-float potentiometerReadingScaled = 0.0;
+float potentiometerReading = 0.0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -67,16 +58,6 @@ void alarmDeactivationUpdate();
 void uartTask();
 void availableCommands();
 bool areEqual();
-void bleTask();
-
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState, 
-                                         bool currentState, 
-                                         char* elementName );
-
-void bleGetTheSmartphoneButtonsState( char* buttonName, int index );
-
-float celsiusToFahrenheit( float tempInCelsiusDegrees );
-float analogReadingScaledWithTheLM35Formula( float analogReading );
 
 //=====[Main function, the program entry point after power on or reset]========
 
@@ -88,7 +69,6 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
-        bleTask();
     }
 }
 
@@ -112,10 +92,9 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
-    potentiometerReadingScaled = 
-        analogReadingScaledWithTheLM35Formula( potentiometer.read() );
- 
-    if ( potentiometerReadingScaled > POTENTIOMETER_OVER_TEMP_LEVEL ) {
+    potentiometerReading = potentiometer.read();
+
+    if ( potentiometerReading > POTENTIOMETER_OVER_TEMP_LEVEL ) {
         overTempDetector = ON;
     } else {
         overTempDetector = OFF;
@@ -261,7 +240,7 @@ void uartTask()
             uartUsb.printf( " 'C' = not pressed," );
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
-
+l
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {
@@ -284,26 +263,6 @@ void uartTask()
             uartUsb.printf( "Potentiometer: %.2f\r\n", potentiometerReading );
             break;
 
-        case 'c':
-        case 'C':
-            uartUsb.printf( "Temperature: %.2f °C\r\n", 
-				analogReadingScaledWithTheLM35Formula(
-				    potentiometer.read() 
-                ) 
-            );
-            break;
-
-        case 'f':
-        case 'F':
-            uartUsb.printf( "Temperature: %.2f °F\r\n", 
-				celsiusToFahrenheit( 
-				    analogReadingScaledWithTheLM35Formula( 
-				        potentiometer.read() 
-                    ) 
-                ) 
-            );
-            break;
-
         default:
             availableCommands();
             break;
@@ -320,9 +279,7 @@ void availableCommands()
     uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
-    uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
-	uartUsb.printf( "Press 'f' or 'F' to get potentiometer reading in Fahrenheit\r\n" );
-	uartUsb.printf( "Press 'c' or 'C' to get potentiometer reading in Celsius\r\n\r\n" );
+    uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n\r\n" );
 }
 
 bool areEqual()
@@ -338,94 +295,4 @@ bool areEqual()
     return true;
 }
 
-void bleTask()
-{
-    bleSendElementStateToTheSmartphone( alarmLastTransmittedState, 
-                                        alarmState, "ALARM" );
-    alarmLastTransmittedState = alarmState;
 
-    bleSendElementStateToTheSmartphone( gasLastTransmittedState, 
-                                        gasDetector, "GAS_DET" );
-    gasLastTransmittedState = gasDetector;
-
-    bleSendElementStateToTheSmartphone( tempLastTransmittedState, 
-                                        overTempDetector, "OVER_TEMP" );
-    tempLastTransmittedState = overTempDetector;
-
-    bleSendElementStateToTheSmartphone( ICLastTransmittedState, 
-                                        incorrectCodeLed, "LED_IC" );
-    ICLastTransmittedState = incorrectCodeLed;
-
-    bleSendElementStateToTheSmartphone( SBLastTransmittedState, 
-                                        systemBlockedLed, "LED_SB" );
-    SBLastTransmittedState = systemBlockedLed;
-
-    if( uartBle.readable() ) {
-        uartBle.scanf("%s", bleReceivedString);
-
-        bleGetTheSmartphoneButtonsState( "A", 0 );
-        bleGetTheSmartphoneButtonsState( "B", 1 );
-        bleGetTheSmartphoneButtonsState( "C", 2 );
-        bleGetTheSmartphoneButtonsState( "D", 3 );
-
-        bleGetTheSmartphoneButtonsState( "ENTER", -1 );
-
-        while ( uartBle.readable() ) {
-            uartBle.getc();
-        }
-    } 
-    
-}
-
-void bleSendElementStateToTheSmartphone( bool lastTransmittedState, 
-                                         bool currentState, 
-                                         char* elementName )
-{
-    if ( lastTransmittedState != currentState ) {
-        uartBle.printf(elementName);
-        if ( currentState ) {
-            uartBle.printf("_ON\r\n");
-        } else {
-            uartBle.printf("_OFF\r\n");
-        }
-    }
-}
-
-void bleGetTheSmartphoneButtonsState( char* buttonName, int index )
-{
-    char str[30];
-
-    str[0] = 0;
-    strncat( str, buttonName, strlen(buttonName) );
-    strncat( str, "_PRESSED", strlen("_PRESSED") );
-
-    if ( strcmp(bleReceivedString, str) == 0 )  {
-        uartUsb.printf("Button '%s' has been pressed", buttonName );
-        uartUsb.printf("in the smartphone application\r\n\r\n");
-        if ( index >= 0 ) {
-            buttonsPressed[index] = 1;
-        }
-    }
-
-    str[0] = 0;
-    strncat( str, buttonName, strlen(buttonName) );
-    strncat( str, "_RELEASED", strlen("_RELEASED") );
-
-    if ( strcmp(bleReceivedString, str) == 0 )  {
-        if ( index >= 0 ) {
-            buttonsPressed[index] = 0;
-        }
-        uartUsb.printf("Button '%s' has been released", buttonName );
-        uartUsb.printf("in the smartphone application\r\n\r\n");
-    }
-}
-
-float analogReadingScaledWithTheLM35Formula( float analogReading )
-{
-    return ( analogReading * 3.3 / 0.01 );
-}
-
-float celsiusToFahrenheit( float tempInCelsiusDegrees )
-{
-    return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
-}

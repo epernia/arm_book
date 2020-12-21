@@ -11,24 +11,24 @@
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
 
-#define NUMBER_OF_AVG_SAMPLES                   100  // Esta linea cambió (decía 10 antes)
+#define NUMBER_OF_AVG_SAMPLES                   100
 #define OVER_TEMP_LEVEL                         50
 
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
-DigitalIn alarmTestButton(D2);        // Esta linea cambió
+DigitalIn alarmTestButton(D2);
 DigitalIn aButton(D4);
 DigitalIn bButton(D5);
 DigitalIn cButton(D6);
 DigitalIn dButton(D7);
-DigitalIn mq2(PG_0);
+DigitalIn mq2(PF_15);
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
-DigitalInOut sirenPin(PG_1);
+DigitalInOut sirenPin(PE_10);
 
 Serial uartUsb(USBTX, USBRX);
 
@@ -46,7 +46,7 @@ int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm = 0;
-//int accumulatedTimeLm35  = 0;    // Esta linea la pasé al proposed exercise
+
 int lm35SampleIndex      = 0;
 
 char receivedChar = '\0';
@@ -92,6 +92,7 @@ int main()
 void inputsInit()
 {
     alarmTestButton.mode(PullDown);
+    mq2.mode(PullUp);
     aButton.mode(PullDown);
     bButton.mode(PullDown);
     cButton.mode(PullDown);
@@ -109,41 +110,22 @@ void outputsInit()
 
 void alarmActivationUpdate()
 {
+    static int lm35SampleIndex = 0;
     int i = 0;
-
     delay(10);
 
-/*    accumulatedTimeLm35 = accumulatedTimeLm35 + 10;   // Esto lo pasé al proposed exercise
-
-    if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
-        if ( lm35SampleIndex < NUMBER_OF_AVG_SAMPLES ) {
-            lm35ReadingsArray[lm35SampleIndex] = lm35.read();
-            lm35SampleIndex++;
-        } else {
-            lm35ReadingsSum = 0;
-			for( i=0; i<NUMBER_OF_AVG_SAMPLES ; i++ ) {
-                lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
-            }
-            lm35SampleIndex = 0;
-            lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
-            lm35TempC = 
-                analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );
-        }
-        accumulatedTimeLm35 = 0;
-    }*/
-
     lm35ReadingsArray[lm35SampleIndex] = lm35.read();
-	lm35SampleIndex++;
+	   lm35SampleIndex++;
     if ( lm35SampleIndex >= NUMBER_OF_AVG_SAMPLES) {
         lm35SampleIndex = 0;
     }
 	
-	lm35ReadingsSum = 0.0;
+	   lm35ReadingsSum = 0.0;
     for (i = 0; i < NUMBER_OF_AVG_SAMPLES; i++) {
         lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
     }
     lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
-	lm35TempC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );	
+	   lm35TempC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );	
 	
     if ( lm35TempC > OVER_TEMP_LEVEL ) {
         overTempDetector = ON;
@@ -151,7 +133,7 @@ void alarmActivationUpdate()
         overTempDetector = OFF;
     }
 
-    if( !mq2) {          // Esta linea cambió             
+    if( !mq2) {                      
         gasDetectorState = ON;
         alarmState = ON;
     }
@@ -159,14 +141,14 @@ void alarmActivationUpdate()
         overTempDetectorState = ON;
         alarmState = ON;
     }
-    if( alarmTestButton ) {             // Todo este IF es nuevo  
+    if( alarmTestButton ) {             
         overTempDetectorState = ON;
 		gasDetectorState = ON;
         alarmState = ON;
     }	
     if( alarmState ) { 
         accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
-        sirenPin.output();                                    // Esta linea cambió  
+        sirenPin.output();                                     
         sirenPin = LOW;		                                
 	
         if( gasDetectorState && overTempDetectorState ) {
@@ -189,7 +171,7 @@ void alarmActivationUpdate()
         alarmLed = OFF;
         gasDetectorState = OFF;
         overTempDetectorState = OFF;
-        sirenPin.input();                                 // Esta linea cambió  
+        sirenPin.input();                                  
     }
 }
 
@@ -231,7 +213,7 @@ void uartTask()
             break;
 
         case '2':
-            if ( !mq2 ) {                                       // Esta linea cambió                
+            if ( !mq2 ) {
                 uartUsb.printf( "Gas is being detected\r\n");
             } else {
                 uartUsb.printf( "Gas is not being detected\r\n");

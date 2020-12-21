@@ -30,6 +30,9 @@ Serial uartUsb(USBTX, USBRX);
 //=====[Declaration and intitalization of public global variables]=============
 
 bool alarmState    = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
+
 bool incorrectCode = false;
 
 int numberOfIncorrectCodes = 0;

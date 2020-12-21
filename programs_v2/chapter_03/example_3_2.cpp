@@ -31,6 +31,9 @@ Serial uartUsb(USBTX, USBRX);
 //=====[Declaration and intitalization of public global variables]=============
 
 bool alarmState    = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
+
 bool incorrectCode = false;
 
 int numberOfIncorrectCodes = 0;
@@ -227,7 +230,7 @@ void uartTask()
             uartUsb.printf( " 'C' = not pressed," );
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
-l
+
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {

@@ -10,6 +10,7 @@
 #define BLINKING_TIME_GAS_ALARM                 10000
 #define BLINKING_TIME_OVER_TEMP_ALARM           5000
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM   1000
+#define POTENTIOMETER_OVER_TEMP_LEVEL            0.5
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -30,12 +31,16 @@ Serial uartUsb(USBTX, USBRX);
 //=====[Declaration and intitalization of public global variables]=============
 
 bool alarmState    = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
+
 bool incorrectCode = false;
 
 int numberOfIncorrectCodes = 0;
 int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
+int accumulatedTimeAlarm = 0;
 
 char receivedChar = '\0';
 
@@ -272,3 +277,5 @@ bool areEqual()
 
     return true;
 }
+
+
