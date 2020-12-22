@@ -33,7 +33,6 @@ DigitalInOut sirenPin(PE_10);
 
 Serial uartUsb(USBTX, USBRX);
 
-AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
 //=====[Declaration and intitalization of public global variables]=============
@@ -298,12 +297,6 @@ void uartTask()
             }
 
             uartUsb.printf( "New code generated\r\n\r\n" );
-            break;
-
-        case 'p':
-        case 'P':
-            potentiometerReading = potentiometer.read();
-            uartUsb.printf( "Potentiometer: %.2f\r\n", potentiometerReading );
             break;
 
         case 'c':

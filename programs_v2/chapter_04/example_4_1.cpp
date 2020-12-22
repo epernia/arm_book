@@ -9,8 +9,7 @@
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
-#define LM35_SAMPLE_TIME                       100
-#define NUMBER_OF_AVG_SAMPLES                   10
+#define NUMBER_OF_AVG_SAMPLES                   100
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
@@ -42,7 +41,6 @@ DigitalInOut sirenPin(PE_10);
 
 Serial uartUsb(USBTX, USBRX);
 
-AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
 //=====[Declaration and intitalization of public global variables]=============
@@ -325,12 +323,6 @@ void uartTask()
             }
 
             uartUsb.printf( "New code generated\r\n\r\n" );
-            break;
-
-        case 'p':
-        case 'P':
-            potentiometerReading = potentiometer.read();
-            uartUsb.printf( "Potentiometer: %.2f\r\n", potentiometerReading );
             break;
 
         case 'c':
