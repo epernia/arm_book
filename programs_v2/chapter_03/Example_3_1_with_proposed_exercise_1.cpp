@@ -6,7 +6,6 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
-#define STRING_MAX_LENGTH                       30
 #define BLINKING_TIME_GAS_ALARM               10000
 #define BLINKING_TIME_OVER_TEMP_ALARM          5000
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  1000
@@ -217,7 +216,7 @@ void uartTask()
             uartUsb.printf( " 'C' = not pressed," );
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
-l
+
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {

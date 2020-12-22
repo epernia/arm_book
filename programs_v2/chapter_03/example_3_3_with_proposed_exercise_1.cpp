@@ -6,11 +6,12 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
-#define STRING_MAX_LENGTH                       30
+
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
 #define POTENTIOMETER_OVER_TEMP_LEVEL            0.3
+#define TIME_INCREMENT_MS                       10
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -34,6 +35,9 @@ AnalogIn potentiometer(A0);
 //=====[Declaration and intitalization of public global variables]=============
 
 bool alarmState    = OFF;
+bool gasDetectorState      = OFF;
+bool overTempDetectorState = OFF;
+
 bool incorrectCode = false;
 bool overTempDetector = OFF;
 
@@ -69,6 +73,7 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
+        delay(TIME_INCREMENT_MS);
     }
 }
 
@@ -109,8 +114,7 @@ void alarmActivationUpdate()
         alarmState = ON;
     }
     if( alarmState ) { 
-        delay(10);
-        accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
+        accumulatedTimeAlarm = accumulatedTimeAlarm + TIME_INCREMENT_MS;                      
 	
         if( gasDetectorState && overTempDetectorState ) {
             if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
@@ -240,7 +244,7 @@ void uartTask()
             uartUsb.printf( " 'C' = not pressed," );
             uartUsb.printf( "'D' = not pressed, enter '1', then '1', " );
             uartUsb.printf( "then '0', and finally '0'\r\n\r\n" );
-l
+
             for ( buttonBeingCompared = 0; 
                   buttonBeingCompared < NUMBER_OF_KEYS; 
                   buttonBeingCompared++) {

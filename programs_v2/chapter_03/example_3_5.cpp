@@ -13,6 +13,7 @@
 
 #define NUMBER_OF_AVG_SAMPLES                   100
 #define OVER_TEMP_LEVEL                         50
+#define TIME_INCREMENT_MS                       10
 
 //=====[Declaration and intitalization of public global objects]===============
 
@@ -22,7 +23,7 @@ DigitalIn aButton(D4);
 DigitalIn bButton(D5);
 DigitalIn cButton(D6);
 DigitalIn dButton(D7);
-DigitalIn mq2(PF_15);
+DigitalIn mq2(D1);
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
@@ -84,6 +85,7 @@ int main()
         alarmActivationUpdate();
         alarmDeactivationUpdate();
         uartTask();
+        delay(TIME_INCREMENT_MS);
     }
 }
 
@@ -112,10 +114,9 @@ void alarmActivationUpdate()
 {
     static int lm35SampleIndex = 0;
     int i = 0;
-    delay(10);
 
     lm35ReadingsArray[lm35SampleIndex] = lm35.read();
-	   lm35SampleIndex++;
+    lm35SampleIndex++;
     if ( lm35SampleIndex >= NUMBER_OF_AVG_SAMPLES) {
         lm35SampleIndex = 0;
     }
@@ -147,7 +148,7 @@ void alarmActivationUpdate()
         alarmState = ON;
     }	
     if( alarmState ) { 
-        accumulatedTimeAlarm = accumulatedTimeAlarm + 10;
+        accumulatedTimeAlarm = accumulatedTimeAlarm + TIME_INCREMENT_MS;
         sirenPin.output();                                     
         sirenPin = LOW;		                                
 	
@@ -305,12 +306,12 @@ void uartTask()
 
         case 'c':
         case 'C':
-            uartUsb.printf( "Temperature: %.2f °C\r\n", lm35TempC );
+            uartUsb.printf( "Temperature: %.2f ÂºC\r\n", lm35TempC );
             break;
 
         case 'f':
         case 'F':
-            uartUsb.printf( "Temperature: %.2f °F\r\n", 
+            uartUsb.printf( "Temperature: %.2f ÂºF\r\n", 
 				celsiusToFahrenheit( lm35TempC ) );
             break;
 

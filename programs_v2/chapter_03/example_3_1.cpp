@@ -6,7 +6,6 @@
 //=====[Defines]===============================================================
 
 #define NUMBER_OF_KEYS                           4
-#define STRING_MAX_LENGTH                       30
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
