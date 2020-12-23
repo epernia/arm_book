@@ -39,7 +39,7 @@ DigitalIn aButton(D4);
 DigitalIn bButton(D5);
 DigitalIn cButton(D6);
 DigitalIn dButton(D7);
-DigitalIn mq2(D1);
+DigitalIn mq2(PE_12);
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
@@ -136,7 +136,6 @@ void inputsInit()
 {
     lm35ReadingsArrayInit();
     alarmTestButton.mode(PullDown);
-    mq2.mode(PullUp);
     aButton.mode(PullDown);
     bButton.mode(PullDown);
     cButton.mode(PullDown);

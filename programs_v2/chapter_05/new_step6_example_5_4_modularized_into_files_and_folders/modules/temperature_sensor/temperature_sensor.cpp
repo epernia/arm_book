@@ -8,7 +8,6 @@
 
 //=====[Declaration of private defines]======================================
 
-#define LM35_SAMPLE_TIME             100
 #define LM35_NUMBER_OF_AVG_SAMPLES    10
 
 //=====[Declaration of private data types]=====================================
@@ -34,37 +33,33 @@ static float analogReadingScaledWithTheLM35Formula( float analogReading );
 
 void temperatureSensorInit()
 {
-    return;
+    int i;
+    
+    for( i=0; i<LM35_NUMBER_OF_AVG_SAMPLES ; i++ ) {
+        lm35ReadingsArray[i] = 0;
+    }
 }
 
 void temperatureSensorUpdate()
 {
-    static int accumulatedTimeLm35 = 0;
-    static int lm35SampleIndex     = 0;
-    static float lm35AveragedValue = 0.0;
-    int i;
+    static int lm35SampleIndex = 0;
+    float lm35ReadingsSum = 0.0;
+    float lm35ReadingsAverage = 0.0;
 
-    accumulatedTimeLm35 = accumulatedTimeLm35 + SYSTEM_TIME_INCREMENT_MS;
+    int i = 0;
 
-    if ( accumulatedTimeLm35 >= LM35_SAMPLE_TIME ) {
-        
-        lm35ReadingsArray[lm35SampleIndex] = lm35.read();
-        
-        lm35AveragedValue = 0.0;
-        for (i = 0; i < LM35_NUMBER_OF_AVG_SAMPLES; i++) {
-            lm35AveragedValue = lm35AveragedValue + lm35ReadingsArray[i];
-        }
-        lm35AveragedValue = lm35AveragedValue / LM35_NUMBER_OF_AVG_SAMPLES;
-
-        lm35SampleIndex++;
-        if ( lm35SampleIndex >= LM35_NUMBER_OF_AVG_SAMPLES) {
-            lm35SampleIndex = 0;
-        }
-
-            lm35TemperatureC = analogReadingScaledWithTheLM35Formula(
-                            lm35AveragedValue );
-        accumulatedTimeLm35 = 0;
+    lm35ReadingsArray[lm35SampleIndex] = lm35.read();
+	   lm35SampleIndex++;
+    if ( lm35SampleIndex >= LM35_NUMBER_OF_AVG_SAMPLES) {
+        lm35SampleIndex = 0;
     }
+	
+   lm35ReadingsSum = 0.0;
+    for (i = 0; i < LM35_NUMBER_OF_AVG_SAMPLES; i++) {
+        lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
+    }
+    lm35ReadingsAverage = lm35ReadingsSum / LM35_NUMBER_OF_AVG_SAMPLES;
+	   lm35TemperatureC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );	
 }
 
 

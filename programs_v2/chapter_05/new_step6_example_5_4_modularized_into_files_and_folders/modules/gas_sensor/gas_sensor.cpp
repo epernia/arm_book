@@ -10,7 +10,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalIn mq2(PF_15);
+DigitalIn mq2(PE_12);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -24,7 +24,7 @@ DigitalIn mq2(PF_15);
 
 void gasSensorInit()
 {
-    mq2.mode(PullUp);
+    return;
 }
 
 void gasSensorUpdate()

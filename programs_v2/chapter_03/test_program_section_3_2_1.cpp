@@ -10,7 +10,7 @@ Serial uartUsb(USBTX, USBRX);
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1); // 10 mV/°C
 DigitalInOut sirenPin(PE_10);
-DigitalIn mq2(PF_15);
+DigitalIn mq2(PE_12);
 
 //=====[Declaration and intitalization of public global variables]=============
 

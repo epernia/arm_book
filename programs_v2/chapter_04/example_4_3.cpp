@@ -27,7 +27,7 @@ typedef enum {
 //=====[Declaration and intitalization of public global objects]===============
 
 DigitalIn alarmTestButton(BUTTON1);
-DigitalIn mq2(D1);
+DigitalIn mq2(PE_12);
 
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
@@ -39,8 +39,8 @@ Serial uartUsb(USBTX, USBRX);
 
 AnalogIn lm35(A1);
 
-DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {D19, D18, D17, D16};
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
 
 //=====[Declaration and intitalization of public global variables]=============
 
@@ -116,7 +116,6 @@ void inputsInit()
 {
     lm35ReadingsArrayInit();
     alarmTestButton.mode(PullDown);
-    mq2.mode(PullUp);
     sirenPin.mode(OpenDrain);
     sirenPin.input();
     matrixKeypadInit();
@@ -139,14 +138,14 @@ void alarmActivationUpdate()
     if ( lm35SampleIndex >= NUMBER_OF_AVG_SAMPLES) {
         lm35SampleIndex = 0;
     }
-	
-	   lm35ReadingsSum = 0.0;
+    
+    lm35ReadingsSum = 0.0;
     for (i = 0; i < NUMBER_OF_AVG_SAMPLES; i++) {
         lm35ReadingsSum = lm35ReadingsSum + lm35ReadingsArray[i];
     }
     lm35ReadingsAverage = lm35ReadingsSum / NUMBER_OF_AVG_SAMPLES;
-	   lm35TempC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );	
-	
+       lm35TempC = analogReadingScaledWithTheLM35Formula ( lm35ReadingsAverage );    
+    
     if ( lm35TempC > OVER_TEMP_LEVEL ) {
         overTempDetector = ON;
     } else {
@@ -163,14 +162,14 @@ void alarmActivationUpdate()
     }
     if( alarmTestButton ) {             
         overTempDetectorState = ON;
-		gasDetectorState = ON;
+        gasDetectorState = ON;
         alarmState = ON;
-    }	
+    }    
     if( alarmState ) { 
         accumulatedTimeAlarm = accumulatedTimeAlarm + TIME_INCREMENT_MS;
         sirenPin.output();                                     
-        sirenPin = LOW;		                                
-	
+        sirenPin = LOW;                                        
+    
         if( gasDetectorState && overTempDetectorState ) {
             if( accumulatedTimeAlarm >= BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM ) {
                 accumulatedTimeAlarm = 0;
@@ -311,7 +310,7 @@ void uartTask()
         case 'f':
         case 'F':
             uartUsb.printf( "Temperature: %.2f ºF\r\n", 
-				celsiusToFahrenheit( lm35TempC ) );
+                celsiusToFahrenheit( lm35TempC ) );
             break;
 
         default:
@@ -331,8 +330,8 @@ void availableCommands()
     uartUsb.printf( "Press '4' to enter the code sequence\r\n" );
     uartUsb.printf( "Press '5' to enter a new code\r\n" );
     uartUsb.printf( "Press 'P' or 'p' to get potentiometer reading\r\n" );
-	uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
-	uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
+    uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
+    uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n\r\n" );
 }
 
 bool areEqual()
