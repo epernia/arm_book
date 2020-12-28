@@ -29,7 +29,8 @@ static bool sirenState = OFF;
 
 void sirenInit()
 {
-    sirenPin = ON;
+    sirenPin.mode(OpenDrain);
+    sirenPin.input(); 
 }
 
 bool sirenStateRead()
@@ -49,11 +50,17 @@ void sirenUpdate( int strobeTime )
     
     if( sirenState ) {
         if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
+            accumulatedTimeAlarm = 0;
+            sirenPin.output();
+            if( sirenPin == LOW ) {	
+                sirenPin = HIGH;
+            }
+            else {
+				sirenPin = LOW;
+            }
         }
     } else {
-        sirenPin = ON;
+        sirenPin.input();  
     }
 }
 

@@ -1,11 +1,21 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "siren.h"
-
 #include "smart_home_system.h"
+
+#include "alarm.h"
+#include "user_interface.h"
+#include "fire_alarm.h"
+#include "intruder_alarm.h"
+#include "pc_serial_com.h"
+#include "event_log.h"
+#include "sd_card.h"
+#include "motion_sensor.h"
+#include "motor.h"
+#include "gate.h"
+#include "light_system.h"
+#include "audio.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,49 +23,39 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
-
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+void smartHomeSystemInit()
 {
-    sirenPin = ON;
+    audioInit();
+    userInterfaceInit();
+    alarmInit();
+    fireAlarmInit();
+    intruderAlarmInit();
+    pcSerialComInit();
+    motorControlInit();
+    gateInit();
+    lightSystemInit();
 }
 
-bool sirenStateRead()
+void smartHomeSystemUpdate()
 {
-    return sirenState;
-}
-
-void sirenStateWrite( bool state )
-{
-    sirenState = state;
-}
-
-void sirenUpdate( int strobeTime )
-{
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
-    if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
-        }
-    } else {
-        sirenPin = ON;
-    }
+    userInterfaceUpdate();
+    fireAlarmUpdate();
+    intruderAlarmUpdate();
+    alarmUpdate();
+    eventLogUpdate();
+    pcSerialComUpdate();
+    lightSystemUpdate();
+    delay(SYSTEM_TIME_INCREMENT_MS);
 }
 
 //=====[Implementations of private functions]==================================
-

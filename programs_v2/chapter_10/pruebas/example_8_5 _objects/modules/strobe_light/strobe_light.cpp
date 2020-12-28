@@ -3,9 +3,10 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "siren.h"
+#include "strobe_light.h"
 
 #include "smart_home_system.h"
+#include "alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,7 +14,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
+DigitalOut strobeLight(LED1);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -21,41 +22,40 @@ DigitalInOut sirenPin(PE_10);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
+static bool strobeLightState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+void strobeLightInit()
 {
-    sirenPin = ON;
+    strobeLight = OFF;
 }
 
-bool sirenStateRead()
+bool strobeLightStateRead()
 {
-    return sirenState;
+    return strobeLightState;
 }
 
-void sirenStateWrite( bool state )
+void strobeLightStateWrite( bool state )
 {
-    sirenState = state;
+    strobeLightState = state;
 }
 
-void sirenUpdate( int strobeTime )
+void strobeLightUpdate( int strobeTime )
 {
     static int accumulatedTimeAlarm = 0;
     accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
     
-    if( sirenState ) {
+    if( strobeLightState ) {
         if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
+            accumulatedTimeAlarm = 0;
+            strobeLight= !strobeLight;
         }
     } else {
-        sirenPin = ON;
+        strobeLight = OFF;
     }
 }
 
 //=====[Implementations of private functions]==================================
-

@@ -1,11 +1,10 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "siren.h"
+#include "bright_control.h"
 
-#include "smart_home_system.h"
+#include "light_level_control.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,7 +12,9 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
+PwmOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
+
+//=====[Declaration and initialization of private global objects]===============
 
 //=====[Declaration of external public global variables]=======================
 
@@ -21,41 +22,29 @@ DigitalInOut sirenPin(PE_10);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
-
-//=====[Declarations (prototypes) of private functions]========================
+static void setPeriod( lightSystem_t light, float period );
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+void brightControlInit()
 {
-    sirenPin = ON;
+    setPeriod( RGB_LED_RED, 0.01f );
+    setPeriod( RGB_LED_GREEN, 0.01f );
+    setPeriod( RGB_LED_BLUE, 0.01f );
+
+    setDutyCycle( RGB_LED_RED, 0.5f );
+    setDutyCycle( RGB_LED_GREEN, 0.5f );
+    setDutyCycle( RGB_LED_BLUE, 0.5f );
 }
 
-bool sirenStateRead()
+void setDutyCycle( lightSystem_t light, float dutyCycle )
 {
-    return sirenState;
-}
-
-void sirenStateWrite( bool state )
-{
-    sirenState = state;
-}
-
-void sirenUpdate( int strobeTime )
-{
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
-    if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
-        }
-    } else {
-        sirenPin = ON;
-    }
+    RGBLed[light].write(dutyCycle);
 }
 
 //=====[Implementations of private functions]==================================
 
+static void setPeriod( lightSystem_t light, float period )
+{
+    RGBLed[light].period(period);
+}

@@ -1,11 +1,9 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "siren.h"
-
 #include "smart_home_system.h"
+#include "light_level_control.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,7 +11,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
+AnalogIn pote(A2);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -21,41 +19,17 @@ DigitalInOut sirenPin(PE_10);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
-
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
-{
-    sirenPin = ON;
-}
+void lightLevelControlInit() { }
 
-bool sirenStateRead()
-{
-    return sirenState;
-}
+void lightLevelControlUpdate() { }
 
-void sirenStateWrite( bool state )
+float lightLevelControlRead()
 {
-    sirenState = state;
-}
-
-void sirenUpdate( int strobeTime )
-{
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
-    if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
-        }
-    } else {
-        sirenPin = ON;
-    }
+    return pote.read();
 }
 
 //=====[Implementations of private functions]==================================
-

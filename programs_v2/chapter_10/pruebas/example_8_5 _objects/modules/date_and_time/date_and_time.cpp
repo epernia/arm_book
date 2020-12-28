@@ -1,11 +1,8 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
-#include "arm_book_lib.h"
 
-#include "siren.h"
-
-#include "smart_home_system.h"
+#include "date_and_time.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,48 +10,38 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
-
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+char* dateAndTimeRead()
 {
-    sirenPin = ON;
+    time_t epochSeconds;
+    epochSeconds = time(NULL);
+    return ctime(&epochSeconds);    
 }
 
-bool sirenStateRead()
+void dateAndTimeWrite( int year, int month, int day, 
+                       int hour, int minute, int second )
 {
-    return sirenState;
-}
+    struct tm rtcTime;
 
-void sirenStateWrite( bool state )
-{
-    sirenState = state;
-}
+    rtcTime.tm_year = year - 1900;
+    rtcTime.tm_mon  = month - 1;
+    rtcTime.tm_mday = day;
+    rtcTime.tm_hour = hour;
+    rtcTime.tm_min  = minute;
+    rtcTime.tm_sec  = second;
 
-void sirenUpdate( int strobeTime )
-{
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
-    if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
-        }
-    } else {
-        sirenPin = ON;
-    }
+    rtcTime.tm_isdst = -1;
+
+    set_time( mktime( &rtcTime ) );
 }
 
 //=====[Implementations of private functions]==================================

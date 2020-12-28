@@ -11,7 +11,7 @@
 
 #define MATRIX_KEYPAD_NUMBER_OF_ROWS    4
 #define MATRIX_KEYPAD_NUMBER_OF_COLS    4
-#define DEBOUNCE_KEY_TIME_MS        40
+#define DEBOUNCE_BUTTON_TIME_MS        40
 
 //=====[Declaration of private data types]=====================================
 
@@ -73,7 +73,7 @@ char matrixKeypadUpdate()
 
     case MATRIX_KEYPAD_DEBOUNCE:
         if( accumulatedDebounceMatrixKeypadTime >=
-            DEBOUNCE_KEY_TIME_MS ) {
+            DEBOUNCE_BUTTON_TIME_MS ) {
             keyDetected = matrixKeypadScan();
             if( keyDetected == matrixKeypadLastKeyPressed ) {
                 matrixKeypadState = MATRIX_KEYPAD_KEY_HOLD_PRESSED;

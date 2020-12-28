@@ -3,9 +3,8 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "siren.h"
-
-#include "smart_home_system.h"
+#include "intruder_alarm.h"
+#include "motion_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,49 +12,45 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
-
 //=====[Declaration of external public global variables]=======================
 
 //=====[Declaration and initialization of public global variables]=============
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
+static bool intruderDetected = OFF;
+static bool intruderDetectorState = OFF;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+void intruderAlarmInit()
 {
-    sirenPin = ON;
+    motionSensorInit();
 }
 
-bool sirenStateRead()
+void intruderAlarmUpdate()
 {
-    return sirenState;
-}
+    intruderDetectorState = motionSensorRead();
 
-void sirenStateWrite( bool state )
-{
-    sirenState = state;
-}
-
-void sirenUpdate( int strobeTime )
-{
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
-    if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-                accumulatedTimeAlarm = 0;
-                sirenPin= !sirenPin;
-        }
-    } else {
-        sirenPin = ON;
+    if ( intruderDetectorState ) {
+        intruderDetected = ON;
     }
 }
 
-//=====[Implementations of private functions]==================================
+bool intruderDetectorStateRead()
+{
+    return intruderDetectorState;
+}
 
+bool intruderDetectedRead()
+{
+    return intruderDetected;
+}
+
+void intruderAlarmDeactivate()
+{
+    intruderDetected = OFF;
+}
+//=====[Implementations of private functions]==================================

@@ -192,7 +192,7 @@ void displayInit( displayType_t type, displayConnection_t connection )
     }
 
     // Set a display power-up time depending on display vendor
-    displayDelay_ms( DISPLAY_POWERUP_WAIT_MS );
+	displayDelay_ms( DISPLAY_POWERUP_WAIT_MS );
 
     switch( display.connection ) {
 
@@ -248,17 +248,17 @@ void displayInit( displayType_t type, displayConnection_t connection )
                          DISPLAY_CMDF_DISPLAY_OFF |      // ON or OFF
                          DISPLAY_CMDF_CURSOR_OFF |       // ON or OFF
                          DISPLAY_CMDF_BLINK_OFF );       // ON or OFF
-    displayDelay_ms( DISPLAY_INIT_WAIT_3_MS );           // >100 ms delay
+	displayDelay_ms( DISPLAY_INIT_WAIT_3_MS );           // >100 ms delay
 
-    displayClear();
-    displayDelay_ms(DISPLAY_INIT_WAIT_4_MS);             // >10 ms delay
+	displayClear();
+	displayDelay_ms(DISPLAY_INIT_WAIT_4_MS);             // >10 ms delay
 
     // Sets cursor move direction and specifies display shift.
     // These operations are performed during data write and read.
-    displayCommandWrite( DISPLAY_CMD_ENTRY_MODE_SET |
+	displayCommandWrite( DISPLAY_CMD_ENTRY_MODE_SET |
                          DISPLAY_CMDF_ENTRY_LEFT |       // LEFT or RIGHT
                          DISPLAY_CMDF_SHIFT_DECREMENT ); // ICREMENT or DECREMENT
-    displayDelay_ms( DISPLAY_INIT_WAIT_5_MS );           // >900 us delay
+	displayDelay_ms( DISPLAY_INIT_WAIT_5_MS );           // >900 us delay
 
     // Sets entire display (D) on/off, cursor on/off (C), and
     // blinking of cursor position character (B).
@@ -268,7 +268,7 @@ void displayInit( displayType_t type, displayConnection_t connection )
                          DISPLAY_CMDF_BLINK_OFF );       // ON or OFF
     displayDelay_ms( DISPLAY_INIT_WAIT_6_MS );           // >2 ms delay
 
-    displayHome();
+	displayHome();
 }
 
 void displayCharPositionWrite( uint8_t charPositionX, 
@@ -318,7 +318,7 @@ void displayHome( void )
     // Sets DDRAM address 0 in address counter. Also returns display from 
     // being shifted to original position. DDRAM contents remain unchanged
     displayCommandWrite( DISPLAY_CMD_HOME );
-    displayDelay_ms( DISPLAY_CMD_HOME_WAIT_MS );
+	displayDelay_ms( DISPLAY_CMD_HOME_WAIT_MS );
 }
 
 void displayClearAndHome( void )
@@ -332,48 +332,48 @@ void displayClearAndHome( void )
 void displayModeWrite( displayMode_t mode )
 {
     if ( mode == DISPLAY_MODE_GRAPHIC )
-    {
-        displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
+	{
+		displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
                              DISPLAY_CMDF_8_BIT_MODE );  // 8 bit mode
-        delay(1);
-        displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
+		delay(1);
+		displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
                              DISPLAY_CMDF_8_BIT_MODE | 
                              DISPLAY_CMDF_EXTENDED_INSTRUCION_SET );  // switch to Extended instructions
-        delay(1);
-        displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
+		delay(1);
+		displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
                              DISPLAY_CMDF_8_BIT_MODE |
                              DISPLAY_CMDF_EXTENDED_INSTRUCION_SET |
                              DISPLAY_CMDF_GRAPHIC_DISPLAY_ON );  // enable graphics
-        delay(1);
-    } else if ( mode == DISPLAY_MODE_CHAR ) {
-        displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
+		delay(1);
+	} else if ( mode == DISPLAY_MODE_CHAR ) {
+		displayCommandWrite( DISPLAY_CMD_FUNCTION_SET | 
                              DISPLAY_CMDF_8_BIT_MODE );  // 8 bit mode
-        delay(1);
-    }
+		delay(1);
+	}
 }
 
 void displayBitmapWrite( uint8_t* bitmap )
 {
     uint8_t x, y;
-    for( y=0; y<64; y++ ) {
-        if ( y < 32 ) {
-            for( x = 0; x < 8; x++ ) {                                   // Draws top half of the screen.
-                                                                       // In extended instruction mode, vertical and horizontal coordinates must be specified before sending data in.
-                displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | y ); // Vertical coordinate of the screen is specified first. (0-31)
-                displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | x) ; // Then horizontal coordinate of the screen is specified. (0-8)
-                displayDataWrite( bitmap[2*x + 16*y] );                // Data to the upper byte is sent to the coordinate.
-                displayDataWrite( bitmap[2*x+1 + 16*y] );              // Data to the lower byte is sent to the coordinate.
-            }
-        } else {
-            for( x = 0; x < 8; x++ ) {                                        // Draws bottom half of the screen.
-                                                                            // Actions performed as same as the upper half screen.
-                displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | (y-32) );    // Vertical coordinate must be scaled back to 0-31 as it is dealing with another half of the screen.
-                displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | 0x08 | x );
-                displayDataWrite( bitmap[2*x + 16*y] );
-                displayDataWrite( bitmap[2*x+1 + 16*y] );
-            }
-        }
-    }
+	for( y=0; y<64; y++ ) {
+		if ( y < 32 ) {
+			for( x = 0; x < 8; x++ ) {				                   // Draws top half of the screen.
+												                       // In extended instruction mode, vertical and horizontal coordinates must be specified before sending data in.
+				displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | y ); // Vertical coordinate of the screen is specified first. (0-31)
+				displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | x) ; // Then horizontal coordinate of the screen is specified. (0-8)
+				displayDataWrite( bitmap[2*x + 16*y] );                // Data to the upper byte is sent to the coordinate.
+				displayDataWrite( bitmap[2*x+1 + 16*y] );              // Data to the lower byte is sent to the coordinate.
+			}
+		} else {
+			for( x = 0; x < 8; x++ ) {					                    // Draws bottom half of the screen.
+													                    	// Actions performed as same as the upper half screen.
+				displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | (y-32) );	// Vertical coordinate must be scaled back to 0-31 as it is dealing with another half of the screen.
+				displayCommandWrite( DISPLAY_CMD_SET_DDRAM_ADDR | 0x08 | x );
+				displayDataWrite( bitmap[2*x + 16*y] );
+				displayDataWrite( bitmap[2*x+1 + 16*y] );
+			}
+		}
+	}
 }
 
 //=====[Implementations of private functions]==================================
