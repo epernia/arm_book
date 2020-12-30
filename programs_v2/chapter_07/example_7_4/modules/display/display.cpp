@@ -295,7 +295,7 @@ void displayCharPositionWrite( uint8_t charPositionX,
         divFactor = 2;
     }
 
-    displayCommandWrite( firstCharAdress[charPositionY] + charPositionX/devFactor );
+    displayCommandWrite( firstCharAdress[charPositionY] + charPositionX/divFactor );
     displayDelay_us( DISPLAY_POSITION_WAIT_US );
 }
 

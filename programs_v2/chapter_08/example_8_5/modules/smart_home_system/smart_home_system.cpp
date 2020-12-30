@@ -10,7 +10,6 @@
 #include "intruder_alarm.h"
 #include "pc_serial_com.h"
 #include "event_log.h"
-#include "sd_card.h"
 #include "motion_sensor.h"
 #include "motor.h"
 #include "gate.h"

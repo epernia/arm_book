@@ -31,11 +31,19 @@ user_interface
 
 #define EVENT_LOG_MAX_STORAGE       100
 #define EVENT_LOG_NAME_MAX_LENGTH    15
+#define EVENT_HEAD_STR_LENGTH         8
+#define NEW_LINE_STR_LENGTH           2
+#define DATE_AND_TIME_STR_LENGTH     15
+#define CTIME_STR_LENGTH             25
+#define EVENT_STR_LENGTH              EVENT_HEAD_STR_LENGTH + \
+                                      EVENT_LOG_NAME_MAX_LENGTH + \
+                                      NEW_LINE_STR_LENGTH  + \
+                                      DATE_AND_TIME_STR_LENGTH + \
+                                      CTIME_STR_LENGTH
 
 // Module: fire_alarm ---------------------------------
 
 #define TEMPERATURE_C_LIMIT_ALARM        50.0
-#define GAS_CONCENTRATION_LIMIT_ALARM     0.5
 #define STROBE_TIME_GAS                1000
 #define STROBE_TIME_OVER_TEMP           500
 #define STROBE_TIME_GAS_AND_OVER_TEMP   100
@@ -52,7 +60,7 @@ user_interface
 
 // Module: temperature_sensor -------------------------
 
-#define LM35_NUMBER_OF_AVG_SAMPLES    10
+#define LM35_NUMBER_OF_AVG_SAMPLES    100
 
 //=====[Declaration of public data types]======================================
 
@@ -925,7 +933,7 @@ void commandShowDateAndTime()
 
 void commandShowStoredEvents()
 {
-    char str[100];
+    char str[EVENT_STR_LENGTH];
     int i;
     for (int i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );

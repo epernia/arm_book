@@ -282,7 +282,7 @@ static void commandShowDateAndTime()
 
 static void commandShowStoredEvents()
 {
-    char str[100];
+    char str[EVENT_STR_LENGTH];
     int i;
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
