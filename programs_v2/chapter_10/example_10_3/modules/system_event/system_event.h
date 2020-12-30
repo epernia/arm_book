@@ -5,9 +5,9 @@
 
 //=====[Libraries]=============================================================
 
-//=====[Declaration of public defines]=======================================
+#include "event_log.h"
 
-#define EVENT_LOG_NAME_MAX_LENGTH    15
+//=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================
 

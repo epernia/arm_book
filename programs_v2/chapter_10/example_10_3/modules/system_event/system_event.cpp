@@ -4,7 +4,6 @@
 #include "arm_book_lib.h"
 
 #include "system_event.h"
-#include "event_log.h"
 
 //=====[Declaration of private defines]======================================
 
