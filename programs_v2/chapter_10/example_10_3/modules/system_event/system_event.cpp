@@ -27,6 +27,16 @@ systemEvent::systemEvent(const char* eventLabel)
     lastState = OFF;
 }
 
+void systemEvent::stateUpdate( bool state )
+{
+    if ( state != this->lastStateRead() ) {        
+        eventLogWrite( state, this->getLabel() );       
+    }
+    this->lastStateUpdate( state );
+}
+
+//=====[Implementations of private functions]===================================
+
 void systemEvent::lastStateUpdate(bool state)
 {
     lastState = state;
@@ -41,13 +51,3 @@ char* systemEvent::getLabel( )
 {
     return label;
 }
-
-void systemEvent::stateUpdate( bool state )
-{
-    if ( state != this->lastStateRead() ) {        
-        eventLogWrite( state, this->getLabel() );       
-    }
-    this->lastStateUpdate( state );
-}
-
-//=====[Implementations of private functions]==================================

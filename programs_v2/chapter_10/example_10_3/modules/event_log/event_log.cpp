@@ -45,8 +45,6 @@ static storedEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static systemEvent eventLogElementStateUpdate( systemEvent event, bool state );
-
 //=====[Implementations of public functions]===================================
 
 void eventLogUpdate()

@@ -16,14 +16,15 @@
 class systemEvent {
     public:
         systemEvent(const char* eventLabel);
-        void lastStateUpdate(bool state);
-        bool lastStateRead( );
-        char* getLabel( );
         void stateUpdate( bool state );
     private:
+        void lastStateUpdate(bool state);
+        bool lastStateRead( );
+        char* getLabel( );        
         char label[EVENT_LOG_NAME_MAX_LENGTH];
         bool lastState;
 };
+
 
 //=====[Declarations (prototypes) of public functions]=========================
 

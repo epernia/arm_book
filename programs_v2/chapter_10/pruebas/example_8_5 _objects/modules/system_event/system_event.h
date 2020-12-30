@@ -11,7 +11,7 @@
 
 //=====[Declaration of public data types]======================================
 
-//=====[Declaration of public objects]======================================
+//=====[Declaration of public classes]======================================
 
 class systemEvent {
     public:
