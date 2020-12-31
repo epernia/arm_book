@@ -13,7 +13,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalInOut sirenPin(PE_10);
+PwmOut sirenPin(PE_10);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -22,6 +22,7 @@ DigitalInOut sirenPin(PE_10);
 //=====[Declaration and initialization of private global variables]============
 
 static bool sirenState = OFF;
+static int currentStrobeTime = 0;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -29,8 +30,8 @@ static bool sirenState = OFF;
 
 void sirenInit()
 {
-    sirenPin.mode(OpenDrain);
-    sirenPin.input(); 
+    sirenPin.period(1.0f);
+    sirenPin.write(0.0f);
 }
 
 bool sirenStateRead()
@@ -45,24 +46,16 @@ void sirenStateWrite( bool state )
 
 void sirenUpdate( int strobeTime )
 {
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
     if( sirenState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-            accumulatedTimeAlarm = 0;
-            sirenPin.output();
-            if( sirenPin == LOW ) {	
-                sirenPin = HIGH;
-            }
-            else {
-				sirenPin = LOW;
-            }
+        if (currentStrobeTime != strobeTime) {
+            sirenPin.period( (float) strobeTime * 2 / 1000 );
+            sirenPin.write(0.5f);
+            currentStrobeTime = strobeTime;
         }
     } else {
-        sirenPin.input();  
+        sirenPin.write(0.0f);
+        currentStrobeTime = 0;
     }
 }
 
 //=====[Implementations of private functions]==================================
-

@@ -14,7 +14,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut strobeLight(LED1);
+PwmOut strobeLight(LED1);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -23,6 +23,7 @@ DigitalOut strobeLight(LED1);
 //=====[Declaration and initialization of private global variables]============
 
 static bool strobeLightState = OFF;
+static int currentStrobeTime = 0;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -30,7 +31,8 @@ static bool strobeLightState = OFF;
 
 void strobeLightInit()
 {
-    strobeLight = OFF;
+    strobeLight.period(1.0f);
+    strobeLight.write(0.0f);
 }
 
 bool strobeLightStateRead()
@@ -45,16 +47,15 @@ void strobeLightStateWrite( bool state )
 
 void strobeLightUpdate( int strobeTime )
 {
-    static int accumulatedTimeAlarm = 0;
-    accumulatedTimeAlarm = accumulatedTimeAlarm + SYSTEM_TIME_INCREMENT_MS;
-    
     if( strobeLightState ) {
-        if( accumulatedTimeAlarm >= strobeTime ) {
-            accumulatedTimeAlarm = 0;
-            strobeLight= !strobeLight;
+        if (currentStrobeTime != strobeTime) {
+            strobeLight.period( (float) strobeTime * 2 / 1000 );
+            strobeLight.write(0.5f);
+            currentStrobeTime = strobeTime;
         }
     } else {
-        strobeLight = OFF;
+        strobeLight.write(0.0f);
+        currentStrobeTime = 0;
     }
 }
 

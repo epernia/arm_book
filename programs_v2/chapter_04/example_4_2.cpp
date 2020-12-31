@@ -107,8 +107,6 @@ float celsiusToFahrenheit( float tempInCelsiusDegrees );
 float analogReadingScaledWithTheLM35Formula( float analogReading );
 void lm35ReadingsArrayInit();
 
-void shiftLm35AvgReadingsArray();
-
 void debounceButtonInit();
 bool debounceButtonUpdate();
 
