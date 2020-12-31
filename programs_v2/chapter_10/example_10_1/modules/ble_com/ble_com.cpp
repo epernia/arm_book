@@ -21,7 +21,7 @@ Serial uartBle(PD_5, PD_6);
 
 //=====[Declarations (prototypes) of private functions]========================
 
-char bleComCharRead();
+static char bleComCharRead();
 
 //=====[Implementations of public functions]===================================
 
@@ -30,15 +30,15 @@ void bleComUpdate()
     char receivedChar = bleComCharRead();
     if( receivedChar != '\0' ) {
         switch (receivedChar) {
-            case 'o': gateOpen(); break;
-            case 'c': gateClose(); break;
+            case 'O': gateOpen(); break;
+            case 'C': gateClose(); break;
         }
     }
 }
 
 //=====[Implementations of private functions]==================================
 
-char bleComCharRead()
+static char bleComCharRead()
 {
     char receivedChar = '\0';
     if( uartBle.readable() ) {

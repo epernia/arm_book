@@ -19,7 +19,7 @@
 
 //=====[Declarations (prototypes) of private functions]========================
 
-//=====[Implementations of public functions]===================================
+//=====[Implementations of public methods]=====================================
 
 systemEvent::systemEvent(const char* eventLabel)
 {
@@ -35,7 +35,7 @@ void systemEvent::stateUpdate( bool state )
     this->lastStateUpdate( state );
 }
 
-//=====[Implementations of private functions]===================================
+//=====[Implementations of private methods]====================================
 
 void systemEvent::lastStateUpdate(bool state)
 {

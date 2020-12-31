@@ -129,7 +129,7 @@ void eventLogWrite( bool currentState, const char* elementName )
 bool eventLogSaveToSdCard()
 {
     char fileName[SD_CARD_FILENAME_MAX_LENGTH];
-    char eventStr[EVENT_LOG_NAME_MAX_LENGTH];
+    char eventStr[EVENT_STR_LENGTH];
     bool eventsStored = false;
 
     time_t seconds;

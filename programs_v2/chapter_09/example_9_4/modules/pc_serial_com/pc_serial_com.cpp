@@ -35,7 +35,7 @@ Serial uartUsb(USBTX, USBRX);
 
 //=====[Declaration of external public global variables]=======================
 
-extern char systemBuffer[EVENT_LOG_NAME_MAX_LENGTH*EVENT_LOG_MAX_STORAGE];
+extern char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 //=====[Declaration and initialization of public global variables]=============
 

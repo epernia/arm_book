@@ -24,7 +24,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-char systemBuffer[EVENT_LOG_NAME_MAX_LENGTH*EVENT_LOG_MAX_STORAGE];
+char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 //=====[Declaration of external public global variables]=======================
 
