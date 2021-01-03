@@ -15,7 +15,7 @@
 #define OVER_TEMP_LEVEL                         50
 #define TIME_INCREMENT_MS                       10
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
 DigitalIn alarmTestButton(D2);
@@ -36,7 +36,7 @@ Serial uartUsb(USBTX, USBRX);
 AnalogIn potentiometer(A0);
 AnalogIn lm35(A1);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool alarmState    = OFF;
 bool incorrectCode = false;

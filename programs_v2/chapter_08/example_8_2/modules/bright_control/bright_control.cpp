@@ -12,7 +12,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-PwmOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
+PwmOut RGBLed[] = {(PB_4), (PA_0), (PD_12)};
 
 //=====[Declaration and initialization of private global objects]===============
 

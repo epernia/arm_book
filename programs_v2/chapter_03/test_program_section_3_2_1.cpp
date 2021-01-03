@@ -3,7 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 Serial uartUsb(USBTX, USBRX);
 
@@ -12,7 +12,7 @@ AnalogIn lm35(A1); // 10 mV/°C
 DigitalInOut sirenPin(PE_10);
 DigitalIn mq2(PE_12);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool quit = false;
 

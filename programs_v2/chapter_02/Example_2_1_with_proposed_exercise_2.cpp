@@ -3,7 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
@@ -19,7 +19,7 @@ DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool alarmState = OFF;
 int numberOfIncorrectCodes = 0;

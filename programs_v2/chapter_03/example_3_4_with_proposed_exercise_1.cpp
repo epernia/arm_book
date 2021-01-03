@@ -13,7 +13,7 @@
 #define POTENTIOMETER_OVER_TEMP_LEVEL            50
 #define TIME_INCREMENT_MS                       10
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
@@ -30,7 +30,7 @@ Serial uartUsb(USBTX, USBRX);
 
 AnalogIn potentiometer(A0);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool alarmState    = OFF;
 bool gasDetectorState      = OFF;

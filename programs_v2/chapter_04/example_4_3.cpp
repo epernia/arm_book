@@ -24,7 +24,7 @@ typedef enum {
     MATRIX_KEYPAD_KEY_HOLD_PRESSED
 } matrixKeypadState_t;
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn alarmTestButton(BUTTON1);
 DigitalIn mq2(PE_12);
@@ -42,7 +42,7 @@ AnalogIn lm35(A1);
 DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
 DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool alarmState    = OFF;
 bool incorrectCode = false;

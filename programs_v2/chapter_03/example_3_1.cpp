@@ -10,7 +10,7 @@
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
 #define BLINKING_TIME_GAS_AND_OVER_TEMP_ALARM  100
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn enterButton(BUTTON1);
 DigitalIn gasDetector(D2);
@@ -26,7 +26,7 @@ DigitalOut systemBlockedLed(LED2);
 
 Serial uartUsb(USBTX, USBRX);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool alarmState    = OFF;
 bool gasDetectorState      = OFF;

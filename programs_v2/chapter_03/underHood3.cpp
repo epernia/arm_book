@@ -8,7 +8,7 @@
 #define NUMBER_OF_BITS 12
 #define MAX_RESOLUTION 4095.0
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
 DigitalIn nextStepButton(BUTTON1);
 
@@ -20,7 +20,7 @@ DigitalOut endOfConversionLed(LED3);
 
 Serial uartUsb(USBTX, USBRX);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 bool comparatorOutput = 0;
 bool DACInput[NUMBER_OF_BITS];

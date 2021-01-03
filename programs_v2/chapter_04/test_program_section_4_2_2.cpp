@@ -10,14 +10,14 @@
 
 //=====[Declaration of public data types]======================================
 
-//=====[Declaration and intitalization of public global objects]===============
+//=====[Declaration and initialization of public global objects]===============
 
-DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {D23, D22, D21, D20};
-DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {D19, D18, D17, D16};
+DigitalOut keypadRowPins[KEYPAD_AMOUNT_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
+DigitalIn keypadColPins[KEYPAD_AMOUNT_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
 
 Serial uartUsb(USBTX, USBRX);
 
-//=====[Declaration and intitalization of public global variables]=============
+//=====[Declaration and initialization of public global variables]=============
 
 char keypadIndexToCharArray[] = {
     '1', '2', '3', 'A',

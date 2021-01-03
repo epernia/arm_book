@@ -38,4 +38,3 @@ bool gasSensorRead()
 }
 
 //=====[Implementations of private functions]==================================
-
