@@ -138,7 +138,8 @@ bool eventLogSaveToSdCard()
     seconds = time(NULL);
     fileName[0] = 0;
 
-    strftime( fileName, SD_CARD_FILENAME_MAX_LENGTH, "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
+    strftime( fileName, SD_CARD_FILENAME_MAX_LENGTH, 
+              "%Y_%m_%d_%H_%M_%S", localtime(&seconds) );
     strncat( fileName, ".txt", strlen(".txt") );
 
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
@@ -157,9 +158,9 @@ bool eventLogSaveToSdCard()
     }
 
     if ( eventsStored ) {
-        pcSerialComStringWrite("New events successfully stored in SD card\r\n\r\n");
+        pcSerialComStringWrite("New events successfully stored in the SD card\r\n\r\n");
     } else {
-        pcSerialComStringWrite("No new events to store in SD card\r\n\r\n");
+        pcSerialComStringWrite("No new events to store in the SD card\r\n\r\n");
     }
 
     return true;

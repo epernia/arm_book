@@ -23,10 +23,10 @@
 //=====[Declaration of private data types]=====================================
 
 typedef enum{
+    PC_SERIAL_GET_FILE_NAME,
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
-    PC_SERIAL_GET_FILE_NAME,
 } pcSerialComMode_t;
 
 //=====[Declaration and initialization of public global objects]===============
@@ -46,7 +46,7 @@ char codeSequenceFromPcSerialCom[CODE_NUMBER_OF_KEYS];
 static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
-static int numberOfFileNameChar = 0;
+static int numberOfCharsInFileName = 0;
 
 static char fileName[40];
 
@@ -70,13 +70,13 @@ static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
 static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
+static void commandShowStoredEvents();
 static void commandShowDateAndTime();
 static void commandMotionSensorActivate();
 static void commandMotionSensorDeactivate();
-static void commandShowStoredEvents();
 static void commandEventLogSaveToSdCard();
-static void commandGetFileName();
 static void commandsdCardListFiles();
+static void commandGetFileName();
 
 //=====[Implementations of public functions]===================================
 
@@ -187,8 +187,8 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'i': case 'I': commandMotionSensorActivate(); break;
         case 'h': case 'H': commandMotionSensorDeactivate(); break;
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
-        case 'o': case 'O': commandGetFileName(); break;
         case 'l': case 'L': commandsdCardListFiles(); break;
+        case 'o': case 'O': commandGetFileName(); break;
         default: availableCommands(); break;
     } 
 }
@@ -211,8 +211,8 @@ static void availableCommands()
     uartUsb.printf( "Press 'I' or 'I' to activate the motion sensor\r\n" );
     uartUsb.printf( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
     uartUsb.printf( "Press 'w' or 'W' to store new events in SD Card\r\n" );
+    uartUsb.printf( "Press 'l' or 'L' to list all the files in the root directory of the SD card\r\n" );
     uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
-    uartUsb.printf( "Press 'l' or 'L' to list all files in the SD Card\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -381,20 +381,20 @@ static void commandGetFileName()
 {
     uartUsb.printf( "Please enter the file name \r\n" );
     pcSerialComMode = PC_SERIAL_GET_FILE_NAME ;
-    numberOfFileNameChar = 0;
+    numberOfCharsInFileName = 0;
 }
 
 static void pcSerialComGetFileName( char receivedChar )
 {
     if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        fileName[numberOfFileNameChar] = NULL;
-        numberOfFileNameChar = 0;
+        fileName[numberOfCharsInFileName] = NULL;
+        numberOfCharsInFileName = 0;
         pcSerialComShowSdCardFile( fileName );
     } else {
-        fileName[numberOfFileNameChar] = receivedChar;
+        fileName[numberOfCharsInFileName] = receivedChar;
         uartUsb.printf( "%c", receivedChar );
-        numberOfFileNameChar++;
+        numberOfCharsInFileName++;
     }
 }
 

@@ -13,9 +13,6 @@
 
 //=====[Declaration of private defines]======================================
 
-#define EVENT_LOG_MAX_STORAGE       100
-#define EVENT_LOG_NAME_MAX_LENGTH    15
-
 //=====[Declaration of private data types]=====================================
 
 typedef struct systemEvent {

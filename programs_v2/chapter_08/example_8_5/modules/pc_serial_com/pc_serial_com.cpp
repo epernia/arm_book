@@ -62,10 +62,10 @@ static void commandEnterNewCode();
 static void commandShowCurrentTemperatureInCelsius();
 static void commandShowCurrentTemperatureInFahrenheit();
 static void commandSetDateAndTime();
+static void commandShowStoredEvents();
 static void commandShowDateAndTime();
 static void commandMotionSensorActivate();
 static void commandMotionSensorDeactivate();
-static void commandShowStoredEvents();
 
 //=====[Implementations of public functions]===================================
 

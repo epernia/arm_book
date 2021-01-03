@@ -1,11 +1,9 @@
 //=====[#include guards - begin]===============================================
 
-#ifndef _SD_CARD_H_
-#define _SD_CARD_H_
+#ifndef _GAS_SENSOR_H_
+#define _GAS_SENSOR_H_
 
 //=====[Libraries]=============================================================
-
-#define SD_CARD_FILENAME_MAX_LENGTH 32
 
 //=====[Declaration of public defines]=======================================
 
@@ -13,12 +11,10 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-bool sdCardInit();
-bool sdCardWriteFile( const char* fileName, const char* writeBuffer );
-bool sdCardReadFile( const char * fileName, char * readBuffer );
-bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize );
-
+void gasSensorInit();
+void gasSensorUpdate();
+bool gasSensorRead();
 
 //=====[#include guards - end]=================================================
 
-#endif // _SD_CARD_H_
+#endif // _GAS_SENSOR_H_

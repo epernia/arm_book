@@ -5,22 +5,21 @@
 
 #include "sd_card.h"
 
+#include "event_log.h"
+#include "date_and_time.h"
+#include "pc_serial_com.h"
+
 #include "FATFileSystem.h"
 #include "SDBlockDevice.h"
 
 #include "platform/mbed_retarget.h"
 
-#include "event_log.h"
-#include "date_and_time.h"
-#include "pc_serial_com.h"
-
 //=====[Declaration of private defines]========================================
 
-// SPI_3
-#define SPI3_MOSI   D47   // PC_12
-#define SPI3_MISO   D46   // PC_11
-#define SPI3_SCK    D45   // PC_10
-#define SPI3_CS     D24   // PA_4_ALT0
+#define SPI3_MOSI   PC_12
+#define SPI3_MISO   PC_11
+#define SPI3_SCK    PC_10
+#define SPI3_CS     PA_4_ALT0
 
 //=====[Declaration of private data types]=====================================
 
@@ -42,17 +41,17 @@ FATFileSystem fs("sd", &sd);
 
 bool sdCardInit()
 {
-    pcSerialComStringWrite("Looking for a filesystem... \r\n");
+    pcSerialComStringWrite("Looking for a filesystem in the SD card... \r\n");
     fs.mount(&sd);
     DIR *dir = opendir("/sd/");
     if ( dir != NULL ) {
-        pcSerialComStringWrite("Filesystem mounted. \r\n");
+        pcSerialComStringWrite("Filesystem found in the SD card. \r\n");
         closedir(dir);
         return true;
     } else {
         pcSerialComStringWrite("Filesystem not mounted. \r\n");
         pcSerialComStringWrite("Insert an SD card and ");
-        pcSerialComStringWrite("reset the board.\r\n");
+        pcSerialComStringWrite("reset the NUCLEO board.\r\n");
         return false;
     }
 }
@@ -107,7 +106,7 @@ bool sdCardReadFile( const char * fileName, char * readBuffer )
 
 bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize )
 {
-    int bufferNumberUsedBytes = 0;
+    int NumberOfUsedBytesInBuffer = 0;
     struct dirent *de;
 
     DIR *dir = opendir("/sd/");
@@ -117,11 +116,11 @@ bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize )
         de = readdir(dir);
         
         while ( ( de != NULL ) && 
-                ( bufferNumberUsedBytes + strlen(de->d_name) < 
+                ( NumberOfUsedBytesInBuffer + strlen(de->d_name) < 
                     fileNamesBufferSize) ) {
             strncat( fileNamesBuffer, de->d_name, strlen(de->d_name) );
             strncat( fileNamesBuffer, "\r\n", strlen("\r\n") );
-            bufferNumberUsedBytes = bufferNumberUsedBytes + strlen(de->d_name);
+            NumberOfUsedBytesInBuffer = NumberOfUsedBytesInBuffer + strlen(de->d_name);
             de = readdir(dir);
         }
         
