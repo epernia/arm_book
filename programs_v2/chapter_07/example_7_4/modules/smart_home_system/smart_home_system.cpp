@@ -4,16 +4,16 @@
 
 #include "smart_home_system.h"
 
-#include "alarm.h"
 #include "siren.h"
 #include "user_interface.h"
 #include "fire_alarm.h"
-#include "intruder_alarm.h"
 #include "pc_serial_com.h"
 #include "event_log.h"
-#include "motion_sensor.h"
 #include "motor.h"
 #include "gate.h"
+#include "motion_sensor.h"
+#include "alarm.h"
+#include "intruder_alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -48,8 +48,8 @@ void smartHomeSystemUpdate()
     fireAlarmUpdate();
     intruderAlarmUpdate();
     alarmUpdate();
-    eventLogUpdate();
     pcSerialComUpdate();
+    eventLogUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
 }
 

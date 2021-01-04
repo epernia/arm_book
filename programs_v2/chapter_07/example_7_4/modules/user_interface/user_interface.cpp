@@ -6,21 +6,22 @@
 #include "user_interface.h"
 
 #include "code.h"
-#include "alarm.h"
+#include "siren.h"
 #include "smart_home_system.h"
 #include "fire_alarm.h"
-#include "intruder_alarm.h"
 #include "date_and_time.h"
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
-#include "motion_sensor.h"
 #include "matrix_keypad.h"
 #include "display.h"
-#include "GLCD_clear_screen.h"
 #include "GLCD_fire_alarm.h"
 #include "GLCD_intruder_alarm.h"
+#include "GLCD_clear_screen.h"
 #include "motor.h"
 #include "gate.h"
+#include "motion_sensor.h"
+#include "alarm.h"
+#include "intruder_alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -29,18 +30,18 @@
 
 //=====[Declaration of private data types]=====================================
 
-typedef enum {
+typedef enum{
     DISPLAY_ALARM_STATE,
     DISPLAY_REPORT_STATE
 } displayState_t;
 
 //=====[Declaration and initialization of public global objects]===============
 
-InterruptIn gateOpenButton(PF_9);
-InterruptIn gateCloseButton(PF_8);
-
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
+
+InterruptIn gateOpenButton(PF_9);
+InterruptIn gateCloseButton(PF_8);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -140,7 +141,7 @@ static void userInterfaceMatrixKeypadUpdate()
 
     if( keyReleased != '\0' ) {
 
-        if( alarmStateRead() && !systemBlockedStateRead() ) {
+        if( sirenStateRead() && !systemBlockedStateRead() ) {
             if( !incorrectCodeStateRead() ) {
                 codeSequenceFromUserInterface[numberOfCodeChars] = keyReleased;
                 numberOfCodeChars++;
@@ -174,7 +175,7 @@ static void userInterfaceDisplayReportStateInit()
 {
     displayState = DISPLAY_REPORT_STATE;
     displayRefreshTimeMs = DISPLAY_REFRESH_TIME_REPORT_MS;
-
+    
     displayModeWrite( DISPLAY_MODE_CHAR );
 
     displayClear();
@@ -184,7 +185,7 @@ static void userInterfaceDisplayReportStateInit()
 
     displayCharPositionWrite ( 0,1 );
     displayStringWrite( "Gas:" );
-
+    
     displayCharPositionWrite ( 0,2 );
     displayStringWrite( "Alarm:" );
 }
@@ -192,7 +193,7 @@ static void userInterfaceDisplayReportStateInit()
 static void userInterfaceDisplayReportStateUpdate()
 {
     char temperatureString[2];
-
+    
     sprintf(temperatureString, "%.0f", temperatureSensorReadCelsius());
     displayCharPositionWrite ( 12,0 );
     displayStringWrite( temperatureString );
@@ -218,7 +219,7 @@ static void userInterfaceDisplayAlarmStateInit()
     displayClear();
 
     displayModeWrite( DISPLAY_MODE_GRAPHIC );
-
+   
     displayFireAlarmGraphicSequence = 0;
 }
 
@@ -271,37 +272,37 @@ static void userInterfaceDisplayInit()
 static void userInterfaceDisplayUpdate()
 {
     static int accumulatedDisplayTime = 0;
-
+    
     if( accumulatedDisplayTime >=
         displayRefreshTimeMs ) {
 
         accumulatedDisplayTime = 0;
 
         switch ( displayState ) {
-        case DISPLAY_REPORT_STATE:
-            userInterfaceDisplayReportStateUpdate();
+            case DISPLAY_REPORT_STATE:
+                userInterfaceDisplayReportStateUpdate();
 
-            if ( alarmStateRead() ) {
-                userInterfaceDisplayAlarmStateInit();
-            }
+                if ( sirenStateRead() ) {
+                    userInterfaceDisplayAlarmStateInit();
+                }
             break;
 
-        case DISPLAY_ALARM_STATE:
-            userInterfaceDisplayAlarmStateUpdate();
+            case DISPLAY_ALARM_STATE:
+                userInterfaceDisplayAlarmStateUpdate();
 
-            if ( !alarmStateRead() ) {
+                if ( !sirenStateRead() ) {
+                    userInterfaceDisplayReportStateInit();
+                }
+            break;
+
+            default:
                 userInterfaceDisplayReportStateInit();
-            }
-            break;
-
-        default:
-            userInterfaceDisplayReportStateInit();
             break;
         }
 
-    } else {
+   } else {
         accumulatedDisplayTime =
-            accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;
+            accumulatedDisplayTime + SYSTEM_TIME_INCREMENT_MS;        
     }
 }
 
