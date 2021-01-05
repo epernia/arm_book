@@ -77,6 +77,7 @@ char matrixKeypadIndexToCharArray[] = {
     '*', '0', '#', 'D',
 };
 matrixKeypadState_t matrixKeypadState;
+
 //=====[Declarations (prototypes) of public functions]=========================
 
 void inputsInit();

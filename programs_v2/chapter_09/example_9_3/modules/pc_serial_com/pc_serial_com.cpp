@@ -200,7 +200,7 @@ static void availableCommands()
     uartUsb.printf( "Press 'g' or 'G' to show the gate status\r\n" );
     uartUsb.printf( "Press 'I' or 'I' to activate the motion sensor\r\n" );
     uartUsb.printf( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
-    uartUsb.printf( "Press 'w' or 'W' to store new events in SD Card\r\n" );
+    uartUsb.printf( "Press 'w' or 'W' to store the events log in the SD card\r\n" );
     uartUsb.printf( "Press 'l' or 'L' to list all the files in the root directory of the SD card\r\n" );
     uartUsb.printf( "\r\n" );
 }

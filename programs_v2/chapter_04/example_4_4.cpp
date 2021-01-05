@@ -455,9 +455,10 @@ void systemElementStateUpdate( bool lastState,
                                bool currentState,
                                const char* elementName )
 {
+    char eventAndStateStr[EVENT_NAME_MAX_LENGTH];
+
     if ( lastState != currentState ) {
-        
-        char eventAndStateStr[EVENT_NAME_MAX_LENGTH];
+
         eventAndStateStr[0] = 0;
         strncat( eventAndStateStr, elementName, strlen(elementName) );
         if ( currentState ) {
