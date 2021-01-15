@@ -106,15 +106,12 @@ void uartTask()
             } else {
                 uartUsb.printf( "The alarmLed is not activated\r\n");
             }
-
         } else if ( receivedChar == '2') {
             if ( gasDetector ) {
                 uartUsb.printf( "Gas is being detected\r\n");
             } else {
                 uartUsb.printf( "Gas is not being detected\r\n");
-
             }
-
         } else if ( receivedChar == '3') {
             if ( overTempDetector ) {
                 uartUsb.printf( "Temperature is above the maximum level\r\n");
