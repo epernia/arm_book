@@ -88,7 +88,7 @@ void outputsInit()
 
 void startOfConversion()
 {
-    uartUsb.printf( "Please press Next Step Button (B1)\r\n\r\n" );
+    uartUsb.printf( "Please press Next Step Button (B1 USER)\r\n\r\n" );
     while (!nextStepButton) {};
     uartUsb.printf( "Conversion started\r\n\r\n" );
     analogInput = potentiometer.read();

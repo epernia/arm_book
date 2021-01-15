@@ -94,7 +94,6 @@ int main()
 void inputsInit()
 {
     alarmTestButton.mode(PullDown);
-    mq2.mode(PullUp);
     aButton.mode(PullDown);
     bButton.mode(PullDown);
     cButton.mode(PullDown);
