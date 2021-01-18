@@ -94,9 +94,9 @@ void uartTask()
         case 'A':
             while( !(receivedChar == 'q' || receivedChar == 'Q') ) {
                 potentiometerReading = potentiometer.read();
-                uartUsb.printf("Potentiometer reading: %f\r\n",
+                uartUsb.printf("Potentiometer reading: %.2f\r\n",
                                potentiometerReading);
-                delay( 100 - (7+25) );
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -109,8 +109,8 @@ void uartTask()
         case 'B':
             while( !(receivedChar == 'q' || receivedChar == 'Q') ) {
                 lm35Reading = lm35.read();
-                uartUsb.printf("LM35 reading: %f\r\n", lm35Reading);
-                delay( 100 - (7+16) );
+                uartUsb.printf("LM35 reading: %.2f\r\n", lm35Reading);
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -124,8 +124,8 @@ void uartTask()
             while( !(receivedChar == 'q' || receivedChar == 'Q') ) {             
                 lm35Reading = lm35.read();
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
-                uartUsb.printf("LM35: %f °C\r\n", lm35TempC);
-                delay( 100 - (9+11) );
+                uartUsb.printf("LM35: %.2f °C\r\n", lm35TempC);
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -140,8 +140,8 @@ void uartTask()
                 lm35Reading = lm35.read();
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
                 lm35TempF = celsiusToFahrenheit(lm35TempC);
-                uartUsb.printf("LM35: %f °F\r\n", lm35TempF);
-                delay( 100 - (9+11) );
+                uartUsb.printf("LM35: %.2f °F\r\n", lm35TempF);
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -157,9 +157,9 @@ void uartTask()
                 potentiometerScaledToC = potentiometerScaledToCelsius(potentiometerReading);
                 lm35Reading = lm35.read();
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
-                uartUsb.printf("LM35: %f °C, Potentiometer scaled to °C: %f\r\n",
+                uartUsb.printf("LM35: %.2f °C, Potentiometer scaled to °C: %.2f\r\n",
                                lm35TempC, potentiometerScaledToC);
-                delay( 100 - (9+9+38) );
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -176,9 +176,9 @@ void uartTask()
                 lm35Reading = lm35.read();
                 lm35TempC = analogReadingScaledWithTheLM35Formula(lm35Reading);
                 lm35TempF = celsiusToFahrenheit(lm35TempC);
-                uartUsb.printf("LM35: %f °F, Potentiometer scaled to °F: %f\r\n",
+                uartUsb.printf("LM35: %.2f °F, Potentiometer scaled to °F: %.2f\r\n",
                                lm35TempF, potentiometerScaledToF);
-                delay( 100 - (9+9+38) );
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
@@ -196,7 +196,7 @@ void uartTask()
                     uartUsb.printf( "Gas is not being detected\r\n");
                     sirenPin.input();
                 }
-                delay( 100 );
+                delay( 200 );
                 if( uartUsb.readable() ) {
                     receivedChar = uartUsb.getc();
                 }
