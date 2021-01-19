@@ -156,7 +156,7 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar )
         pcSerialComMode = PC_SERIAL_COMMANDS;
         numberOfCodeChars = 0;
         codeWrite( newCodeSequence );
-        uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
+        uartUsb.printf( "\r\nNew code configured\r\n\r\n" );
     } 
 }
 
@@ -268,7 +268,7 @@ static void commandEnterCodeSequence()
 {
     if( alarmStateRead() ) {
         uartUsb.printf( "Please enter the four digits numeric code " );
-        uartUsb.printf( "to deactivate the alarm.\r\n" );
+        uartUsb.printf( "to deactivate the alarm: " );
         pcSerialComMode = PC_SERIAL_GET_CODE;
         codeComplete = false;
         numberOfCodeChars = 0;
@@ -280,7 +280,7 @@ static void commandEnterCodeSequence()
 static void commandEnterNewCode()
 {
     uartUsb.printf( "Please enter the new four digits numeric code " );
-    uartUsb.printf( "to deactivate the alarm.\r\n" );
+    uartUsb.printf( "to deactivate the alarm: " );
     numberOfCodeChars = 0;
     pcSerialComMode = PC_SERIAL_SAVE_NEW_CODE;
 }

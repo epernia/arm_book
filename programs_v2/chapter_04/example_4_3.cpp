@@ -263,8 +263,8 @@ void uartTask()
             break;
 
         case '4':
-            uartUsb.printf( "Please enter the new four digits numeric code " );
-            uartUsb.printf( "to deactivate the alarm.\r\n" );
+            uartUsb.printf( "Please enter the four digits numeric code " );
+            uartUsb.printf( "to deactivate the alarm: " );
 
             incorrectCode = false;
 
@@ -291,7 +291,8 @@ void uartTask()
             break;
 
         case '5':
-            uartUsb.printf( "Please enter the new four digits numeric code" );
+            uartUsb.printf( "Please enter the new four digits numeric code " );
+            uartUsb.printf( "to deactivate the alarm: " );
 
             for ( keyBeingCompared = 0;
                   keyBeingCompared < NUMBER_OF_KEYS;
@@ -300,7 +301,7 @@ void uartTask()
                 uartUsb.printf( "*" );
             }
 
-            uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
+            uartUsb.printf( "\r\nNew code configured\r\n\r\n" );
             break;
 
         case 'c':

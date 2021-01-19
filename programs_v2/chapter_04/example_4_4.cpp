@@ -288,8 +288,8 @@ void uartTask()
             break;
 
         case '4':
-            uartUsb.printf( "Please enter the new four digits numeric code " );
-            uartUsb.printf( "to deactivate the alarm.\r\n" );
+            uartUsb.printf( "Please enter the four digits numeric code " );
+            uartUsb.printf( "to deactivate the alarm: " );
 
             incorrectCode = false;
 
@@ -316,7 +316,8 @@ void uartTask()
             break;
 
         case '5':
-            uartUsb.printf( "Please enter the new four digits numeric code" );
+            uartUsb.printf( "Please enter the new four digits numeric code " );
+            uartUsb.printf( "to deactivate the alarm: " );
 
             for ( keyBeingCompared = 0;
                   keyBeingCompared < NUMBER_OF_KEYS;
@@ -325,7 +326,7 @@ void uartTask()
                 uartUsb.printf( "*" );
             }
 
-            uartUsb.printf( "\r\nNew code configurated\r\n\r\n" );
+            uartUsb.printf( "\r\nNew code configured\r\n\r\n" );
             break;
 
         case 'c':
@@ -343,32 +344,34 @@ void uartTask()
         case 'S':
             struct tm rtcTime;
             int uartReceivedYear;
-            uartUsb.printf("Enter the current year (YYYY): ");
+            uartUsb.printf("\r\nType de current year (YYYY) and press enter: ");
             uartUsb.scanf("%d",&uartReceivedYear);
             rtcTime.tm_year = uartReceivedYear - 1900;
             uartUsb.printf("%d\r\n",uartReceivedYear);
 
             int uartReceivedMonth;
-            uartUsb.printf("Enter the current month (1-12): ");
+            uartUsb.printf("Type de current month (1-12) and press enter: ");
             uartUsb.scanf("%d",&uartReceivedMonth);
             rtcTime.tm_mon = uartReceivedMonth - 1;
             uartUsb.printf("%d\r\n",uartReceivedMonth);
 
-            uartUsb.printf("Enter the current day (1-31): ");
+            uartUsb.printf("Type de current day (1-31) and press enter: ");
             uartUsb.scanf("%d",&rtcTime.tm_mday);
             uartUsb.printf("%d\r\n",rtcTime.tm_mday);
 
-            uartUsb.printf("Enter the current hour (0-24): ");
+            uartUsb.printf("Type de current hour (0-23) and press enter: ");
             uartUsb.scanf("%d",&rtcTime.tm_hour);
             uartUsb.printf("%d\r\n",rtcTime.tm_hour);
 
-            uartUsb.printf("Enter the current minutes (0-59): ");
+            uartUsb.printf("Type de current minutes (0-59) and press enter: ");
             uartUsb.scanf("%d",&rtcTime.tm_min);
             uartUsb.printf("%d\r\n",rtcTime.tm_min);
 
-            uartUsb.printf("Enter the current seconds (0-59): ");
+            uartUsb.printf("Type de current seconds (0-59) and press enter: ");
             uartUsb.scanf("%d",&rtcTime.tm_sec);
             uartUsb.printf("%d\r\n",rtcTime.tm_sec);
+            
+            uartUsb.printf("Date and time has been set\r\n");
 
             while ( uartUsb.readable() ) {
                 uartUsb.getc();
