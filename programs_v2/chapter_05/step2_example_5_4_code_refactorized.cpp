@@ -828,9 +828,9 @@ void availableCommands()
 void commandShowCurrentAlarmState()
 {
     if ( sirenStateRead() ) {
-        uartUsb.printf( "The alarmLed is activated\r\n");
+        uartUsb.printf( "The alarm is activated\r\n");
     } else {
-        uartUsb.printf( "The alarmLed is not activated\r\n");
+        uartUsb.printf( "The alarm is not activated\r\n");
     }
 }
 

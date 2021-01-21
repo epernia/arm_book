@@ -142,9 +142,9 @@ void uartTask()
         switch (receivedChar) {
         case '1':
             if ( alarmState ) {
-                uartUsb.printf( "The alarmLed is activated\r\n");
+                uartUsb.printf( "The alarm is activated\r\n");
             } else {
-                uartUsb.printf( "The alarmLed is not activated\r\n");
+                uartUsb.printf( "The alarm is not activated\r\n");
             }
             break;
 

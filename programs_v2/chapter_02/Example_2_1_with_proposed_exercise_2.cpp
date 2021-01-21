@@ -102,9 +102,9 @@ void uartTask()
         char receivedChar = uartUsb.getc();
         if ( receivedChar == '1') {
             if ( alarmState ) {
-                uartUsb.printf( "The alarmLed is activated\r\n");
+                uartUsb.printf( "The alarm is activated\r\n");
             } else {
-                uartUsb.printf( "The alarmLed is not activated\r\n");
+                uartUsb.printf( "The alarm is not activated\r\n");
             }
         } else if ( receivedChar == '2') {
             if ( gasDetector ) {
