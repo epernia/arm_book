@@ -15,7 +15,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut RGBLed[] = {(PE_14), (PA_0), (PD_12)};
+DigitalOut RGBLed[] = {(PB_4), (PA_0), (PD_12)};
 
 Ticker tickerBrightControl;
 
