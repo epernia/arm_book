@@ -45,10 +45,13 @@ int main()
             for (float y = 0.00; y < 0.99; y += 0.005) {
                 for (float z = 0.00; z < 0.99; z += 0.005) {
                     setDutyCycle( RGB_LED_RED, z );
+                    delay(1);
                 }
                 setDutyCycle( RGB_LED_GREEN, y );
+                delay(1);
             }
             setDutyCycle( RGB_LED_BLUE, x );
+            delay(1);
         }
     }
 }
