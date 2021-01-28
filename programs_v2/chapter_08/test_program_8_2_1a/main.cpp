@@ -15,11 +15,12 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-//DigitalOut ledGreen(LED1);
-//DigitalOut ledBlue(LED2);
-//DigitalOut ledRed(LED3);
-
 PwmOut RGBLed[] = {(PB_4), (PA_0), (PD_12)};
+
+Serial uartUsb(USBTX, USBRX);
+
+DigitalIn nextStepButton(BUTTON1);
+
 
 //=====[Declaration and initialization of public global variables]=============
 
@@ -40,18 +41,20 @@ int main()
     setDutyCycle( RGB_LED_GREEN, 0.0f );
     setDutyCycle( RGB_LED_BLUE, 0.0f );
     
+    uartUsb.printf( "Press B1 USER button to change the RGB values\r\n" );
+    
     while (true) {
-        for (float x = 0.00; x < 0.99; x += 0.005) {
-            for (float y = 0.00; y < 0.99; y += 0.005) {
-                for (float z = 0.00; z < 0.99; z += 0.005) {
+        for (float x = 0.00; x < 1.01; x += 0.1) {
+            for (float y = 0.00; y < 1.01; y += 0.1) {
+                for (float z = 0.00; z < 1.01; z += 0.1) {
                     setDutyCycle( RGB_LED_RED, z );
-                    delay(1);
+                    uartUsb.printf( "R: %.1f G:%.1f B:%.1f\r\n",z,y,x );
+                    delay(40);
+                    while (!nextStepButton);
                 }
                 setDutyCycle( RGB_LED_GREEN, y );
-                delay(1);
             }
             setDutyCycle( RGB_LED_BLUE, x );
-            delay(1);
         }
     }
 }
