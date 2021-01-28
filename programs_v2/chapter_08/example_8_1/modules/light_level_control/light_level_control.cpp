@@ -11,7 +11,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-AnalogIn pote(A2);
+AnalogIn pote(A0);
 
 //=====[Declaration of external public global variables]=======================
 
