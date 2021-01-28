@@ -49,59 +49,64 @@ int main()
     
     while (true) {
         
-    if( uartUsb.readable() ) {
-        char receivedChar = uartUsb.getc();
-        switch (receivedChar) {
-        case 'w':
-        
-            char fileNameSD[80];
+        if( uartUsb.readable() ) {
+            char receivedChar = uartUsb.getc();
+            switch (receivedChar) {
+            case 'w': {
             
-            fileNameSD[0] = 0;
-            strncat( fileNameSD, "/sd/", strlen("/sd/") );
-            strncat( fileNameSD, "Hello.txt", strlen("Hello.txt") );
-
-            FILE *fd = fopen( fileNameSD, "a" );
-
-            if ( fd != NULL ) {
-                fprintf( fd, "%s", "Hello World!" );                       
-                fclose( fd );
-                return true;
-            } else {
-                return false;
-            }
-            
-            break;
-
-        case '2':
-        
-            int NumberOfUsedBytesInBuffer = 0;
-            struct dirent *de;
-
-            DIR *dir = opendir("/sd/");
-
-            if ( dir != NULL ) {
-                uartUsb.printf("Printing all filenames:\r\n");
-                de = readdir(dir);
+                char fileNameSD[80];
                 
-                while ( ( de != NULL ) {
-                                
-                    uartUsb.printf( de->d_name );
-                    uartUsb.printf("\r\n");
+                fileNameSD[0] = 0;
+                strncat( fileNameSD, "/sd/", strlen("/sd/") );
+                strncat( fileNameSD, "Hello.txt", strlen("Hello.txt") );
 
-                    de = readdir(dir);
+                FILE *fd = fopen( fileNameSD, "a" );
+
+                if ( fd != NULL ) {
+                    fprintf( fd, "%s", "Hello World!" );                       
+                    fclose( fd );
+                    return true;
+                } else {
+                    return false;
                 }
                 
-                closedir(dir);
-                uartUsb.printf("\r\n");
-                
-                return true;
-            } else {
-                uartUsb.printf("Insert an SD card and ");
-                uartUsb.printf("reset the board.\r\n");
-                return false;
+                break;
             }
-            break;
+            case 'l': {
             
+                int NumberOfUsedBytesInBuffer = 0;
+                struct dirent *de;
+
+                DIR *dir = opendir("/sd/");
+
+                if ( dir != NULL ) {
+                    uartUsb.printf("Printing all filenames:\r\n");
+                    de = readdir(dir);
+                    
+                    while ( de != NULL ) {
+                                    
+                        uartUsb.printf( de->d_name );
+                        uartUsb.printf("\r\n");
+
+                        de = readdir(dir);
+                    }
+                    
+                    closedir(dir);
+                    uartUsb.printf("\r\n");
+                    
+                    return true;
+                } else {
+                    uartUsb.printf("Insert an SD card and ");
+                    uartUsb.printf("reset the board.\r\n");
+                    return false;
+                }
+                break;
+            }
+            default:
+
+                break;
+                
+            }
         }
     }
 }
