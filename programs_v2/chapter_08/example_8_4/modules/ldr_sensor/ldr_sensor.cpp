@@ -11,7 +11,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-AnalogIn LDR(A4);
+AnalogIn LDR(A2);
 
 //=====[Declaration of external public global variables]=======================
 
