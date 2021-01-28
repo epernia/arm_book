@@ -1,20 +1,10 @@
 //=====[Libraries]=============================================================
 
+#include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "smart_home_system.h"
-
-#include "alarm.h"
-#include "user_interface.h"
-#include "fire_alarm.h"
 #include "intruder_alarm.h"
-#include "pc_serial_com.h"
-#include "event_log.h"
-#include "sd_card.h"
 #include "motion_sensor.h"
-#include "motor.h"
-#include "gate.h"
-#include "light_system.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -28,32 +18,39 @@
 
 //=====[Declaration and initialization of private global variables]============
 
+static bool intruderDetected = OFF;
+static bool intruderDetectorState = OFF;
+
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void smartHomeSystemInit()
+void intruderAlarmInit()
 {
-    userInterfaceInit();
-    alarmInit();
-    fireAlarmInit();
-    intruderAlarmInit();
-    pcSerialComInit();
-    motorControlInit();
-    gateInit();
-    lightSystemInit();
+    motionSensorInit();
 }
 
-void smartHomeSystemUpdate()
+void intruderAlarmUpdate()
 {
-    userInterfaceUpdate();
-    fireAlarmUpdate();
-    intruderAlarmUpdate();
-    alarmUpdate();
-    eventLogUpdate();
-    pcSerialComUpdate();
-    lightSystemUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    intruderDetectorState = motionSensorRead();
+
+    if ( intruderDetectorState ) {
+        intruderDetected = ON;
+    }
 }
 
+bool intruderDetectorStateRead()
+{
+    return intruderDetectorState;
+}
+
+bool intruderDetectedRead()
+{
+    return intruderDetected;
+}
+
+void intruderAlarmDeactivate()
+{
+    intruderDetected = OFF;
+}
 //=====[Implementations of private functions]==================================

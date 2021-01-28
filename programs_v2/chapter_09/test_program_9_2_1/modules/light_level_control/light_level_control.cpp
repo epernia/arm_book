@@ -3,24 +3,15 @@
 #include "arm_book_lib.h"
 
 #include "smart_home_system.h"
-
-#include "alarm.h"
-#include "user_interface.h"
-#include "fire_alarm.h"
-#include "intruder_alarm.h"
-#include "pc_serial_com.h"
-#include "event_log.h"
-#include "sd_card.h"
-#include "motion_sensor.h"
-#include "motor.h"
-#include "gate.h"
-#include "light_system.h"
+#include "light_level_control.h"
 
 //=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
+
+AnalogIn pote(A2);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -32,28 +23,13 @@
 
 //=====[Implementations of public functions]===================================
 
-void smartHomeSystemInit()
-{
-    userInterfaceInit();
-    alarmInit();
-    fireAlarmInit();
-    intruderAlarmInit();
-    pcSerialComInit();
-    motorControlInit();
-    gateInit();
-    lightSystemInit();
-}
+void lightLevelControlInit() { }
 
-void smartHomeSystemUpdate()
+void lightLevelControlUpdate() { }
+
+float lightLevelControlRead()
 {
-    userInterfaceUpdate();
-    fireAlarmUpdate();
-    intruderAlarmUpdate();
-    alarmUpdate();
-    eventLogUpdate();
-    pcSerialComUpdate();
-    lightSystemUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    return pote.read();
 }
 
 //=====[Implementations of private functions]==================================

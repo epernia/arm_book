@@ -1,26 +1,16 @@
 //=====[Libraries]=============================================================
 
-#include "arm_book_lib.h"
+#include "mbed.h"
 
-#include "smart_home_system.h"
-
-#include "alarm.h"
-#include "user_interface.h"
-#include "fire_alarm.h"
-#include "intruder_alarm.h"
-#include "pc_serial_com.h"
-#include "event_log.h"
-#include "sd_card.h"
-#include "motion_sensor.h"
-#include "motor.h"
-#include "gate.h"
-#include "light_system.h"
+#include "gas_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
+
+DigitalIn mq2(PE_12);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -32,28 +22,20 @@
 
 //=====[Implementations of public functions]===================================
 
-void smartHomeSystemInit()
+void gasSensorInit()
 {
-    userInterfaceInit();
-    alarmInit();
-    fireAlarmInit();
-    intruderAlarmInit();
-    pcSerialComInit();
-    motorControlInit();
-    gateInit();
-    lightSystemInit();
+    return;
 }
 
-void smartHomeSystemUpdate()
+void gasSensorUpdate()
 {
-    userInterfaceUpdate();
-    fireAlarmUpdate();
-    intruderAlarmUpdate();
-    alarmUpdate();
-    eventLogUpdate();
-    pcSerialComUpdate();
-    lightSystemUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    return;
+}
+
+bool gasSensorRead()
+{
+    return mq2;
 }
 
 //=====[Implementations of private functions]==================================
+

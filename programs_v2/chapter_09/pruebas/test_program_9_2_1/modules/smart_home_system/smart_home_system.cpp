@@ -10,17 +10,20 @@
 #include "intruder_alarm.h"
 #include "pc_serial_com.h"
 #include "event_log.h"
-#include "sd_card.h"
 #include "motion_sensor.h"
 #include "motor.h"
 #include "gate.h"
 #include "light_system.h"
+#include "audio.h"
+#include "sd_card.h"
 
 //=====[Declaration of private defines]======================================
 
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
+
+char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 //=====[Declaration of external public global variables]=======================
 
@@ -34,6 +37,7 @@
 
 void smartHomeSystemInit()
 {
+    audioInit();
     userInterfaceInit();
     alarmInit();
     fireAlarmInit();
@@ -42,6 +46,7 @@ void smartHomeSystemInit()
     motorControlInit();
     gateInit();
     lightSystemInit();
+    sdCardInit();
 }
 
 void smartHomeSystemUpdate()

@@ -1,20 +1,8 @@
 //=====[Libraries]=============================================================
 
-#include "arm_book_lib.h"
+#include "mbed.h"
 
-#include "smart_home_system.h"
-
-#include "alarm.h"
-#include "user_interface.h"
-#include "fire_alarm.h"
-#include "intruder_alarm.h"
-#include "pc_serial_com.h"
-#include "event_log.h"
-#include "sd_card.h"
-#include "motion_sensor.h"
-#include "motor.h"
-#include "gate.h"
-#include "light_system.h"
+#include "date_and_time.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -32,28 +20,29 @@
 
 //=====[Implementations of public functions]===================================
 
-void smartHomeSystemInit()
+char* dateAndTimeRead()
 {
-    userInterfaceInit();
-    alarmInit();
-    fireAlarmInit();
-    intruderAlarmInit();
-    pcSerialComInit();
-    motorControlInit();
-    gateInit();
-    lightSystemInit();
+    time_t epochSeconds;
+    epochSeconds = time(NULL);
+    return ctime(&epochSeconds);    
 }
 
-void smartHomeSystemUpdate()
+void dateAndTimeWrite( int year, int month, int day, 
+                       int hour, int minute, int second )
 {
-    userInterfaceUpdate();
-    fireAlarmUpdate();
-    intruderAlarmUpdate();
-    alarmUpdate();
-    eventLogUpdate();
-    pcSerialComUpdate();
-    lightSystemUpdate();
-    delay(SYSTEM_TIME_INCREMENT_MS);
+    struct tm rtcTime;
+
+    rtcTime.tm_year = year - 1900;
+    rtcTime.tm_mon  = month - 1;
+    rtcTime.tm_mday = day;
+    rtcTime.tm_hour = hour;
+    rtcTime.tm_min  = minute;
+    rtcTime.tm_sec  = second;
+
+    rtcTime.tm_isdst = -1;
+
+    set_time( mktime( &rtcTime ) );
 }
 
 //=====[Implementations of private functions]==================================
+
