@@ -320,29 +320,31 @@ static void commandSetDateAndTime()
     int minute = 0;
     int second = 0;
     
-    uartUsb.printf("Enter the current year (YYYY): ");
+    uartUsb.printf("\r\nType de current year (YYYY) and press enter: ");
     uartUsb.scanf("%d", &year);
     uartUsb.printf("%d\r\n", year);
 
-    uartUsb.printf("Enter the current month (1-12): ");
+    uartUsb.printf("Type de current month (1-12) and press enter: ");
     uartUsb.scanf("%d", &month);
     uartUsb.printf("%d\r\n", month);
 
-    uartUsb.printf("Enter the current day (1-31): ");
+    uartUsb.printf("Type de current day (1-31) and press enter: ");
     uartUsb.scanf("%d", &day);
     uartUsb.printf("%d\r\n", day);
 
-    uartUsb.printf("Enter the current hour (0-23): ");
+    uartUsb.printf("Type de current hour (0-23) and press enter: ");
     uartUsb.scanf("%d", &hour);
     uartUsb.printf("%d\r\n",hour);
 
-    uartUsb.printf("Enter the current minute (0-59): ");
+    uartUsb.printf("Type de current minutes (0-59) and press enter: ");
     uartUsb.scanf("%d", &minute);
     uartUsb.printf("%d\r\n", minute);
 
-    uartUsb.printf("Enter the current second (0-59): ");
+    uartUsb.printf("Type de current seconds (0-59) and press enter: ");
     uartUsb.scanf("%d", &second);
     uartUsb.printf("%d\r\n", second);
+    
+    uartUsb.printf("Date and time has been set\r\n");
 
     while ( uartUsb.readable() ) {
         uartUsb.getc();
