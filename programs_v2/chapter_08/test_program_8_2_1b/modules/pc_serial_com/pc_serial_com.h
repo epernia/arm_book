@@ -14,6 +14,7 @@
 void pcSerialComInit();
 char pcSerialComCharRead();
 void pcSerialComStringWrite( const char* str );
+void pcSerialComFloatWrite( float number );
 void pcSerialComUpdate();
 bool pcSerialComCodeCompleteRead();
 void pcSerialComCodeCompleteWrite( bool state );

@@ -6,6 +6,7 @@
 #include "bright_control.h"
 #include "light_level_control.h"
 #include "ldr_sensor.h"
+#include "pc_serial_com.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -37,12 +38,25 @@ void lightSystemInit()
 
 void lightSystemUpdate()
 {
+    static int i = 0;
+    
     dutyCycle = dutyCycle + lightSystemLoopGain
                             * (lightLevelControlRead() - LDRSensorRead());
 
     if ( brightnessRGBLedRedChangeEnabled ) setDutyCycle( RGB_LED_RED, dutyCycle );
     if ( brightnessRGBLedGreenChangeEnabled ) setDutyCycle( RGB_LED_GREEN, dutyCycle );
     if ( brightnessRGBLedBlueChangeEnabled ) setDutyCycle( RGB_LED_BLUE, dutyCycle );
+    
+    if (i > 100) {
+        i=0;
+        pcSerialComStringWrite("SP: ");
+        pcSerialComFloatWrite( lightLevelControlRead() );
+        pcSerialComStringWrite(" | ");
+        pcSerialComStringWrite("LDR: ");
+        pcSerialComFloatWrite( LDRSensorRead() );
+        pcSerialComStringWrite("\r\n");
+    }
+    i++;
 }
 
 void lightSystemBrightnessChangeEnable( lightSystem_t light, bool state )

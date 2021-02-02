@@ -88,6 +88,11 @@ void pcSerialComStringWrite( const char* str )
     uartUsb.printf( "%s", str );
 }
 
+void pcSerialComFloatWrite( float number )
+{
+    uartUsb.printf( "%0.4f", number );
+}
+
 void pcSerialComUpdate()
 {
     char receivedChar = pcSerialComCharRead();
