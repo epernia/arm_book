@@ -163,20 +163,6 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar )
 static void pcSerialComCommandUpdate( char receivedChar )
 {
     switch (receivedChar) {
-        case '1': commandShowCurrentSirenState(); break;
-        case '2': commandShowCurrentGasDetectorState(); break;
-        case '3': commandShowCurrentOverTemperatureDetectorState(); break;
-        case '4': commandEnterCodeSequence(); break;
-        case '5': commandEnterNewCode(); break;
-        case 'c': case 'C': commandShowCurrentTemperatureInCelsius(); break;
-        case 'f': case 'F': commandShowCurrentTemperatureInFahrenheit(); break;
-        case 's': case 'S': commandSetDateAndTime(); break;
-        case 't': case 'T': commandShowDateAndTime(); break;
-        case 'e': case 'E': commandShowStoredEvents(); break;
-        case 'm': case 'M': commandShowCurrentMotorState(); break;
-        case 'g': case 'G': commandShowCurrentGateState(); break;
-        case 'i': case 'I': commandMotionSensorActivate(); break;
-        case 'h': case 'H': commandMotionSensorDeactivate(); break;
         case 'w': case 'W': commandEventLogSaveToSdCard(); break;
         case 'l': case 'L': commandsdCardListFiles(); break;
         default: availableCommands(); break;
@@ -186,21 +172,7 @@ static void pcSerialComCommandUpdate( char receivedChar )
 static void availableCommands()
 {
     uartUsb.printf( "Available commands:\r\n" );
-    uartUsb.printf( "Press '1' to get the alarm state\r\n" );
-    uartUsb.printf( "Press '2' for gas detector state\r\n" );
-    uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
-    uartUsb.printf( "Press '4' to enter the code to deactivate the alarm\r\n" );
-    uartUsb.printf( "Press '5' to enter a new code to deactivate the alarm\r\n" );
-    uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
-    uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
-    uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
-    uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
-    uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
-    uartUsb.printf( "Press 'm' or 'M' to show the motor status\r\n" );
-    uartUsb.printf( "Press 'g' or 'G' to show the gate status\r\n" );
-    uartUsb.printf( "Press 'I' or 'I' to activate the motion sensor\r\n" );
-    uartUsb.printf( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
-    uartUsb.printf( "Press 'w' or 'W' to store the events log in the SD card\r\n" );
+    uartUsb.printf( "Press 'w' or 'W' to create a file Hello.txt in the SD card\r\n" );
     uartUsb.printf( "Press 'l' or 'L' to list all the files in the root directory of the SD card\r\n" );
     uartUsb.printf( "\r\n" );
 }
