@@ -151,7 +151,7 @@ bool eventLogSaveToSdCard()
         pcSerialComStringWrite("File successfully written\r\n\r\n");
     } else {
         pcSerialComStringWrite("There are no events to store ");
-        pcSerialComStringWrite("or SD card not available\r\n\r\n");
+        pcSerialComStringWrite("or SD card is not available\r\n\r\n");
     }
 
     return true;
