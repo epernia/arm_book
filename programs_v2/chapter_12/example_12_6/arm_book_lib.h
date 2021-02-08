@@ -31,26 +31,60 @@
 #ifndef _ARM_BOOK_LIBRARY_H_
 #define _ARM_BOOK_LIBRARY_H_
 
-//==================[inclusions]===============================================
+/*==================[inclusions]=============================================*/
 
-#include <sapi.h>
-#include <st_zio_extended_pins.h>
+#include <cstdint>
+#include <mbed.h> // [Libro ARM] Si lo ponemos en todos los archivos de examples se puede sacar de aca
 
-//==================[c++]======================================================
+/*==================[c++]====================================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//=====[Declaration of public defines]=========================================
+/*==================[macros]=================================================*/
 
-// #define delay(ms)      thread_sleep_for( ms )
+// Functional states
+#ifndef OFF
+#define OFF    0
+#endif
+#ifndef ON
+#define ON     (!OFF)
+#endif
 
-//=====[Declaration of public data types]======================================
+// Electrical states
+#ifndef LOW
+#define LOW    0
+#endif
+#ifndef HIGH
+#define HIGH   (!LOW) // [Libro ARM] Los usamos creo que solamente en lo del motor, evaluemos sacarlos
+#endif
 
-//==================[c++]======================================================
+// Logical states
+
+#ifndef FALSE
+#define FALSE  0
+#endif
+#ifndef TRUE
+#define TRUE   (!FALSE)
+#endif
+
+#ifndef false
+#define false  0
+#endif
+#ifndef true
+#define true   (!false)
+#endif
+
+/*==================[Function-like macros]===================================*/
+
+#define delay(ms)      thread_sleep_for( ms )
+
+/*==================[typedef]================================================*/
+
+/*==================[c++]====================================================*/
 #ifdef __cplusplus
 }
 #endif
 
-//==================[end of file]==============================================
-#endif
+/*==================[end of file]============================================*/
+#endif // _ARM_BOOK_LIBRARY_H_
