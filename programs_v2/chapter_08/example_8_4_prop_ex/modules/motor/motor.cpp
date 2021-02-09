@@ -7,6 +7,8 @@
 
 //=====[Declaration of private defines]======================================
 
+#define MOTOR_UPDATE_TIME 9
+
 //=====[Declaration of private data types]=====================================
 
 //=====[Declaration and initialization of public global objects]===============
@@ -19,6 +21,7 @@ DigitalInOut motorM2Pin(PE_3);
 //=====[Declaration and initialization of public global variables]=============
 
 MotorDirection_t motorDirection;
+MotorDirection_t motorState;
 
 //=====[Declaration and initialization of private global variables]============
 
@@ -35,6 +38,7 @@ void motorControlInit()
     motorM2Pin.input();
 
     motorDirection = STOPPED;
+    motorState = STOPPED;
 }
 
 MotorDirection_t motorDirectionRead()
@@ -44,28 +48,56 @@ MotorDirection_t motorDirectionRead()
 
 void motorDirectionWrite( MotorDirection_t Direction )
 {
-    switch ( Direction ) {
-        case DIRECTION_1:
-            motorM2Pin.input();
-            motorM1Pin.output();
-            motorM1Pin = LOW;
-            motorDirection = DIRECTION_1;
-        break;
+    motorDirection = Direction;
+}
 
-        case DIRECTION_2:
-            motorM1Pin.input();
-            motorM2Pin.output();
-            motorM2Pin = LOW;
-            motorDirection = DIRECTION_2;
-        break;
-
-        case STOPPED:
-        default:
-            motorM1Pin.input();
-            motorM2Pin.input();
-            motorDirection = STOPPED;
-        break;
-    }
+void motorUpdate()
+{
+    static int motorUpdateCounter = 0;
+    
+    motorUpdateCounter++;
+    
+    if ( motorUpdateCounter > MOTOR_UPDATE_TIME ) {
+        
+        motorUpdateCounter = 0;
+        
+        switch ( motorState ) {
+            case DIRECTION_1:
+                if ( motorDirection == DIRECTION_2 || 
+                     motorDirection == STOPPED ) {
+                    motorM1Pin.input();
+                    motorM2Pin.input();
+                    motorState = STOPPED;
+                }
+            break;
+    
+            case DIRECTION_2:
+                if ( motorDirection == DIRECTION_1 || 
+                     motorDirection == STOPPED ) {
+                    motorM1Pin.input();
+                    motorM2Pin.input();
+                    motorState = STOPPED;
+                }
+            break;
+    
+            case STOPPED:
+            default:
+                if ( motorDirection == DIRECTION_1 ) {
+                    motorM2Pin.input();
+                    motorM1Pin.output();
+                    motorM1Pin = LOW;
+                    motorState = DIRECTION_1;
+                }
+                
+                if ( motorDirection == DIRECTION_2 ) {
+                    motorM1Pin.input();
+                    motorM2Pin.output();
+                    motorM2Pin = LOW;
+                    motorState = DIRECTION_2;
+                }
+            break;
+        }
+    }        
 }
 
 //=====[Implementations of private functions]==================================

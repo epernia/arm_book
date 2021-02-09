@@ -22,6 +22,8 @@ void motorDirectionWrite( MotorDirection_t Direction );
 
 MotorDirection_t motorDirectionRead();
 
+void motorUpdate();
+
 //=====[#include guards - end]=================================================
 
 #endif // _MOTOR_H_
