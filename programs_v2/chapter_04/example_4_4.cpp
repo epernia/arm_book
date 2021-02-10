@@ -16,7 +16,7 @@
 #define KEYPAD_NUMBER_OF_ROWS                    4
 #define KEYPAD_NUMBER_OF_COLS                    4
 #define EVENT_MAX_STORAGE                      100
-#define EVENT_NAME_MAX_LENGTH                   15
+#define EVENT_NAME_MAX_LENGTH                   13
 
 //=====[Declaration of public data types]======================================
 
