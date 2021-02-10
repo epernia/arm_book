@@ -110,7 +110,7 @@ void eventLogWrite( bool currentState, const char* elementName )
 
     arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
     strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent, eventAndStateStr );
-    if ( eventsIndex < EVENT_LOG_MAX_STORAGE ) {
+    if ( eventsIndex < EVENT_LOG_MAX_STORAGE - 1 ) {
         eventsIndex++;
     } else {
         eventsIndex = 0;

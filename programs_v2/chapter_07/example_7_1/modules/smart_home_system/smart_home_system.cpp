@@ -41,7 +41,7 @@ void smartHomeSystemUpdate()
     fireAlarmUpdate();    
     pcSerialComUpdate();
     eventLogUpdate();
-    motorUpdate();
+    motorControlUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
 }
 

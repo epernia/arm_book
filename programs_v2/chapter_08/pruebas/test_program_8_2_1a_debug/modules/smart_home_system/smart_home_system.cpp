@@ -53,7 +53,7 @@ void smartHomeSystemUpdate()
     alarmUpdate();
     eventLogUpdate();
     pcSerialComUpdate();
-    motorUpdate();
+    motorControlUpdate();
     lightSystemUpdate();
     delay(SYSTEM_TIME_INCREMENT_MS);
 }

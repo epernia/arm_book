@@ -22,7 +22,7 @@ void motorDirectionWrite( MotorDirection_t Direction );
 
 MotorDirection_t motorDirectionRead();
 
-void motorUpdate();
+void motorControlUpdate();
 
 //=====[#include guards - end]=================================================
 

@@ -51,7 +51,7 @@ void motorDirectionWrite( MotorDirection_t Direction )
     motorDirection = Direction;
 }
 
-void motorUpdate()
+void motorControlUpdate()
 {
     static int motorUpdateCounter = 0;
     

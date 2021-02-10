@@ -472,7 +472,7 @@ void systemElementStateUpdate( bool lastState,
 
         arrayOfStoredEvents[eventsIndex].seconds = time(NULL);
         strcpy( arrayOfStoredEvents[eventsIndex].typeOfEvent,eventAndStateStr );
-        if ( eventsIndex < EVENT_MAX_STORAGE ) {
+        if ( eventsIndex < EVENT_MAX_STORAGE - 1 ) {
             eventsIndex++;
         } else {
             eventsIndex = 0;
