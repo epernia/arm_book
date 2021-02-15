@@ -52,7 +52,7 @@ bool sdCardInit()
     } else {
         pcSerialComStringWrite("Filesystem not mounted. \r\n");
         pcSerialComStringWrite("Insert an SD card and ");
-        pcSerialComStringWrite("reset the board.\r\n");
+        pcSerialComStringWrite("reset the NUCLEO board.\r\n");
         return false;
     }
 }
@@ -130,7 +130,7 @@ bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize )
         return true;
     } else {
         pcSerialComStringWrite("Insert an SD card and ");
-        pcSerialComStringWrite("reset the board.\r\n");
+        pcSerialComStringWrite("reset the NUCLEO board.\r\n");
         return false;
     }
 }

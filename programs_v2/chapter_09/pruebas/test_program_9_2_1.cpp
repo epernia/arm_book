@@ -97,7 +97,7 @@ int main()
                     return true;
                 } else {
                     uartUsb.printf("Insert an SD card and ");
-                    uartUsb.printf("reset the board.\r\n");
+                    uartUsb.printf("reset the NUCLEO board.\r\n");
                     return false;
                 }
                 break;

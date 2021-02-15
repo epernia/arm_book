@@ -100,7 +100,7 @@ bool sdCardListFiles( char* fileNamesBuffer, int fileNamesBufferSize )
         return true;
     } else {
         pcSerialComStringWrite("Insert an SD card and ");
-        pcSerialComStringWrite("reset the board.\r\n");
+        pcSerialComStringWrite("reset the NUCLEO board.\r\n");
         return false;
     }
 }
