@@ -13,7 +13,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-static DigitalOut relayControlPin(D0);
+static DigitalOut relayControlPin(PF_2);
 
 //=====[Declaration and initialization of private global objects]===============
 

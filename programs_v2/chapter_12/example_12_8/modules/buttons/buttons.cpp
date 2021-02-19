@@ -11,10 +11,10 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-static DigitalIn changeModeButton(D8);
-static DigitalIn howOftenButton(D9);
-static DigitalIn howLongButton(D10);
-static DigitalIn moistureButton(D11);
+static DigitalIn changeModeButton(PG_1);
+static DigitalIn howOftenButton(PF_9);
+static DigitalIn howLongButton(PF_7);
+static DigitalIn moistureButton(PF_8);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -28,10 +28,10 @@ static buttonsStatus_t buttonsStatus;
 
 void buttonsInit()
 {
-    changeModeButton.mode(PullDown);
-    howOftenButton.mode(PullDown);
-    howLongButton.mode(PullDown);
-    moistureButton.mode(PullDown);
+    changeModeButton.mode(PullUp);
+    howOftenButton.mode(PullUp);
+    howLongButton.mode(PullUp);
+    moistureButton.mode(PullUp);
 
 	buttonsStatus.changeMode = OFF;	
 	buttonsStatus.howOften = HOW_OFTEN_MIN;
@@ -41,23 +41,23 @@ void buttonsInit()
 
 void buttonsUpdate()
 {
-    buttonsStatus.changeMode = changeModeButton;
+    buttonsStatus.changeMode = !changeModeButton;
 
-    if ( howOftenButton ) {
+    if ( !howOftenButton ) {
 		buttonsStatus.howOften = buttonsStatus.howOften + HOW_OFTEN_INCREMENT;
 		if ( buttonsStatus.howOften >= HOW_OFTEN_MAX + HOW_OFTEN_INCREMENT) {
 			buttonsStatus.howOften = HOW_OFTEN_MIN;
 		}	
     }	
 
-	if ( howLongButton ) {
+	if ( !howLongButton ) {
 		buttonsStatus.howLong = buttonsStatus.howLong + HOW_LONG_INCREMENT;
 		if ( buttonsStatus.howLong >= HOW_LONG_MAX + HOW_LONG_INCREMENT) {
 			buttonsStatus.howLong = HOW_LONG_MIN;
 		}	
 	}
 
-    if ( moistureButton ) {
+    if ( !moistureButton ) {
 		buttonsStatus.moisture = buttonsStatus.moisture + MOISTURE_INCREMENT;
 		if ( buttonsStatus.moisture >= MOISTURE_MAX + MOISTURE_INCREMENT) {
 			buttonsStatus.moisture = MOISTURE_MIN;

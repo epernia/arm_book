@@ -15,7 +15,7 @@
 
 //=====[Declaration and initialization of private global objects]===============
 
-static AnalogIn HL69(A0);
+static AnalogIn HL69(A3);
 	
 //=====[Declaration of external public global variables]=======================
 
