@@ -31,7 +31,7 @@ static int currentStrobeTime = 0;
 void sirenInit()
 {
     sirenPin.period(1.0f);
-    sirenPin.write(0.0f);
+    sirenPin.write(1.0f);
 }
 
 bool sirenStateRead()
@@ -53,7 +53,7 @@ void sirenUpdate( int strobeTime )
             currentStrobeTime = strobeTime;
         }
     } else {
-        sirenPin.write(0.0f);
+        sirenPin.write(1.0f);
         currentStrobeTime = 0;
     }
 }
