@@ -42,6 +42,7 @@ systemEvent motionEvent("MOTION");
 
 static int eventsIndex     = 0;
 static storedEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
+static bool eventAndStateStrSent;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -49,6 +50,8 @@ static storedEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 
 void eventLogUpdate()
 {
+    eventAndStateStrSent = false;
+    
     alarmEvent.stateUpdate( sirenStateRead() );
     gasEvent.stateUpdate(  gasDetectorStateRead() );
     overTempEvent.stateUpdate(  overTemperatureDetectorStateRead() );
@@ -100,11 +103,16 @@ void eventLogWrite( bool currentState, const char* elementName )
     
     arrayOfStoredEvents[eventsIndex].storedInSd = false;
 
-    pcSerialComStringWrite(eventAndStateStr);
-    pcSerialComStringWrite("\r\n");
-    
-    bleComStringWrite(eventAndStateStr);
-    bleComStringWrite("\r\n");
+    if ( !eventAndStateStrSent ) {
+        
+        pcSerialComStringWrite(eventAndStateStr);
+        pcSerialComStringWrite("\r\n");
+        
+        bleComStringWrite(eventAndStateStr);
+        bleComStringWrite("\r\n");
+        
+        eventAndStateStrSent = true;
+    }
 }
 
 bool eventLogSaveToSdCard()
