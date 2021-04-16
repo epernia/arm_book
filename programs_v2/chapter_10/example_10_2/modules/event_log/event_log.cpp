@@ -11,6 +11,7 @@
 #include "date_and_time.h"
 #include "pc_serial_com.h"
 #include "motion_sensor.h"
+#include "system_event.h"
 #include "sd_card.h"
 #include "ble_com.h"
 
@@ -18,13 +19,20 @@
 
 //=====[Declaration of private data types]=====================================
 
-typedef struct systemEvent {
+typedef struct storedEvent {
     time_t seconds;
     char typeOfEvent[EVENT_LOG_NAME_MAX_LENGTH];
     bool storedInSd;
-} systemEvent_t;
+} storedEvent_t;
 
 //=====[Declaration and initialization of public global objects]===============
+
+systemEvent alarmEvent("ALARM");
+systemEvent gasEvent("GAS_DET");
+systemEvent overTempEvent("OVER_TEMP");
+systemEvent ledICEvent("LED_IC");
+systemEvent ledSBEvent("LED_SB");
+systemEvent motionEvent("MOTION");
 
 //=====[Declaration of external public global variables]=======================
 
@@ -32,48 +40,28 @@ typedef struct systemEvent {
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenLastState = OFF;
-static bool gasLastState   = OFF;
-static bool tempLastState  = OFF;
-static bool ICLastState    = OFF;
-static bool SBLastState    = OFF;
-static bool motionLastState         = OFF;
 static int eventsIndex     = 0;
-static systemEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
+static storedEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
+static bool eventAndStateStrSent;
 
 //=====[Declarations (prototypes) of private functions]========================
-
-static void eventLogElementStateUpdate( bool lastState,
-                                        bool currentState,
-                                        const char* elementName );
 
 //=====[Implementations of public functions]===================================
 
 void eventLogUpdate()
 {
-    bool currentState = sirenStateRead();
-    eventLogElementStateUpdate( sirenLastState, currentState, "ALARM" );
-    sirenLastState = currentState;
-
-    currentState = gasDetectorStateRead();
-    eventLogElementStateUpdate( gasLastState, currentState, "GAS_DET" );
-    gasLastState = currentState;
-
-    currentState = overTemperatureDetectorStateRead();
-    eventLogElementStateUpdate( tempLastState, currentState, "OVER_TEMP" );
-    tempLastState = currentState;
-
-    currentState = incorrectCodeStateRead();
-    eventLogElementStateUpdate( ICLastState, currentState, "LED_IC" );
-    ICLastState = currentState;
-
-    currentState = systemBlockedStateRead();
-    eventLogElementStateUpdate( SBLastState ,currentState, "LED_SB" );
-    SBLastState = currentState;
-
-    currentState = motionSensorRead();
-    eventLogElementStateUpdate( motionLastState ,currentState, "MOTION" );
-    motionLastState = currentState;
+    eventAndStateStrSent = false;
+    
+    if ( !eventAndStateStrSent ) alarmEvent.stateUpdate( sirenStateRead() );
+    if ( !eventAndStateStrSent ) gasEvent.stateUpdate(  gasDetectorStateRead() );
+    if ( !eventAndStateStrSent ) 
+        overTempEvent.stateUpdate(  overTemperatureDetectorStateRead() );
+    if ( !eventAndStateStrSent ) 
+        ledICEvent.stateUpdate(  incorrectCodeStateRead() );
+    if ( !eventAndStateStrSent ) 
+        ledSBEvent.stateUpdate( systemBlockedStateRead() );
+    if ( !eventAndStateStrSent ) motionEvent.stateUpdate( motionSensorRead() );
+    
 }
 
 int eventLogNumberOfStoredEvents()
@@ -118,12 +106,14 @@ void eventLogWrite( bool currentState, const char* elementName )
     }
     
     arrayOfStoredEvents[eventsIndex].storedInSd = false;
-
+        
     pcSerialComStringWrite(eventAndStateStr);
     pcSerialComStringWrite("\r\n");
     
     bleComStringWrite(eventAndStateStr);
     bleComStringWrite("\r\n");
+    
+    eventAndStateStrSent = true;
 }
 
 bool eventLogSaveToSdCard()
@@ -165,13 +155,5 @@ bool eventLogSaveToSdCard()
 
     return true;
 }
-//=====[Implementations of private functions]==================================
 
-static void eventLogElementStateUpdate( bool lastState,
-                                        bool currentState,
-                                        const char* elementName )
-{
-    if ( lastState != currentState ) {        
-        eventLogWrite( currentState, elementName );       
-    }
-}
+//=====[Implementations of private functions]==================================
