@@ -3,8 +3,6 @@
 #ifndef _SYSTEM_EVENT_H_
 #define _SYSTEM_EVENT_H_
 
-//=====[Libraries]=============================================================
-
 //=====[Declaration of public defines]=======================================
 
 #define EVENT_LOG_NAME_MAX_LENGTH    15

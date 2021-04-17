@@ -3,8 +3,6 @@
 #ifndef _SD_CARD_H_
 #define _SD_CARD_H_
 
-//=====[Libraries]=============================================================
-
 #define SD_CARD_FILENAME_MAX_LENGTH 32
 
 //=====[Declaration of public defines]=======================================
