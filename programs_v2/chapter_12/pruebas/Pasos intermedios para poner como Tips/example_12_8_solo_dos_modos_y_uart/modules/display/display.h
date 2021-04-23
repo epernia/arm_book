@@ -3,8 +3,6 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-//=====[Libraries]=============================================================
-
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

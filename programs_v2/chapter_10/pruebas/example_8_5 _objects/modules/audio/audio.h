@@ -3,8 +3,6 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
-//=====[Libraries]=============================================================
-
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

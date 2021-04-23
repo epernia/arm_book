@@ -3,8 +3,6 @@
 #ifndef _BRIGHT_CONTROL_H_
 #define _BRIGHT_CONTROL_H_
 
-//=====[Libraries]=============================================================
-
 #include "light_system.h"
 
 //=====[Declaration of public defines]=======================================

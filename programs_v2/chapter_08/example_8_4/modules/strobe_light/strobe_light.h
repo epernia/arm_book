@@ -3,8 +3,6 @@
 #ifndef _STROBE_LIGHT_H_
 #define _STROBE_LIGHT_H_
 
-//=====[Libraries]=============================================================
-
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

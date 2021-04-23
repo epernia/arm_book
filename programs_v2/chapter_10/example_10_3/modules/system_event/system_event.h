@@ -3,8 +3,6 @@
 #ifndef _SYSTEM_EVENT_H_
 #define _SYSTEM_EVENT_H_
 
-//=====[Libraries]=============================================================
-
 #include "event_log.h"
 
 //=====[Declaration of public defines]=======================================

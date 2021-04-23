@@ -3,8 +3,6 @@
 #ifndef _EVENT_LOG_H_
 #define _EVENT_LOG_H_
 
-//=====[Libraries]=============================================================
-
 //=====[Declaration of public defines]=======================================
 
 #define EVENT_LOG_MAX_STORAGE       100
