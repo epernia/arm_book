@@ -3,8 +3,6 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-#include "mbed.h"
-
 //=====[Declaration of public defines]=======================================
 
 #define DISPLAY_EN_PULSE_WAIT_US   50    // 25 us
