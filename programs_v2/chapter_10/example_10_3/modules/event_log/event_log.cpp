@@ -52,12 +52,16 @@ void eventLogUpdate()
 {
     eventAndStateStrSent = false;
     
-    alarmEvent.stateUpdate( sirenStateRead() );
-    gasEvent.stateUpdate(  gasDetectorStateRead() );
-    overTempEvent.stateUpdate(  overTemperatureDetectorStateRead() );
-    ledICEvent.stateUpdate(  incorrectCodeStateRead() );
-    ledSBEvent.stateUpdate( systemBlockedStateRead() );
-    motionEvent.stateUpdate( motionSensorRead() );
+    if ( !eventAndStateStrSent ) alarmEvent.stateUpdate( sirenStateRead() );
+    if ( !eventAndStateStrSent ) gasEvent.stateUpdate(  gasDetectorStateRead() );
+    if ( !eventAndStateStrSent ) 
+        overTempEvent.stateUpdate(  overTemperatureDetectorStateRead() );
+    if ( !eventAndStateStrSent ) 
+        ledICEvent.stateUpdate(  incorrectCodeStateRead() );
+    if ( !eventAndStateStrSent ) 
+        ledSBEvent.stateUpdate( systemBlockedStateRead() );
+    if ( !eventAndStateStrSent ) motionEvent.stateUpdate( motionSensorRead() );
+    
 }
 
 int eventLogNumberOfStoredEvents()
@@ -102,17 +106,14 @@ void eventLogWrite( bool currentState, const char* elementName )
     }
     
     arrayOfStoredEvents[eventsIndex].storedInSd = false;
-
-    if ( !eventAndStateStrSent ) {
         
-        pcSerialComStringWrite(eventAndStateStr);
-        pcSerialComStringWrite("\r\n");
-        
-        bleComStringWrite(eventAndStateStr);
-        bleComStringWrite("\r\n");
-        
-        eventAndStateStrSent = true;
-    }
+    pcSerialComStringWrite(eventAndStateStr);
+    pcSerialComStringWrite("\r\n");
+    
+    bleComStringWrite(eventAndStateStr);
+    bleComStringWrite("\r\n");
+    
+    eventAndStateStrSent = true;
 }
 
 bool eventLogSaveToSdCard()
