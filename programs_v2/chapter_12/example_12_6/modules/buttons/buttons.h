@@ -3,6 +3,8 @@
 #ifndef _BUTTONS_H_
 #define _BUTTONS_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 #define HOW_OFTEN_INCREMENT   1

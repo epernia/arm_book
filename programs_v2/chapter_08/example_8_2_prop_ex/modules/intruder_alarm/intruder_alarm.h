@@ -3,6 +3,8 @@
 #ifndef _INTRUDER_ALARM_H_
 #define _INTRUDER_ALARM_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

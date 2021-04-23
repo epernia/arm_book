@@ -3,6 +3,8 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
+//=====[Libraries]=============================================================
+
 #include "mbed.h"
 
 //=====[Declaration of public defines]=======================================

@@ -39,6 +39,8 @@
 #ifndef _SAPI_TICK_H_
 #define _SAPI_TICK_H_
 
+//=====[Libraries]=============================================================
+
 #include <sapi_datatypes.h>
 
 //=====[Declarations (prototypes) of public functions]=========================

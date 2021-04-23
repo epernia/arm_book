@@ -3,6 +3,8 @@
 #ifndef _ALARM_H_
 #define _ALARM_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

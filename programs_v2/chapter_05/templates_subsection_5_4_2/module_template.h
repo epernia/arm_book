@@ -3,6 +3,8 @@
 #ifndef _MODULE_TEMPLATE_H_
 #define _MODULE_TEMPLATE_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

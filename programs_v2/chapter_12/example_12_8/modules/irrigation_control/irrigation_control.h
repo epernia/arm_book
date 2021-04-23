@@ -3,6 +3,8 @@
 #ifndef _IRRIGATION_CONTROL_H_
 #define _IRRIGATION_CONTROL_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 #define TO_SECONDS   10

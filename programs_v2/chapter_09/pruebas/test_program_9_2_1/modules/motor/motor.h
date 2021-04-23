@@ -3,6 +3,8 @@
 #ifndef _MOTOR_H_
 #define _MOTOR_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

@@ -3,6 +3,8 @@
 #ifndef _LIGHT_SYSTEM_H_
 #define _LIGHT_SYSTEM_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

@@ -2,6 +2,8 @@
    Its purpose is to explain how comments can be included over the code. 
    Version 1.0 - 27th January 2021                                          */
 
+//=====[Libraries]=============================================================
+
 #include "mbed.h"
 #include "arm_book_lib.h"
 

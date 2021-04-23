@@ -3,6 +3,8 @@
 #ifndef _PC_SERIAL_COM_H_
 #define _PC_SERIAL_COM_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================

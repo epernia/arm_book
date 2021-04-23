@@ -3,6 +3,8 @@
 #ifndef _TEMPERATURE_SENSOR_H_
 #define _TEMPERATURE_SENSOR_H_
 
+//=====[Libraries]=============================================================
+
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================
