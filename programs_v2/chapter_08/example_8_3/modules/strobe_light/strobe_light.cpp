@@ -6,7 +6,6 @@
 #include "strobe_light.h"
 
 #include "smart_home_system.h"
-#include "alarm.h"
 
 //=====[Declaration of private defines]======================================
 

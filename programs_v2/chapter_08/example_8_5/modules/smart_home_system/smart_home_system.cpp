@@ -14,7 +14,6 @@
 #include "motor.h"
 #include "gate.h"
 #include "light_system.h"
-#include "audio.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -34,7 +33,6 @@
 
 void smartHomeSystemInit()
 {
-    audioInit();
     userInterfaceInit();
     alarmInit();
     fireAlarmInit();

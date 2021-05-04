@@ -5,7 +5,6 @@
 #include "light_system.h"
 #include "bright_control.h"
 #include "light_level_control.h"
-#include "ldr_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -16,8 +15,6 @@
 //=====[Declaration and initialization of private global objects]===============
 
 //=====[Declaration of external public global variables]=======================
-
-static float lightSystemLoopGain = 0.01;
 
 //=====[Declaration and initialization of public global variables]=============
 
@@ -37,8 +34,7 @@ void lightSystemInit()
 
 void lightSystemUpdate()
 {
-    dutyCycle = dutyCycle + lightSystemLoopGain
-                            * (lightLevelControlRead() - LDRSensorRead());
+	dutyCycle = lightLevelControlRead();
 
     if ( brightnessRGBLedRedChangeEnabled ) setDutyCycle( RGB_LED_RED, dutyCycle );
     if ( brightnessRGBLedGreenChangeEnabled ) setDutyCycle( RGB_LED_GREEN, dutyCycle );

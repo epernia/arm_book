@@ -3,7 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 
-#include "strobe_light.h"
+#include "siren.h"
 
 #include "smart_home_system.h"
 
@@ -13,7 +13,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-PwmOut strobeLight(LED1);
+PwmOut sirenPin(PC_9_ALT0);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -21,39 +21,39 @@ PwmOut strobeLight(LED1);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool strobeLightState = OFF;
+static bool sirenState = OFF;
 static int currentStrobeTime = 0;
 
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void strobeLightInit()
+void sirenInit()
 {
-    strobeLight.period(1.0f);
-    strobeLight.write(0.0f);
+    sirenPin.period(1.0f);
+    sirenPin.write(1.0f);
 }
 
-bool strobeLightStateRead()
+bool sirenStateRead()
 {
-    return strobeLightState;
+    return sirenState;
 }
 
-void strobeLightStateWrite( bool state )
+void sirenStateWrite( bool state )
 {
-    strobeLightState = state;
+    sirenState = state;
 }
 
-void strobeLightUpdate( int strobeTime )
+void sirenUpdate( int strobeTime )
 {
-    if( strobeLightState ) {
+    if( sirenState ) {
         if (currentStrobeTime != strobeTime) {
-            strobeLight.period( (float) strobeTime * 2 / 1000 );
-            strobeLight.write(0.5f);
+            sirenPin.period( (float) strobeTime * 2 / 1000 );
+            sirenPin.write(0.5f);
             currentStrobeTime = strobeTime;
         }
     } else {
-        strobeLight.write(0.0f);
+        sirenPin.write(1.0f);
         currentStrobeTime = 0;
     }
 }

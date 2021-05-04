@@ -17,6 +17,7 @@ typedef enum {
 
 void lightSystemInit();
 void lightSystemUpdate();
+void lightSystemBrightnessChangeEnable( lightSystem_t light, bool state );
 
 //=====[#include guards - end]=================================================
 

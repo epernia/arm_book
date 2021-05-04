@@ -1,8 +1,12 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
+#include "arm_book_lib.h"
 
-#include "gas_sensor.h"
+#include "strobe_light.h"
+
+#include "smart_home_system.h"
+#include "alarm.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -10,7 +14,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalIn mq2(PE_12);
+PwmOut strobeLight(LED1);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -18,23 +22,41 @@ DigitalIn mq2(PE_12);
 
 //=====[Declaration and initialization of private global variables]============
 
+static bool strobeLightState = OFF;
+static int currentStrobeTime = 0;
+
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void gasSensorInit()
+void strobeLightInit()
 {
-    return;
+    strobeLight.period(1.0f);
+    strobeLight.write(0.0f);
 }
 
-void gasSensorUpdate()
+bool strobeLightStateRead()
 {
-    return;
+    return strobeLightState;
 }
 
-bool gasSensorRead()
+void strobeLightStateWrite( bool state )
 {
-    return mq2;
+    strobeLightState = state;
+}
+
+void strobeLightUpdate( int strobeTime )
+{
+    if( strobeLightState ) {
+        if (currentStrobeTime != strobeTime) {
+            strobeLight.period( (float) strobeTime * 2 / 1000 );
+            strobeLight.write(0.5f);
+            currentStrobeTime = strobeTime;
+        }
+    } else {
+        strobeLight.write(0.0f);
+        currentStrobeTime = 0;
+    }
 }
 
 //=====[Implementations of private functions]==================================

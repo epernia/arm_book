@@ -21,6 +21,7 @@
 #include "GLCD_intruder_alarm.h"
 #include "motor.h"
 #include "gate.h"
+#include "light_system.h"
 #include "light_level_control.h"
 
 //=====[Declaration of private defines]======================================
@@ -169,6 +170,24 @@ static void userInterfaceMatrixKeypadUpdate()
             }
             if( keyReleased == 'B' ) {
                 motionSensorDeactivate();
+            }
+            if( keyReleased == '1' ) {
+                lightSystemBrightnessChangeEnable( RGB_LED_RED, true );
+            }
+            if( keyReleased == '2' ) {
+                lightSystemBrightnessChangeEnable( RGB_LED_GREEN, true );
+            }
+            if( keyReleased == '3' ) {
+                lightSystemBrightnessChangeEnable( RGB_LED_BLUE, true );
+            }
+            if( keyReleased == '4' ) {
+                lightSystemBrightnessChangeEnable( RGB_LED_RED, false );
+            }
+            if( keyReleased == '5' ) {
+                lightSystemBrightnessChangeEnable( RGB_LED_GREEN, false );
+            }
+            if( keyReleased == '6' ) {
+                lightSystemBrightnessChangeEnable( RGB_LED_BLUE, false );
             }
         }
     }

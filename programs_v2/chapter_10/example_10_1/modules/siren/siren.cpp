@@ -13,7 +13,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-PwmOut sirenPin(PE_10);
+PwmOut sirenPin(PC_9_ALT0);
 
 //=====[Declaration of external public global variables]=======================
 

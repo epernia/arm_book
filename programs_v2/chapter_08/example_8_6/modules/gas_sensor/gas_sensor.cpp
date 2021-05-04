@@ -1,11 +1,8 @@
 //=====[Libraries]=============================================================
 
 #include "mbed.h"
-#include "arm_book_lib.h"
 
-#include "siren.h"
-
-#include "smart_home_system.h"
+#include "gas_sensor.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -13,7 +10,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-PwmOut sirenPin(PE_10);
+DigitalIn mq2(PE_12);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -21,41 +18,24 @@ PwmOut sirenPin(PE_10);
 
 //=====[Declaration and initialization of private global variables]============
 
-static bool sirenState = OFF;
-static int currentStrobeTime = 0;
-
 //=====[Declarations (prototypes) of private functions]========================
 
 //=====[Implementations of public functions]===================================
 
-void sirenInit()
+void gasSensorInit()
 {
-    sirenPin.period(1.0f);
-    sirenPin.write(1.0f);
+    return;
 }
 
-bool sirenStateRead()
+void gasSensorUpdate()
 {
-    return sirenState;
+    return;
 }
 
-void sirenStateWrite( bool state )
+bool gasSensorRead()
 {
-    sirenState = state;
-}
-
-void sirenUpdate( int strobeTime )
-{
-    if( sirenState ) {
-        if (currentStrobeTime != strobeTime) {
-            sirenPin.period( (float) strobeTime * 2 / 1000 );
-            sirenPin.write(0.5f);
-            currentStrobeTime = strobeTime;
-        }
-    } else {
-        sirenPin.write(1.0f);
-        currentStrobeTime = 0;
-    }
+    return mq2;
 }
 
 //=====[Implementations of private functions]==================================
+
