@@ -34,7 +34,7 @@
 /*==================[inclusions]=============================================*/
 
 #include <cstdint>
-#include <mbed.h> // [Libro ARM] Si lo ponemos en todos los archivos de examples se puede sacar de aca
+#include <mbed.h>
 
 /*==================[c++]====================================================*/
 #ifdef __cplusplus
@@ -76,6 +76,8 @@ extern "C" {
 #endif
 
 /*==================[Function-like macros]===================================*/
+
+#define delay(ms)      thread_sleep_for( ms )
 
 /*==================[typedef]================================================*/
 
