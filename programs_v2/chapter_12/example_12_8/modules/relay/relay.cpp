@@ -27,41 +27,42 @@ static DigitalOut relayControlPin(PF_2);
 
 void relayInit()
 {
-    relayControlPin = ON; // OJO: Acá debería ser High-Z!!!
-
-    return;
+    relayControlPin.mode(OpenDrain);
+    relayControlPin.input();
 }
 
 void relayUpdate()
 {
-	irrigationControlStatus_t irrigationControlStatusLocalCopy;
+    irrigationControlStatus_t irrigationControlStatusLocalCopy;
 
     irrigationControlStatusLocalCopy = irrigationControlRead();
-	
-	switch( irrigationControlStatusLocalCopy.irrigationState ) {
+
+    switch( irrigationControlStatusLocalCopy.irrigationState ) {
 
     case INITIAL_MODE_ASSESSMENT:
-        relayControlPin = ON; // OJO: Acá debería ser High-Z!!!
+        relayControlPin.input(); 
         break;
 
     case CONTINUOUS_MODE_IRRIGATING:
-        relayControlPin = OFF;
+        relayControlPin.output();                                     
+        relayControlPin = LOW;	  
         break;
 
     case PROGRAMMED_MODE_WAITING_TO_IRRIGATE:
-        relayControlPin = ON; // OJO: Acá debería ser High-Z!!!
+        relayControlPin.input(); 
         break;			
 
     case PROGRAMMED_MODE_IRRIGATION_SKIPPED:
-        relayControlPin = ON; // OJO: Acá debería ser High-Z!!!
+        relayControlPin.input(); 
         break;	
 
     case PROGRAMMED_MODE_IRRIGATING:
-        relayControlPin = OFF;
+        relayControlPin.output();                                     
+        relayControlPin = LOW;	  
         break;
 
     default:
-        relayControlPin = ON; // OJO: Acá debería ser High-Z!!!
+        relayControlPin.input(); 
         break;
     }
 }

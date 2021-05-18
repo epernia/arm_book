@@ -82,7 +82,7 @@ void irrigationControlUpdate()
                                             PROGRAMMED_MODE_IRRIGATING;
                 irrigationControlStatus.irrigatedTimeMustBeReset = true;
                 }
-                else if ( ( buttonsStatusLocalCopy.howLong == 0 ) || // Creo este if entero se podría eliminar!
+                else if ( ( buttonsStatusLocalCopy.howLong == 0 ) ||
                         ( (int) (100*HL69AveragedValueLocalCopy) >= buttonsStatusLocalCopy.moisture ) ) { 
                 irrigationControlStatus.irrigationState = 
                                             PROGRAMMED_MODE_IRRIGATION_SKIPPED;

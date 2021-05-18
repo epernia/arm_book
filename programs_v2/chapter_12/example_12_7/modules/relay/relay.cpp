@@ -27,7 +27,8 @@ static DigitalOut relayControlPin(PF_2);
 
 void relayInit()
 {
-    return;
+    relayControlPin.mode(OpenDrain);
+    relayControlPin.input();
 }
 
 void relayUpdate()
@@ -35,8 +36,13 @@ void relayUpdate()
     buttonsStatus_t buttonsStatusLocalCopy;
 
     buttonsStatusLocalCopy = buttonsRead();
-	
-	relayControlPin = buttonsStatusLocalCopy.changeMode;
+
+    if( buttonsStatusLocalCopy.changeMode ) {
+        relayControlPin.output();                                     
+        relayControlPin = LOW;	        
+    } else {
+        relayControlPin.input(); 
+    }
 }
 
 void relayRead()
