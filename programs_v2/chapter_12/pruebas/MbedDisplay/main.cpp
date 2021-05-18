@@ -9,7 +9,7 @@ int main()
 {
     tickInit(1); // 1ms de tick, para que funcione delay() y delay no bloqueante
 
-    displayInit( 20, 4 );
+    displayInit( DISPLAY_TYPE_LCD_HD44780,DISPLAY_CONNECTION_GPIO_4BITS );
 
     char number[3];
 
