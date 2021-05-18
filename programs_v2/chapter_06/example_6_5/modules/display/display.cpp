@@ -78,13 +78,13 @@
 #define DISPLAY_ST7920_LINE3_FIRST_CHARACTER_ADDRESS 8
 #define DISPLAY_ST7920_LINE4_FIRST_CHARACTER_ADDRESS 24
 
-#define ST9720_SPI_SYNCHRONIZING_BIT_STRING 0b11111000
+#define ST7920_SPI_SYNCHRONIZING_BIT_STRING 0b11111000
 
-#define ST9720_SPI_RS_INSTRUCTION 0b000000000
-#define ST9720_SPI_RS_DATA        0b000000010
+#define ST7920_SPI_RS_INSTRUCTION 0b000000000
+#define ST7920_SPI_RS_DATA        0b000000010
 
-#define ST9720_SPI_RW_WRITE 0b000000000
-#define ST9720_SPI_RW_READ  0b000000100
+#define ST7920_SPI_RW_WRITE 0b000000000
+#define ST7920_SPI_RW_READ  0b000000100
 
 //=====[Declaration of private data types]=====================================
 
@@ -116,8 +116,8 @@ DigitalOut displayEN( D9 );
 
 I2C I2C_PCF8574( I2C1_SDA, I2C1_SCL ); 
 
-DigitalOut SPI_ST9720_Chip_Select(SPI1_CS);
-SPI SPI_ST9720(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
+DigitalOut SPI_ST7920_Chip_Select(SPI1_CS);
+SPI SPI_ST7920(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -153,8 +153,8 @@ void displayInit( displayType_t type, displayConnection_t connection )
     }
 
 	if( display.connection == DISPLAY_CONNECTION_SPI) {
-        SPI_ST9720.format( 8, 3 );
-        SPI_ST9720.frequency( 1000000 );
+        SPI_ST7920.format( 8, 3 );
+        SPI_ST7920.frequency( 1000000 );
     }    
 	
 	initial8BitCommunicationIsCompleted = FALSE;    
@@ -393,20 +393,20 @@ static void displayCodeWrite( bool type, uint8_t dataBus )
         break;
   
         case DISPLAY_CONNECTION_SPI:
-            SPI_ST9720.lock();
-            SPI_ST9720_Chip_Select = ON;
+            SPI_ST7920.lock();
+            SPI_ST7920_Chip_Select = ON;
             if ( type == DISPLAY_RS_INSTRUCTION )           
-                SPI_ST9720.write( ST9720_SPI_SYNCHRONIZING_BIT_STRING |
-                                  ST9720_SPI_RW_WRITE |
-                                  ST9720_SPI_RS_INSTRUCTION );                              
+                SPI_ST7920.write( ST7920_SPI_SYNCHRONIZING_BIT_STRING |
+                                  ST7920_SPI_RW_WRITE |
+                                  ST7920_SPI_RS_INSTRUCTION );                              
                 else
-                SPI_ST9720.write( ST9720_SPI_SYNCHRONIZING_BIT_STRING |
-                                  ST9720_SPI_RW_WRITE |
-                                  ST9720_SPI_RS_DATA );               
-            SPI_ST9720.write( dataBus & 0b11110000 );      
-            SPI_ST9720.write( (dataBus<<4) & 0b11110000 );
-            SPI_ST9720_Chip_Select = OFF;
-            SPI_ST9720.unlock();
+                SPI_ST7920.write( ST7920_SPI_SYNCHRONIZING_BIT_STRING |
+                                  ST7920_SPI_RW_WRITE |
+                                  ST7920_SPI_RS_DATA );               
+            SPI_ST7920.write( dataBus & 0b11110000 );      
+            SPI_ST7920.write( (dataBus<<4) & 0b11110000 );
+            SPI_ST7920_Chip_Select = OFF;
+            SPI_ST7920.unlock();
         break;
     }    
 }
