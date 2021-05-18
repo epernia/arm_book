@@ -29,7 +29,7 @@ void userInterfaceInit()
 {
     displayInit( DISPLAY_TYPE_LCD_HD44780,DISPLAY_CONNECTION_GPIO_4BITS );
 	
-	displayClearAndHome();
+	displayClear();
 	displayCharPositionWrite( 0, 0 );
     displayStringWrite( "Mode:Programmed-Wait" );
 	displayCharPositionWrite( 0, 1 );

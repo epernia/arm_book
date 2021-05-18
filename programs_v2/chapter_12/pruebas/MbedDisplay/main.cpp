@@ -21,13 +21,13 @@ int main()
         displayStringWrite( "Como estas?" );
 
         delay( 1000 );
-        displayClearAndHome();
+        displayClear();
 
         displayStringWrite( "Ya funciono de " );
         sprintf( number, "%d", 10 );
         displayStringWrite( number );
 
         delay( 1000 );
-        displayClearAndHome();
+        displayClear();
     }
 }
