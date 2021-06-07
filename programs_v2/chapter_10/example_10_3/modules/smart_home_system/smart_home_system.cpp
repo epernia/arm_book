@@ -38,8 +38,6 @@ char systemBuffer[EVENT_STR_LENGTH*EVENT_LOG_MAX_STORAGE];
 
 void smartHomeSystemInit()
 {
-    audioInit();
-    userInterfaceInit();
     alarmInit();
     fireAlarmInit();
     intruderAlarmInit();
@@ -48,6 +46,8 @@ void smartHomeSystemInit()
     gateInit();
     lightSystemInit();
     sdCardInit();
+    userInterfaceInit();
+    audioInit();
 }
 
 void smartHomeSystemUpdate()
