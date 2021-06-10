@@ -15,25 +15,23 @@
 //=====[Declaration and initialization of private global variables]============
 
 static Ticker ticker;
-static volatile tick_t tickCounter;
-static tick_t tickRate = 1;
+static tick_t tickCounter;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-void tickerCallback( void );
-tick_t tickRead( void );
+void tickerCallback();
+tick_t tickRead();
 
 //=====[Implementations of public functions]===================================
 
-void tickInit( tick_t tickRateValue )
+void tickInit()
 {
-    tickRate = tickRateValue;
-    ticker.attach( tickerCallback, ((float) tickRateValue) / 1000.0 );
+    ticker.attach( tickerCallback, ((float) 0.001 ));
 }
 
 void nonBlockingDelayInit( nonBlockingDelay_t * delay, tick_t durationValue )
 {
-   delay->duration = durationValue / tickRate;
+   delay->duration = durationValue;
    delay->isRunning = false;
 }
 
@@ -42,10 +40,10 @@ bool nonBlockingDelayRead( nonBlockingDelay_t * delay )
    bool timeArrived = false;
 
    if( !delay->isRunning ) {
-      delay->startTime = tickRead();
+      delay->startTime = tickCounter;
       delay->isRunning = true;
    } else {
-      if ( (tick_t)(tickRead() - delay->startTime) >= delay->duration ) {
+      if ( (tick_t)( tickCounter - delay->startTime) >= delay->duration ) {
          timeArrived = true;
          delay->isRunning = false;
       }
@@ -56,7 +54,7 @@ bool nonBlockingDelayRead( nonBlockingDelay_t * delay )
 
 void nonBlockingDelayWrite( nonBlockingDelay_t * delay, tick_t durationValue )
 {
-   delay->duration = durationValue / tickRate;
+   delay->duration = durationValue;
 }
 
 //=====[Implementations of private functions]==================================
@@ -64,9 +62,4 @@ void nonBlockingDelayWrite( nonBlockingDelay_t * delay, tick_t durationValue )
 void tickerCallback( void ) 
 {
     tickCounter++;
-}
-
-tick_t tickRead( void )
-{
-    return tickCounter;
 }

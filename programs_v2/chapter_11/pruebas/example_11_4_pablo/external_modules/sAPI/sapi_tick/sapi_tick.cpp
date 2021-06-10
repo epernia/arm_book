@@ -57,7 +57,7 @@ tick_t tickRateMS = 1; // Used by sapi_delay!!! Default 1ms
 //=====[Declaration and initialization of private global variables]============
 
 // This global variable holds the tick count
-static volatile tick_t tickCounter;
+static tick_t tickCounter;
 
 static callBackFuncPtr_t tickHookFunction = NULL;
 static void* callBackFuncParams = NULL;

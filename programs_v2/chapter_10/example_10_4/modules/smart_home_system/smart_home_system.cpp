@@ -40,7 +40,7 @@ static nonBlockingDelay_t smartHomeSystemDelay;
 
 void smartHomeSystemInit()
 {
-    tickInit(1);
+    tickInit();
     alarmInit();
     fireAlarmInit();
     intruderAlarmInit();
