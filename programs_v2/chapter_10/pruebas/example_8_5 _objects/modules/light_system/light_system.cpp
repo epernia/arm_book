@@ -38,7 +38,7 @@ void lightSystemInit()
 void lightSystemUpdate()
 {
     dutyCycle = dutyCycle + lightSystemLoopGain
-                            * (lightLevelControlRead() - LDRSensorRead());
+                            * (lightLevelControlRead() - ldrSensorRead());
 
     if ( brightnessRGBLedRedChangeEnabled ) setDutyCycle( RGB_LED_RED, dutyCycle );
     if ( brightnessRGBLedGreenChangeEnabled ) setDutyCycle( RGB_LED_GREEN, dutyCycle );

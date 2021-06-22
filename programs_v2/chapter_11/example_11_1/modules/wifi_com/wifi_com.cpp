@@ -24,7 +24,7 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-Serial uartEsp8266( PE_8, PE_7 ); 
+Serial uartWifi( PE_8, PE_7 ); 
 
 //=====[Declaration of external public global variables]=======================
 
@@ -32,10 +32,7 @@ Serial uartEsp8266( PE_8, PE_7 );
 
 //=====[Declaration and initialization of private global variables]============
 
-static const char Response_OK[] = "OK";
-
-static char wifiComApSsid[30] = "";
-static char wifiComApPassword[30] = "";
+static const char responseOk[] = "OK";
 
 static const char * wifiComExpectedResponse;
 static wifiComState_t wifiComState;
@@ -50,25 +47,15 @@ void wifiComStringWrite( char const* str );
 
 //=====[Implementations of public functions]===================================
 
-void wifiComSetWiFiComApSsid( char * APSsid )
+void wifiComInit()
 {
-	strcpy(wifiComApSsid, APSsid);
-}
-
-void wifiComSetWiFiComApPassword( char * APPassword )
-{
-    strcpy(wifiComApPassword, APPassword);
+    uartWifi.baud(ESP8266_BAUD_RATE);
+    wifiComState = WIFI_STATE_INIT;
 }
 
 void wifiComRestart()
 {
 	wifiComState = WIFI_STATE_INIT;
-}
-
-void wifiComInit()
-{
-    uartEsp8266.baud(ESP8266_BAUD_RATE);
-    wifiComState = WIFI_STATE_INIT;
 }
 
 void wifiComUpdate()
@@ -85,7 +72,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_AT:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT\r\n" );
-            wifiComExpectedResponse = Response_OK;
+            wifiComExpectedResponse = responseOk;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_AT;
          }
@@ -94,12 +81,14 @@ void wifiComUpdate()
       case WIFI_STATE_WAIT_AT:
          if (isExpectedResponse()) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
-            pcSerialComStringWrite("AT command responded correctly\r\n\r\n");
+            pcSerialComStringWrite("AT command responded ");
+            pcSerialComStringWrite("correctly\r\n");
             wifiComState = WIFI_STATE_IDLE;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         pcSerialComStringWrite("AT command not responded correctly\r\n\r\n");
-         wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("AT command not responded ");
+            pcSerialComStringWrite("correctly\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
       break;
 
@@ -113,8 +102,8 @@ void wifiComUpdate()
 
 bool wifiComCharRead( char* receivedChar )
 {
-    if( uartEsp8266.readable() ) {
-        *receivedChar = uartEsp8266.getc();
+    if( uartWifi.readable() ) {
+        *receivedChar = uartWifi.getc();
         return true;
     }
     return false;
@@ -122,24 +111,24 @@ bool wifiComCharRead( char* receivedChar )
 
 void wifiComStringWrite( char const* str )
 {
-    uartEsp8266.printf( "%s", str );
+    uartWifi.printf( "%s", str );
 }
 
 static bool isExpectedResponse()
 {
-   static int erStringPositionIndex = 0;
+   static int responseStringPositionIndex = 0;
    char charReceived;
    bool moduleResponse = FALSE;
 
    if( wifiComCharRead(&charReceived) ){
-      if (charReceived == wifiComExpectedResponse[erStringPositionIndex]) {
-         erStringPositionIndex++;
-         if (wifiComExpectedResponse[erStringPositionIndex] == '\0') {
-            erStringPositionIndex = 0;
+      if (charReceived == wifiComExpectedResponse[responseStringPositionIndex]) {
+         responseStringPositionIndex++;
+         if (wifiComExpectedResponse[responseStringPositionIndex] == '\0') {
+            responseStringPositionIndex = 0;
             moduleResponse = TRUE;
          }
       } else {
-         erStringPositionIndex = 0;
+         responseStringPositionIndex = 0;
       }
    }
    return moduleResponse;

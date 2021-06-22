@@ -17,9 +17,9 @@ typedef enum{
 
 //=====[Declaration and initialization of public global objects]===============
 
-//static Serial uartEsp8266( PC_10, PC_11 );
-//static Serial uartEsp8266( D42, D41 );
-static Serial uartEsp8266( PC_12, PD_2 );
+//static Serial uartWifi( PC_10, PC_11 );
+//static Serial uartWifi( D42, D41 );
+static Serial uartWifi( PC_12, PD_2 );
 
 //=====[Declaration of external public global variables]=======================
 
@@ -45,7 +45,7 @@ static void esp8266UartStringWrite( char const* str );
 
 void wifiModuleInit()
 {  
-    uartEsp8266.baud(ESP8266_BAUD_RATE);
+    uartWifi.baud(ESP8266_BAUD_RATE);
     esp8266State = ESP8266_IDLE;
 }
 
@@ -133,8 +133,8 @@ wifiModuleRequestResult_t wifiModuleDetectionResponse()
 
 static bool esp8266UartByteRead( char* receivedByte )
 {
-    if( uartEsp8266.readable() ) {
-        *receivedByte = uartEsp8266.getc();
+    if( uartWifi.readable() ) {
+        *receivedByte = uartWifi.getc();
         return true;
     }
     return false;
@@ -142,7 +142,7 @@ static bool esp8266UartByteRead( char* receivedByte )
 
 static void esp8266UartByteWrite( char byteToSend )
 {
-    uartEsp8266.putc( byteToSend );
+    uartWifi.putc( byteToSend );
 }
 
 static void esp8266UartStringWrite( char const* str )

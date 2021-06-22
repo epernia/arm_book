@@ -1,6 +1,5 @@
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
 #include "arm_book_lib.h"
 
 #include "motion_sensor.h"

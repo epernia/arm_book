@@ -27,8 +27,6 @@ typedef enum{
     PC_SERIAL_COMMANDS,
     PC_SERIAL_GET_CODE,
     PC_SERIAL_SAVE_NEW_CODE,
-    PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID,
-    PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD,
 } pcSerialComMode_t;
 
 //=====[Declaration and initialization of public global objects]===============
@@ -49,19 +47,14 @@ static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfCharsInFileName = 0;
-static int numberOfCharsInAPCredentials = 0;
 
 static char fileName[40];
-static char APSsid[40];
-static char APPassword[40];
 
 //=====[Declarations (prototypes) of private functions]========================
 
 static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
 static void pcSerialComGetFileName( char receivedChar );
-static void pcSerialComGetWiFiComApSsid( char receivedChar );
-static void pcSerialComGetWiFiComApPassword( char receivedChar );
 static void pcSerialComShowSdCardFile( char * readBuffer ) ;
 
 static void pcSerialComCommandUpdate( char receivedChar );
@@ -85,13 +78,12 @@ static void commandEventLogSaveToSdCard();
 static void commandsdCardListFiles();
 static void commandGetFileName();
 static void commandRestartWifiCom();
-static void commandSetWifiComApSsid();
-static void commandSetWifiComApPassword();
 
 //=====[Implementations of public functions]===================================
 
 void pcSerialComInit()
 {
+    uartUsb.baud(115200);
     availableCommands();
 }
 
@@ -132,12 +124,6 @@ void pcSerialComUpdate()
 
             case PC_SERIAL_SAVE_NEW_CODE:
                 pcSerialComSaveNewCodeUpdate( receivedChar );
-            break;
-            case PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID:
-                pcSerialComGetWiFiComApSsid( receivedChar );
-            break;
-            case PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD:
-                pcSerialComGetWiFiComApPassword( receivedChar );
             break;
             default:
                 pcSerialComMode = PC_SERIAL_COMMANDS;
@@ -206,8 +192,6 @@ static void pcSerialComCommandUpdate( char receivedChar )
         case 'l': case 'L': commandsdCardListFiles(); break;
         case 'o': case 'O': commandGetFileName(); break;
         case 'a': case 'A': commandRestartWifiCom(); break;
-        case 'd': case 'D': commandSetWifiComApSsid(); break;
-        case 'r': case 'R': commandSetWifiComApPassword(); break;
         default: availableCommands(); break;
     } 
 }
@@ -233,8 +217,6 @@ static void availableCommands()
     uartUsb.printf( "Press 'l' or 'L' to list all the files in the root directory of the SD card\r\n" );
     uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
     uartUsb.printf( "Press 'a' or 'A' to restart the  Wi-Fi communication\r\n" );
-    uartUsb.printf( "Press 'd' or 'D' to set Wi-Fi AP SSID credential\r\n" );
-    uartUsb.printf( "Press 'r' or 'R' to set Wi-Fi AP Password credential\r\n" );
     uartUsb.printf( "\r\n" );
 }
 
@@ -414,27 +396,9 @@ static void commandRestartWifiCom()
     wifiComRestart();
 }
 
-static void commandSetWifiComApSsid()
-{
-    pcSerialComStringWrite("\r\nPlease provide the SSID of the Wi-Fi "); 
-    pcSerialComStringWrite("Access Point and press the Enter key\r\n");
-    pcSerialComStringWrite("> ");
-    pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID;
-    numberOfCharsInAPCredentials = 0;
-}
-
-static void commandSetWifiComApPassword()
-{
-    pcSerialComStringWrite("\r\nPlease provide the  APPassword of the Wi-Fi "); 
-    pcSerialComStringWrite("Access Point and press the Enter key\r\n");
-    pcSerialComStringWrite("> ");
-    pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD;
-    numberOfCharsInAPCredentials = 0;
-}
-
 static void pcSerialComGetFileName( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         fileName[numberOfCharsInFileName] = NULL;
         numberOfCharsInFileName = 0;
@@ -446,33 +410,7 @@ static void pcSerialComGetFileName( char receivedChar )
     }
 }
 
-static void pcSerialComGetWiFiComApSsid( char receivedChar )
-{
-    if ( receivedChar == '.' ) {
-        pcSerialComMode = PC_SERIAL_COMMANDS;
-        APSsid[numberOfCharsInAPCredentials] = NULL;
-        wifiComSetWiFiComApSsid(APSsid);
-        uartUsb.printf( "\r\nWi-Fi Access Point SSID configured\r\n\r\n" );
-    } else {
-        APSsid[numberOfCharsInAPCredentials] = receivedChar;
-        uartUsb.printf( "%c", receivedChar );
-        numberOfCharsInAPCredentials++;
-    }
-}
 
-static void pcSerialComGetWiFiComApPassword( char receivedChar )
-{
-    if ( receivedChar == '.' ) {
-        pcSerialComMode = PC_SERIAL_COMMANDS;
-        APPassword[numberOfCharsInAPCredentials] = NULL;
-        wifiComSetWiFiComApPassword(APPassword);
-        uartUsb.printf( "\r\nWi-Fi Access Point password configured\r\n\r\n" );
-    } else {
-        APPassword[numberOfCharsInAPCredentials] = receivedChar;
-        uartUsb.printf( "*" );
-        numberOfCharsInAPCredentials++;
-    }
-}
 
 static void pcSerialComShowSdCardFile( char* fileName ) 
 {

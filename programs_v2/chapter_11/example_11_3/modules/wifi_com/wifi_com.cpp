@@ -50,7 +50,7 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-Serial uartEsp8266( PE_8, PE_7 ); 
+Serial uartWifi( PE_8, PE_7 ); 
 
 //=====[Declaration of external public global variables]=======================
 
@@ -58,17 +58,17 @@ Serial uartEsp8266( PE_8, PE_7 );
 
 //=====[Declaration and initialization of private global variables]============
 
-static const char Response_OK[] = "OK";
-static const char Response_CWJAP_OK[] = "+CWJAP:";
-static const char Response_CWJAP_1[] = "WIFI CONNECTED";
-static const char Response_CWJAP_2[] = "WIFI GOT IP";
-static const char Response_CIFSR[] = "+CIFSR:STAIP,\"";
-static const char Response_STATUS_3[] = "STATUS:3";
-static const char Response_CIPSTATUS[] = "+CIPSTATUS:";
-static const char Response_SEND_OK[] = "SEND OK";
-static const char Response_CIPCLOSE[] = "CLOSED";
+static const char responseOk[] = "OK";
+static const char responseCwjapOk[] = "+CWJAP:";
+static const char responseCwjap1[] = "WIFI CONNECTED";
+static const char responseCwjap2[] = "WIFI GOT IP";
+static const char responseCifsr[] = "+CIFSR:STAIP,\"";
+static const char responseStatus3[] = "STATUS:3";
+static const char responseCipstatus[] = "+CIPSTATUS:";
+static const char responseSendOk[] = "SEND OK";
+static const char responseCipclose[] = "CLOSED";
 
-static int CurrentConnectionId;
+static int currentConnectionId;
 static char wifiComApSsid[30] = "";
 static char wifiComApPassword[30] = "";
 static char wifiComIpAddress[20];
@@ -112,7 +112,7 @@ void wifiComRestart()
 
 void wifiComInit()
 {
-    uartEsp8266.baud(ESP8266_BAUD_RATE);
+    uartWifi.baud(ESP8266_BAUD_RATE);
     wifiComState = WIFI_STATE_INIT;
 }
 
@@ -133,7 +133,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_AT:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT\r\n" );
-            wifiComExpectedResponse = Response_OK;
+            wifiComExpectedResponse = responseOk;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_AT;
          }
@@ -153,7 +153,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_CWMODE:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT+CWMODE=1\r\n" );
-            wifiComExpectedResponse = Response_OK;
+            wifiComExpectedResponse = responseOk;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CWMODE;
          }
@@ -173,7 +173,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_CWJAP_IS_SET:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT+CWJAP?\r\n" );
-            wifiComExpectedResponse = Response_CWJAP_OK;
+            wifiComExpectedResponse = responseCwjapOk;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CWJAP_IS_SET;
          }
@@ -181,7 +181,7 @@ void wifiComUpdate()
 
       case WIFI_STATE_WAIT_CWJAP_IS_SET:
          if (isExpectedResponse()) {
-            wifiComExpectedResponse = Response_OK;
+            wifiComExpectedResponse = responseOk;
             wifiComState = WIFI_STATE_SEND_CIFSR;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
@@ -198,7 +198,7 @@ void wifiComUpdate()
             wifiComStringWrite( wifiComApPassword );
             wifiComStringWrite( "\"" );
             wifiComStringWrite( "\r\n" );
-            wifiComExpectedResponse = Response_CWJAP_1;
+            wifiComExpectedResponse = responseCwjap1;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_10_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CWJAP_SET_1;
          }
@@ -206,7 +206,7 @@ void wifiComUpdate()
 
       case WIFI_STATE_WAIT_CWJAP_SET_1:
          if (isExpectedResponse()) {
-            wifiComExpectedResponse = Response_CWJAP_2;
+            wifiComExpectedResponse = responseCwjap2;
             wifiComState = WIFI_STATE_WAIT_CWJAP_SET_2;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
@@ -230,7 +230,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_CIFSR:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT+CIFSR\r\n" );
-            wifiComExpectedResponse = Response_CIFSR;
+            wifiComExpectedResponse = responseCifsr;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CIFSR;
          }
@@ -263,7 +263,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_CIPMUX:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT+CIPMUX=1\r\n" );
-            wifiComExpectedResponse = Response_OK;
+            wifiComExpectedResponse = responseOk;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CIPMUX;
          }
@@ -283,7 +283,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_CIPSERVER:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT+CIPSERVER=1,80\r\n" );
-            wifiComExpectedResponse = Response_OK;
+            wifiComExpectedResponse = responseOk;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CIPSERVER;
          }
@@ -303,7 +303,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_CIPSTATUS:
          if (nonBlockingDelayRead(&wifiComDelay)) {
             wifiComStringWrite( "AT+CIPSTATUS\r\n" );
-            wifiComExpectedResponse = Response_STATUS_3;
+            wifiComExpectedResponse = responseStatus3;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CIPSTATUS_STATUS_3;
          }
@@ -312,7 +312,7 @@ void wifiComUpdate()
       case WIFI_STATE_WAIT_CIPSTATUS_STATUS_3:
          if (isExpectedResponse()) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
-            wifiComExpectedResponse = Response_CIPSTATUS;
+            wifiComExpectedResponse = responseCipstatus;
             wifiComState = WIFI_STATE_WAIT_CIPSTATUS;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
@@ -333,8 +333,8 @@ void wifiComUpdate()
 
       case WIFI_STATE_WAIT_GET_ID:
          if( wifiComCharRead(&receivedCharWifiCom) ){
-            CurrentConnectionId = receivedCharWifiCom;
-            wifiComExpectedResponse = Response_OK;
+            currentConnectionId = receivedCharWifiCom;
+            wifiComExpectedResponse = responseOk;
             wifiComState = WIFI_STATE_WAIT_CIPSTATUS_OK;
          }
       break;
@@ -351,10 +351,10 @@ void wifiComUpdate()
 
       case WIFI_STATE_SEND_CIPSEND:
          lengthOfHttpLines = (strlen(httpWebPage));
-         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", CurrentConnectionId, lengthOfHttpLines );
+         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", currentConnectionId, lengthOfHttpLines );
          wifiComStringWrite( strToSend );
          wifiComState = WIFI_STATE_WAIT_CIPSEND;
-         wifiComExpectedResponse = Response_OK;
+         wifiComExpectedResponse = responseOk;
       break;
 
       case WIFI_STATE_WAIT_CIPSEND:
@@ -371,7 +371,7 @@ void wifiComUpdate()
       case WIFI_STATE_SEND_HTTP:
         wifiComStringWrite( httpWebPage );
         wifiComState = WIFI_STATE_WAIT_HTTP;
-        wifiComExpectedResponse = Response_SEND_OK;
+        wifiComExpectedResponse = responseSendOk;
       break;
 
       case WIFI_STATE_WAIT_HTTP:
@@ -387,9 +387,9 @@ void wifiComUpdate()
 
       case WIFI_STATE_SEND_CIPCLOSE:
          if (nonBlockingDelayRead(&wifiComDelay)) {
-            sprintf( strToSend, "AT+CIPCLOSE=%c\r\n", CurrentConnectionId );
+            sprintf( strToSend, "AT+CIPCLOSE=%c\r\n", currentConnectionId );
             wifiComStringWrite( strToSend );
-            wifiComExpectedResponse  = Response_CIPCLOSE;
+            wifiComExpectedResponse  = responseCipclose;
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_WAIT_CIPCLOSE;
          }
@@ -416,8 +416,8 @@ void wifiComUpdate()
 
 bool wifiComCharRead( char* receivedChar )
 {
-    if( uartEsp8266.readable() ) {
-        *receivedChar = uartEsp8266.getc();
+    if( uartWifi.readable() ) {
+        *receivedChar = uartWifi.getc();
         return true;
     }
     return false;
@@ -425,24 +425,24 @@ bool wifiComCharRead( char* receivedChar )
 
 void wifiComStringWrite( char const* str )
 {
-    uartEsp8266.printf( "%s", str );
+    uartWifi.printf( "%s", str );
 }
 
 static bool isExpectedResponse()
 {
-   static int erStringPositionIndex = 0;
+   static int responseStringPositionIndex = 0;
    char charReceived;
    bool moduleResponse = FALSE;
 
    if( wifiComCharRead(&charReceived) ){
-      if (charReceived == wifiComExpectedResponse[erStringPositionIndex]) {
-         erStringPositionIndex++;
-         if (wifiComExpectedResponse[erStringPositionIndex] == '\0') {
-            erStringPositionIndex = 0;
+      if (charReceived == wifiComExpectedResponse[responseStringPositionIndex]) {
+         responseStringPositionIndex++;
+         if (wifiComExpectedResponse[responseStringPositionIndex] == '\0') {
+            responseStringPositionIndex = 0;
             moduleResponse = TRUE;
          }
       } else {
-         erStringPositionIndex = 0;
+         responseStringPositionIndex = 0;
       }
    }
    return moduleResponse;

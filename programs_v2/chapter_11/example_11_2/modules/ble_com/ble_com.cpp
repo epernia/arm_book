@@ -4,6 +4,7 @@
 
 #include "ble_com.h"
 #include "gate.h"
+#include "event_log.h"
 
 //=====[Declaration of private defines]======================================
 
@@ -32,6 +33,7 @@ void bleComUpdate()
         switch (receivedChar) {
             case 'O': gateOpen(); break;
             case 'C': gateClose(); break;
+            case 'b': eventLogReport(); break;
         }
     }
 }

@@ -93,6 +93,7 @@ static void commandGetWifiComAssignedIp();
 
 void pcSerialComInit()
 {
+    uartUsb.baud(115200);
     availableCommands();
 }
 
@@ -444,7 +445,7 @@ static void commandGetWifiComAssignedIp()
 
 static void pcSerialComGetFileName( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         fileName[numberOfCharsInFileName] = NULL;
         numberOfCharsInFileName = 0;
@@ -458,7 +459,7 @@ static void pcSerialComGetFileName( char receivedChar )
 
 static void pcSerialComGetWiFiComApSsid( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         APSsid[numberOfCharsInAPCredentials] = NULL;
         wifiComSetWiFiComApSsid(APSsid);
@@ -472,7 +473,7 @@ static void pcSerialComGetWiFiComApSsid( char receivedChar )
 
 static void pcSerialComGetWiFiComApPassword( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         APPassword[numberOfCharsInAPCredentials] = NULL;
         wifiComSetWiFiComApPassword(APPassword);

@@ -11,7 +11,7 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-AnalogIn LDR(A2);
+AnalogIn ldr(A2);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -23,13 +23,13 @@ AnalogIn LDR(A2);
 
 //=====[Implementations of public functions]===================================
 
-void LDRSensorInit() { }
+void ldrSensorInit() { }
 
-void LDRSensorUpdate() { }
+void ldrSensorUpdate() { }
 
-float LDRSensorRead()
+float ldrSensorRead()
 {
-    return LDR.read();
+    return ldr.read();
 }
 
 //=====[Implementations of private functions]==================================

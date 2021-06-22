@@ -16,7 +16,6 @@
 #include "motion_sensor.h"
 #include "matrix_keypad.h"
 #include "display.h"
-#include "GLCD_clear_screen.h"
 #include "GLCD_fire_alarm.h"
 #include "GLCD_intruder_alarm.h"
 #include "motor.h"

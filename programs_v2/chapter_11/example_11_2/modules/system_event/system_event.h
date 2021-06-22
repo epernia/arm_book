@@ -17,10 +17,10 @@ class systemEvent {
     public:
         systemEvent(const char* eventLabel);
         void stateUpdate( bool state );
+        bool lastStateRead( );
+        char* getLabel( );  
     private:
         void lastStateUpdate(bool state);
-        bool lastStateRead( );
-        char* getLabel( );        
         char label[EVENT_LOG_NAME_MAX_LENGTH];
         bool lastState;
 };

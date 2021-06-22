@@ -9,12 +9,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void wifiComSetWiFiComApSsid( char * APSsid );
-void wifiComSetWiFiComApPassword( char * APPassword );
-
-void wifiComRestart();
 void wifiComInit();
 void wifiComUpdate();
+void wifiComRestart();
 
 //=====[#include guards - end]=================================================
 

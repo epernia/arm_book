@@ -3,10 +3,6 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-//=====[Libraries]=============================================================
-
-#include "mbed.h"
-
 //=====[Declaration of public defines]=======================================
 
 //=====[Declaration of public data types]======================================
@@ -28,30 +24,22 @@ typedef enum {
      DISPLAY_MODE_GRAPHIC
 } displayMode_t;
 
-// Display object structure
 typedef struct {
-   displayType_t type;
    displayConnection_t connection;
-   displayMode_t mode;
+   displayType_t type;                                                                   
+   displayMode_t mode;                                                  
 } display_t;
 
 //=====[Declarations (prototypes) of public functions]=========================
- 
-// LCD and GLCD display
 
 void displayInit( displayType_t type, displayConnection_t connection );
  
-void displayCharPositionWrite( uint8_t charPositionX, 
-                               uint8_t charPositionY );
+void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY );
 
 void displayStringWrite( char const * str );
 
 void displayClear( void );
 
-void displayHome( void );
-
-void displayClearAndHome( void );
- 
 // GLCD display only
 
 void displayModeWrite( displayMode_t mode );

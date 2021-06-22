@@ -41,7 +41,7 @@ void lightSystemUpdate()
     static int i = 0;
     
     dutyCycle = dutyCycle + lightSystemLoopGain
-                            * (lightLevelControlRead() - LDRSensorRead());
+                            * (lightLevelControlRead() - ldrSensorRead());
 
     if ( brightnessRGBLedRedChangeEnabled ) setDutyCycle( RGB_LED_RED, dutyCycle );
     if ( brightnessRGBLedGreenChangeEnabled ) setDutyCycle( RGB_LED_GREEN, dutyCycle );
@@ -53,7 +53,7 @@ void lightSystemUpdate()
         pcSerialComFloatWrite( lightLevelControlRead() );
         pcSerialComStringWrite(" | ");
         pcSerialComStringWrite("LDR: ");
-        pcSerialComFloatWrite( LDRSensorRead() );
+        pcSerialComFloatWrite( ldrSensorRead() );
         pcSerialComStringWrite("\r\n");
     }
     i++;

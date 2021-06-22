@@ -7,6 +7,7 @@
 
 //=====[Declaration of public defines]=======================================
 
+#define EVENT_LOG_MAX_REPORT         72
 #define EVENT_LOG_MAX_STORAGE       100
 #define EVENT_LOG_NAME_MAX_LENGTH    13
 #define EVENT_HEAD_STR_LENGTH         9
@@ -28,6 +29,7 @@ int eventLogNumberOfStoredEvents();
 void eventLogRead( int index, char* str );
 void eventLogWrite( bool currentState, const char* elementName );
 bool eventLogSaveToSdCard();
+void eventLogReport();
 
 //=====[#include guards - end]=================================================
 
