@@ -10,7 +10,7 @@
 #include "temperature_sensor.h"
 #include "gas_sensor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define TEMPERATURE_C_LIMIT_ALARM               50.0
 

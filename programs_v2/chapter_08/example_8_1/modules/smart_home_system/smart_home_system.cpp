@@ -15,7 +15,7 @@
 #include "gate.h"
 #include "light_system.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

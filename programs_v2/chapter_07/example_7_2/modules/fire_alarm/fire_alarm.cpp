@@ -14,7 +14,7 @@
 #include "gas_sensor.h"
 #include "matrix_keypad.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define TEMPERATURE_C_LIMIT_ALARM               50.0
 #define STROBE_TIME_GAS               1000

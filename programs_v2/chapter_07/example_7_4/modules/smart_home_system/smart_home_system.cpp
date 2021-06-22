@@ -15,7 +15,7 @@
 #include "alarm.h"
 #include "intruder_alarm.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

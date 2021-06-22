@@ -15,7 +15,7 @@
 #include "matrix_keypad.h"
 #include "display.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define DISPLAY_REFRESH_TIME_MS 1000
 

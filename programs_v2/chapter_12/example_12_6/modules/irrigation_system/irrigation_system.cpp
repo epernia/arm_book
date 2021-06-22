@@ -7,7 +7,7 @@
 #include "user_interface.h"
 #include "moisture_sensor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

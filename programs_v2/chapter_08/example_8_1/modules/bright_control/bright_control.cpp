@@ -7,7 +7,7 @@
 #include "light_level_control.h"
 #include "pc_serial_com.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define LEDS_QUANTITY 3
 

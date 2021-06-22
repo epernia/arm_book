@@ -12,7 +12,7 @@
 #include "pc_serial_com.h"
 #include "motion_sensor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

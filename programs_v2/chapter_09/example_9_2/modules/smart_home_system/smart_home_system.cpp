@@ -17,7 +17,7 @@
 #include "audio.h"
 #include "sd_card.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

@@ -18,7 +18,7 @@
 #include "sd_card.h"
 #include "ble_com.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

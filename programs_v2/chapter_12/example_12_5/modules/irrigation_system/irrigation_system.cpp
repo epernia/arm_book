@@ -6,7 +6,7 @@
 #include "buttons.h"
 #include "user_interface.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

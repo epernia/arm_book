@@ -8,7 +8,7 @@
 #include "moisture_sensor.h"
 #include "relay.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

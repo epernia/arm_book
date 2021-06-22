@@ -5,7 +5,7 @@
 
 #include "moisture_sensor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define NUMBER_OF_AVERAGED_SAMPLES    10
 

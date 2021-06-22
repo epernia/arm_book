@@ -2,7 +2,7 @@
 
 #include "non_blocking_delay.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

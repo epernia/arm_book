@@ -13,7 +13,7 @@
 #include "motion_sensor.h"
 #include "system_event.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define EVENT_LOG_MAX_STORAGE       100
 

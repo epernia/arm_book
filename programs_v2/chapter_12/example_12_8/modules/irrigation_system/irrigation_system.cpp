@@ -10,7 +10,7 @@
 #include "irrigation_control.h"
 #include "irrigation_timer.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

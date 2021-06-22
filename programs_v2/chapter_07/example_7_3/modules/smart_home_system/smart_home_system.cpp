@@ -13,7 +13,7 @@
 #include "gate.h"
 #include "motion_sensor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

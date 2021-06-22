@@ -12,7 +12,7 @@
 #include "esp8266_http_server.h"
 #include "http_server.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define WIFI_MAX_DELAY    60000
 

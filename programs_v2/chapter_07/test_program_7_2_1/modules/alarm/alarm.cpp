@@ -11,7 +11,7 @@
 #include "fire_alarm.h"
 #include "intruder_alarm.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define STROBE_TIME_INTRUDER_ALARM          1000
 #define STROBE_TIME_FIRE_ALARM               500

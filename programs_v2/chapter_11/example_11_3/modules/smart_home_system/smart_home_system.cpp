@@ -21,7 +21,7 @@
 #include "non_blocking_delay.h"
 #include "wifi_com.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

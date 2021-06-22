@@ -6,7 +6,7 @@
 
 #include "smart_home_system.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define LM35_NUMBER_OF_AVG_SAMPLES    10
 

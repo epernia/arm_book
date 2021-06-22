@@ -24,7 +24,7 @@
 #include "light_system.h"
 #include "light_level_control.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define DISPLAY_REFRESH_TIME_REPORT_MS 1000
 #define DISPLAY_REFRESH_TIME_ALARM_MS 300

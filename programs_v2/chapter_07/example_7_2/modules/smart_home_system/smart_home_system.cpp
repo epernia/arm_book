@@ -12,7 +12,7 @@
 #include "motor.h"
 #include "gate.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

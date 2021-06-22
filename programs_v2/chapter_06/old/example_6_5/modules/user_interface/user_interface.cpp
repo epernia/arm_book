@@ -16,7 +16,7 @@
 #include "display.h"
 #include "GLCD_fire_alarm.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 #define DISPLAY_REFRESH_TIME_REPORT_MS 1000
 #define DISPLAY_REFRESH_TIME_ALARM_MS 300

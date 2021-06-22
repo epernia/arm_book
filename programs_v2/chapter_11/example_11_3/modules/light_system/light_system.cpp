@@ -7,7 +7,7 @@
 #include "light_level_control.h"
 #include "ldr_sensor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

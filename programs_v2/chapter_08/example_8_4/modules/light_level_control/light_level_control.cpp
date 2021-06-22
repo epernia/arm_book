@@ -5,7 +5,7 @@
 #include "smart_home_system.h"
 #include "light_level_control.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

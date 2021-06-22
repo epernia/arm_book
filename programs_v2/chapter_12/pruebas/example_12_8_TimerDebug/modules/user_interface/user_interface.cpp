@@ -11,7 +11,7 @@
 #include "irrigation_control.h"
 #include "irrigation_timer.h" // Esto no va en el chapter.
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

@@ -6,7 +6,7 @@
 #include "bright_control.h"
 #include "light_level_control.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

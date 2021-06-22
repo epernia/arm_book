@@ -16,7 +16,7 @@
 #include "light_system.h"
 #include "audio.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

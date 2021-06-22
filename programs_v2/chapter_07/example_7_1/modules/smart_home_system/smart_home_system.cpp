@@ -11,7 +11,7 @@
 #include "event_log.h"
 #include "motor.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 

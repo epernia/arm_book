@@ -7,7 +7,7 @@
 #include "buttons.h"
 #include "display.h"
 
-//=====[Declaration of private defines]======================================
+//=====[Declaration of private defines]========================================
 
 //=====[Declaration of private data types]=====================================
 
