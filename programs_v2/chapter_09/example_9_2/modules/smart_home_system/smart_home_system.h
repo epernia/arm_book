@@ -3,7 +3,7 @@
 #ifndef _SMART_HOME_SYSTEM_H_
 #define _SMART_HOME_SYSTEM_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define SYSTEM_TIME_INCREMENT_MS   10
 

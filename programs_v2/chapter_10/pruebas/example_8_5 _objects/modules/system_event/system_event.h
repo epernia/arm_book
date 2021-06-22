@@ -3,13 +3,13 @@
 #ifndef _SYSTEM_EVENT_H_
 #define _SYSTEM_EVENT_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define EVENT_LOG_NAME_MAX_LENGTH    15
 
 //=====[Declaration of public data types]======================================
 
-//=====[Declaration of public classes]======================================
+//=====[Declaration of public classes]=========================================
 
 class systemEvent {
     public:

@@ -3,7 +3,7 @@
 #ifndef _IRRIGATION_SYSTEM_H_
 #define _IRRIGATION_SYSTEM_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define SYSTEM_TIME_INCREMENT_MS   100
 

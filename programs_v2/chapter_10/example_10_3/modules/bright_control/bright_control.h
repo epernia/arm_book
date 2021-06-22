@@ -7,7 +7,7 @@
 
 #include "light_system.h"
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 

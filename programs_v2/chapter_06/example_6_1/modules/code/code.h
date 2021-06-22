@@ -3,7 +3,7 @@
 #ifndef _CODE_H_
 #define _CODE_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define CODE_NUMBER_OF_KEYS   4
 

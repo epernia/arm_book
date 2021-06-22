@@ -5,7 +5,7 @@
 
 //=====[Libraries]=============================================================
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define EVENT_LOG_MAX_STORAGE       100
 #define EVENT_LOG_NAME_MAX_LENGTH    13

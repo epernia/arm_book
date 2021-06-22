@@ -3,7 +3,7 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define DISPLAY_EN_PULSE_WAIT_US   50    // 25 us
 #define DISPLAY_LOW_WAIT_US        50    // 25 us

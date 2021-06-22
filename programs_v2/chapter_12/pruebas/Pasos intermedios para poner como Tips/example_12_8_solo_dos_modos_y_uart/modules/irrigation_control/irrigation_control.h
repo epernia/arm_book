@@ -3,7 +3,7 @@
 #ifndef _IRRIGATION_CONTROL_H_
 #define _IRRIGATION_CONTROL_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define TO_SECONDS   10
 #define TO_HOURS     36000

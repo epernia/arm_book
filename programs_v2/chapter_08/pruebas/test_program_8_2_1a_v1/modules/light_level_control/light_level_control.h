@@ -3,7 +3,7 @@
 #ifndef _LIGHT_LEVEL_CONTROL_H_
 #define _LIGHT_LEVEL_CONTROL_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 

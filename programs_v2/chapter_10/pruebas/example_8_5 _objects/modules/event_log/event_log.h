@@ -3,7 +3,7 @@
 #ifndef _EVENT_LOG_H_
 #define _EVENT_LOG_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 

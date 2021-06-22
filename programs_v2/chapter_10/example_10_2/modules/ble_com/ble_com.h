@@ -3,7 +3,7 @@
 #ifndef _BLE_COM_H_
 #define _BLE_COM_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 

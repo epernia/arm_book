@@ -3,7 +3,7 @@
 #ifndef _BUTTONS_H_
 #define _BUTTONS_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 #define HOW_OFTEN_INCREMENT   1
 #define HOW_OFTEN_MIN         1

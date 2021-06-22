@@ -3,7 +3,7 @@
 #ifndef _GATE_H_
 #define _GATE_H_
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 

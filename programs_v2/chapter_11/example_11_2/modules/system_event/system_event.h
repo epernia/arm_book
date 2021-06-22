@@ -7,11 +7,11 @@
 
 #include "event_log.h"
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 
-//=====[Declaration of public classes]======================================
+//=====[Declaration of public classes]=========================================
 
 class systemEvent {
     public:

@@ -7,7 +7,7 @@
 
 #include "mbed.h"
 
-//=====[Declaration of public defines]=======================================
+//=====[Declaration of public defines]=========================================
 
 //=====[Declaration of public data types]======================================
 
