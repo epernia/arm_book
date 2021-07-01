@@ -60,7 +60,7 @@ typedef enum {
 
 //=====[Declaration and initialization of public global objects]===============
 
-Serial uartWifi( PE_8, PE_7 ); 
+BufferedSerial uartWifi( PE_8, PE_7, 115200 ); 
 
 //=====[Declaration of external public global variables]=======================
 
@@ -132,7 +132,6 @@ void wifiComRestart()
 
 void wifiComInit()
 {
-    uartWifi.baud(ESP8266_BAUD_RATE);
     wifiComState = WIFI_STATE_INIT;
 }
 
@@ -451,8 +450,10 @@ void wifiComUpdate()
 
 bool wifiComCharRead( char* receivedChar )
 {
+    char receivedCharLocal = '\0';
     if( uartWifi.readable() ) {
-        *receivedChar = uartWifi.getc();
+        uartWifi.read(&receivedCharLocal,1);
+        *receivedChar = receivedCharLocal;
         return true;
     }
     return false;
@@ -460,7 +461,7 @@ bool wifiComCharRead( char* receivedChar )
 
 void wifiComStringWrite( char const* str )
 {
-    uartWifi.printf( "%s", str );
+    uartWifi.write( str, strlen(str) );
 }
 
 static bool isExpectedResponse()

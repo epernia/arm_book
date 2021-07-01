@@ -33,7 +33,7 @@ typedef enum{
 
 //=====[Declaration and initialization of public global objects]===============
 
-Serial uartUsb(USBTX, USBRX);
+UnbufferedSerial uartUsb(USBTX, USBRX,115200);
 
 //=====[Declaration of external public global variables]=======================
 
@@ -56,6 +56,8 @@ static char APSsid[40];
 static char APPassword[40];
 
 //=====[Declarations (prototypes) of private functions]========================
+
+static void pcSerialComStringRead( char* str, int strLength );
 
 static void pcSerialComGetCodeUpdate( char receivedChar );
 static void pcSerialComSaveNewCodeUpdate( char receivedChar );
@@ -100,19 +102,28 @@ char pcSerialComCharRead()
 {
     char receivedChar = '\0';
     if( uartUsb.readable() ) {
-        receivedChar = uartUsb.getc();
+        uartUsb.read(&receivedChar,1);
     }
     return receivedChar;
 }
 
 void pcSerialComStringWrite( const char* str )
 {
-    uartUsb.printf( "%s", str );
+    uartUsb.write( str, strlen(str) );
+}
+
+void pcSerialComCharWrite( char chr )
+{
+    char str[2];
+    sprintf (str, "%c", chr);
+    uartUsb.write( str, strlen(str) );
 }
 
 void pcSerialComIntWrite( int number )
 {
-    uartUsb.printf( "%d", number );
+    char str[50];
+    sprintf( str, "%d", number );
+    uartUsb.write( str, strlen(str) );
 }
 
 void pcSerialComUpdate()
@@ -159,10 +170,23 @@ void pcSerialComCodeCompleteWrite( bool state )
 
 //=====[Implementations of private functions]==================================
 
+static void pcSerialComStringRead( char* str, int strLength )
+{
+    int strIndex;
+    for ( strIndex = 0; strIndex < strLength; strIndex++) {
+        uartUsb.read( &str[strIndex] , 1 );
+        uartUsb.write( &str[strIndex] ,1 );
+    }
+    str[strLength]='\0';
+    pcSerialComStringWrite("\r\n");
+    pcSerialComStringWrite( str );
+    pcSerialComStringWrite("\r\n");
+}
+
 static void pcSerialComGetCodeUpdate( char receivedChar )
 {
     codeSequenceFromPcSerialCom[numberOfCodeChars] = receivedChar;
-    uartUsb.printf( "*" );
+    pcSerialComStringWrite( "*" );
     numberOfCodeChars++;
    if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
@@ -176,13 +200,13 @@ static void pcSerialComSaveNewCodeUpdate( char receivedChar )
     static char newCodeSequence[CODE_NUMBER_OF_KEYS];
 
     newCodeSequence[numberOfCodeChars] = receivedChar;
-    uartUsb.printf( "*" );
+    pcSerialComStringWrite( "*" );
     numberOfCodeChars++;
     if ( numberOfCodeChars >= CODE_NUMBER_OF_KEYS ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         numberOfCodeChars = 0;
         codeWrite( newCodeSequence );
-        uartUsb.printf( "\r\nNew code configured\r\n\r\n" );
+        pcSerialComStringWrite( "\r\nNew code configured\r\n\r\n" );
     } 
 }
 
@@ -216,48 +240,48 @@ static void pcSerialComCommandUpdate( char receivedChar )
 
 static void availableCommands()
 {
-    uartUsb.printf( "Available commands:\r\n" );
-    uartUsb.printf( "Press '1' to get the alarm state\r\n" );
-    uartUsb.printf( "Press '2' for gas detector state\r\n" );
-    uartUsb.printf( "Press '3' for over temperature detector state\r\n" );
-    uartUsb.printf( "Press '4' to enter the code to deactivate the alarm\r\n" );
-    uartUsb.printf( "Press '5' to enter a new code to deactivate the alarm\r\n" );
-    uartUsb.printf( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
-    uartUsb.printf( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
-    uartUsb.printf( "Press 's' or 'S' to set the date and time\r\n" );
-    uartUsb.printf( "Press 't' or 'T' to get the date and time\r\n" );
-    uartUsb.printf( "Press 'e' or 'E' to get the stored events\r\n" );
-    uartUsb.printf( "Press 'm' or 'M' to show the motor status\r\n" );
-    uartUsb.printf( "Press 'g' or 'G' to show the gate status\r\n" );
-    uartUsb.printf( "Press 'I' or 'I' to activate the motion sensor\r\n" );
-    uartUsb.printf( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
-    uartUsb.printf( "Press 'w' or 'W' to store the events log in the SD card\r\n" );
-    uartUsb.printf( "Press 'l' or 'L' to list all the files in the root directory of the SD card\r\n" );
-    uartUsb.printf( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
-    uartUsb.printf( "Press 'a' or 'A' to restart the Wi-Fi communication\r\n" );
-    uartUsb.printf( "Press 'd' or 'D' to set Wi-Fi AP SSID\r\n" );
-    uartUsb.printf( "Press 'r' or 'R' to set Wi-Fi AP Password\r\n" );
-    uartUsb.printf( "Press 'p' or 'P' to get Wi-Fi assigned IP\r\n" );
-    uartUsb.printf( "\r\n" );
+    pcSerialComStringWrite( "Available commands:\r\n" );
+    pcSerialComStringWrite( "Press '1' to get the alarm state\r\n" );
+    pcSerialComStringWrite( "Press '2' for gas detector state\r\n" );
+    pcSerialComStringWrite( "Press '3' for over temperature detector state\r\n" );
+    pcSerialComStringWrite( "Press '4' to enter the code to deactivate the alarm\r\n" );
+    pcSerialComStringWrite( "Press '5' to enter a new code to deactivate the alarm\r\n" );
+    pcSerialComStringWrite( "Press 'f' or 'F' to get lm35 reading in Fahrenheit\r\n" );
+    pcSerialComStringWrite( "Press 'c' or 'C' to get lm35 reading in Celsius\r\n" );
+    pcSerialComStringWrite( "Press 's' or 'S' to set the date and time\r\n" );
+    pcSerialComStringWrite( "Press 't' or 'T' to get the date and time\r\n" );
+    pcSerialComStringWrite( "Press 'e' or 'E' to get the stored events\r\n" );
+    pcSerialComStringWrite( "Press 'm' or 'M' to show the motor status\r\n" );
+    pcSerialComStringWrite( "Press 'g' or 'G' to show the gate status\r\n" );
+    pcSerialComStringWrite( "Press 'I' or 'I' to activate the motion sensor\r\n" );
+    pcSerialComStringWrite( "Press 'h' or 'H' to deactivate the motion sensor\r\n" );
+    pcSerialComStringWrite( "Press 'w' or 'W' to store the events log in the SD card\r\n" );
+    pcSerialComStringWrite( "Press 'l' or 'L' to list all the files in the root directory of the SD card\r\n" );
+    pcSerialComStringWrite( "Press 'o' or 'O' to show an SD Card file contents\r\n" );
+    pcSerialComStringWrite( "Press 'a' or 'A' to restart the Wi-Fi communication\r\n" );
+    pcSerialComStringWrite( "Press 'd' or 'D' to set Wi-Fi AP SSID\r\n" );
+    pcSerialComStringWrite( "Press 'r' or 'R' to set Wi-Fi AP Password\r\n" );
+    pcSerialComStringWrite( "Press 'p' or 'P' to get Wi-Fi assigned IP\r\n" );
+    pcSerialComStringWrite( "\r\n" );
 }
 
 static void commandShowCurrentSirenState()
 {
     if ( alarmStateRead() ) {
-        uartUsb.printf( "The alarm is activated\r\n");
+        pcSerialComStringWrite( "The alarm is activated\r\n");
     } else {
-        uartUsb.printf( "The alarm is not activated\r\n");
+        pcSerialComStringWrite( "The alarm is not activated\r\n");
     }
 }
 
 static void commandShowCurrentMotorState()
 {
     switch ( motorDirectionRead() ) {
-        case STOPPED: uartUsb.printf( "The motor is stopped\r\n"); break;
+        case STOPPED: pcSerialComStringWrite( "The motor is stopped\r\n"); break;
         case DIRECTION_1: 
-            uartUsb.printf( "The motor is turning in direction 1\r\n"); break;
+            pcSerialComStringWrite( "The motor is turning in direction 1\r\n"); break;
         case DIRECTION_2: 
-            uartUsb.printf( "The motor is turning in direction 2\r\n"); break;
+            pcSerialComStringWrite( "The motor is turning in direction 2\r\n"); break;
     }
 
 }
@@ -265,19 +289,19 @@ static void commandShowCurrentMotorState()
 static void commandShowCurrentGateState()
 {
     switch ( gateStatusRead() ) {
-        case GATE_CLOSED: uartUsb.printf( "The gate is closed\r\n"); break;
-        case GATE_OPEN: uartUsb.printf( "The gate is open\r\n"); break;
-        case GATE_OPENING: uartUsb.printf( "The gate is opening\r\n"); break;
-        case GATE_CLOSING: uartUsb.printf( "The gate is closing\r\n"); break;
+        case GATE_CLOSED: pcSerialComStringWrite( "The gate is closed\r\n"); break;
+        case GATE_OPEN: pcSerialComStringWrite( "The gate is open\r\n"); break;
+        case GATE_OPENING: pcSerialComStringWrite( "The gate is opening\r\n"); break;
+        case GATE_CLOSING: pcSerialComStringWrite( "The gate is closing\r\n"); break;
     }
 }
 
 static void commandShowCurrentGasDetectorState()
 {
     if ( gasDetectorStateRead() ) {
-        uartUsb.printf( "Gas is being detected\r\n"); // Ver de poner la concentracion de gas no este superando el umbral
+        pcSerialComStringWrite( "Gas is being detected\r\n"); // Ver de poner la concentracion de gas no este superando el umbral
     } else {
-        uartUsb.printf( "Gas is not being detected\r\n");
+        pcSerialComStringWrite( "Gas is not being detected\r\n");
     }    
 }
 
@@ -294,43 +318,47 @@ static void commandMotionSensorDeactivate()
 static void commandShowCurrentOverTemperatureDetectorState()
 {
     if ( overTemperatureDetectorStateRead() ) {
-        uartUsb.printf( "Temperature is above the maximum level\r\n");
+        pcSerialComStringWrite( "Temperature is above the maximum level\r\n");
     } else {
-        uartUsb.printf( "Temperature is below the maximum level\r\n");
+        pcSerialComStringWrite( "Temperature is below the maximum level\r\n");
     }
 }
 
 static void commandEnterCodeSequence()
 {
     if( alarmStateRead() ) {
-        uartUsb.printf( "Please enter the four digits numeric code " );
-        uartUsb.printf( "to deactivate the alarm: " );
+        pcSerialComStringWrite( "Please enter the four digits numeric code " );
+        pcSerialComStringWrite( "to deactivate the alarm: " );
         pcSerialComMode = PC_SERIAL_GET_CODE;
         codeComplete = false;
         numberOfCodeChars = 0;
     } else {
-        uartUsb.printf( "Alarm is not activated.\r\n" );
+        pcSerialComStringWrite( "Alarm is not activated.\r\n" );
     }
 }
 
 static void commandEnterNewCode()
 {
-    uartUsb.printf( "Please enter the new four digits numeric code " );
-    uartUsb.printf( "to deactivate the alarm: " );
+    pcSerialComStringWrite( "Please enter the new four digits numeric code " );
+    pcSerialComStringWrite( "to deactivate the alarm: " );
     numberOfCodeChars = 0;
     pcSerialComMode = PC_SERIAL_SAVE_NEW_CODE;
 }
 
 static void commandShowCurrentTemperatureInCelsius()
 {
-    uartUsb.printf( "Temperature: %.2f °C\r\n",
-                    temperatureSensorReadCelsius() );    
+    char str[100];
+    sprintf ( str, "Temperature: %.2f °C\r\n",
+                    temperatureSensorReadCelsius() );
+    pcSerialComStringWrite( str );  
 }
 
 static void commandShowCurrentTemperatureInFahrenheit()
 {
-    uartUsb.printf( "Temperature: %.2f °F\r\n", 
-                    temperatureSensorReadFahrenheit() );    
+    char str[100];
+    sprintf ( str, "Temperature: %.2f °C\r\n",
+                    temperatureSensorReadFahrenheit() );
+    pcSerialComStringWrite( str );  
 }
 
 static void commandEventLogSaveToSdCard()
@@ -349,49 +377,41 @@ static void commandsdCardListFiles()
 
 static void commandSetDateAndTime()
 {
-    int year   = 0;
-    int month  = 0;
-    int day    = 0;
-    int hour   = 0;
-    int minute = 0;
-    int second = 0;
+    char year[4];
+    char month[2];
+    char day[2];
+    char hour[2];
+    char minute[2];
+    char second[2];
     
-    uartUsb.printf("\r\nType de current year (YYYY) and press enter: ");
-    uartUsb.scanf("%d", &year);
-    uartUsb.printf("%d\r\n", year);
+    pcSerialComStringWrite("\r\nType de current year (YYYY) and press enter: ");
+    pcSerialComStringRead( year, 4);
 
-    uartUsb.printf("Type de current month (1-12) and press enter: ");
-    uartUsb.scanf("%d", &month);
-    uartUsb.printf("%d\r\n", month);
+    pcSerialComStringWrite("Type de current month (1-12) and press enter: ");
+    pcSerialComStringRead( month, 2);
 
-    uartUsb.printf("Type de current day (1-31) and press enter: ");
-    uartUsb.scanf("%d", &day);
-    uartUsb.printf("%d\r\n", day);
+    pcSerialComStringWrite("Type de current day (1-31) and press enter: ");
+    pcSerialComStringRead( day, 2);
 
-    uartUsb.printf("Type de current hour (0-23) and press enter: ");
-    uartUsb.scanf("%d", &hour);
-    uartUsb.printf("%d\r\n",hour);
+    pcSerialComStringWrite("Type de current hour (0-23) and press enter: ");
+    pcSerialComStringRead( hour, 2);
 
-    uartUsb.printf("Type de current minutes (0-59) and press enter: ");
-    uartUsb.scanf("%d", &minute);
-    uartUsb.printf("%d\r\n", minute);
+    pcSerialComStringWrite("Type de current minutes (0-59) and press enter: ");
+    pcSerialComStringRead( minute, 2);
 
-    uartUsb.printf("Type de current seconds (0-59) and press enter: ");
-    uartUsb.scanf("%d", &second);
-    uartUsb.printf("%d\r\n", second);
+    pcSerialComStringWrite("Type de current seconds (0-59) and press enter: ");
+    pcSerialComStringRead( second, 2);
     
-    uartUsb.printf("Date and time has been set\r\n");
+    pcSerialComStringWrite("Date and time has been set\r\n");
 
-    while ( uartUsb.readable() ) {
-        uartUsb.getc();
-    }
-
-    dateAndTimeWrite( year, month, day, hour, minute, second );
+    dateAndTimeWrite( atoi(year), atoi(month), atoi(day), atoi(hour), atoi(minute), atoi(second) );
 }
 
 static void commandShowDateAndTime()
 {
-    uartUsb.printf("Date and Time = %s", dateAndTimeRead());
+    char str[100];
+    sprintf ( str, "Date and Time = %s", dateAndTimeRead() );
+    pcSerialComStringWrite( str );
 }
 
 static void commandShowStoredEvents()
@@ -400,20 +420,21 @@ static void commandShowStoredEvents()
     int i;
     for (i = 0; i < eventLogNumberOfStoredEvents(); i++) {
         eventLogRead( i, str );
-        uartUsb.printf( "%s\r\n", str );                       
+        pcSerialComStringWrite( str );   
+        pcSerialComStringWrite( "\r\n" );                    
     }
 }
 
 static void commandGetFileName()
 {
-    uartUsb.printf( "Please enter the file name \r\n" );
+    pcSerialComStringWrite( "Please enter the file name \r\n" );
     pcSerialComMode = PC_SERIAL_GET_FILE_NAME ;
     numberOfCharsInFileName = 0;
 }
 
 static void commandRestartWifiCom()
 {
-    uartUsb.printf( "Wi-Fi communication restarted \r\n" );
+    pcSerialComStringWrite( "Wi-Fi communication restarted \r\n" );
     wifiComRestart();
 }
 
@@ -437,49 +458,49 @@ static void commandSetWifiComApPassword()
 
 static void commandGetWifiComAssignedIp()
 {
-    uartUsb.printf( "The assigned IP is: " );
-    uartUsb.printf( wifiComGetIpAddress() );
-    uartUsb.printf( "\r\n" );
+    pcSerialComStringWrite( "The assigned IP is: " );
+    pcSerialComStringWrite( wifiComGetIpAddress() );
+    pcSerialComStringWrite( "\r\n" );
 }
 
 static void pcSerialComGetFileName( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         fileName[numberOfCharsInFileName] = NULL;
         numberOfCharsInFileName = 0;
         pcSerialComShowSdCardFile( fileName );
     } else {
         fileName[numberOfCharsInFileName] = receivedChar;
-        uartUsb.printf( "%c", receivedChar );
+        pcSerialComCharWrite( receivedChar );
         numberOfCharsInFileName++;
     }
 }
 
 static void pcSerialComGetWiFiComApSsid( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         APSsid[numberOfCharsInAPCredentials] = NULL;
         wifiComSetWiFiComApSsid(APSsid);
-        uartUsb.printf( "\r\nWi-Fi Access Point SSID configured\r\n\r\n" );
+        pcSerialComStringWrite( "\r\nWi-Fi Access Point SSID configured\r\n\r\n" );
     } else {
         APSsid[numberOfCharsInAPCredentials] = receivedChar;
-        uartUsb.printf( "%c", receivedChar );
+        pcSerialComCharWrite( receivedChar );
         numberOfCharsInAPCredentials++;
     }
 }
 
 static void pcSerialComGetWiFiComApPassword( char receivedChar )
 {
-    if ( receivedChar == '.' ) {
+    if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
         APPassword[numberOfCharsInAPCredentials] = NULL;
         wifiComSetWiFiComApPassword(APPassword);
-        uartUsb.printf( "\r\nWi-Fi Access Point password configured\r\n\r\n" );
+        pcSerialComStringWrite( "\r\nWi-Fi Access Point password configured\r\n\r\n" );
     } else {
         APPassword[numberOfCharsInAPCredentials] = receivedChar;
-        uartUsb.printf( "*" );
+        pcSerialComStringWrite( "*" );
         numberOfCharsInAPCredentials++;
     }
 }
