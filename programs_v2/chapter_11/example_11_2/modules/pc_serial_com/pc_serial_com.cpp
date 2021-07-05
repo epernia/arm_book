@@ -429,7 +429,7 @@ static void commandSetWifiComApSsid()
 
 static void commandSetWifiComApPassword()
 {
-    pcSerialComStringWrite("\r\nPlease provide the  Password of the Wi-Fi "); 
+    pcSerialComStringWrite("\r\nPlease provide the Password of the Wi-Fi "); 
     pcSerialComStringWrite("Access Point and press the Enter key\r\n");
     pcSerialComStringWrite("> ");
     pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD;
