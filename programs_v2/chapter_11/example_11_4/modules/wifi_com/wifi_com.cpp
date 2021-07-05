@@ -18,8 +18,8 @@
 #define DELAY_10_SECONDS        10000
 #define DELAY_5_SECONDS         5000
 
-#define BEGIN_USER_LINE   "<p style=\"text-align: center;\"><b>"
-#define END_USER_LINE     "</b></p>"
+#define BEGIN_USER_LINE   "<p>"
+#define END_USER_LINE     "</p>"
 
 //=====[Declaration of private data types]=====================================
 
@@ -90,11 +90,12 @@ static nonBlockingDelay_t wifiComDelay;
 static const char htmlCodeHeader [] =
    "<!doctype html>"
    "<html> <head> <title>Smart Home System</title> </head>"
-   "<body> <h1 style=\"text-align: center;\">"
-   "<font color=\"#0000ff\">Smart Home System</font></h1>"
+   "<body style=\"text-align: center;\">"
+   "<h1 style=\"color: #0000ff;\">Smart Home System</h1>"
+   "<div style=\"font-weight: bold\">"
    ;
 
-static const char htmlCodeFooter [] = "</body> </html>";
+static const char htmlCodeFooter [] = "</div> </body> </html>";
 
 static char htmlCodeBody[450];
 
@@ -483,7 +484,7 @@ static bool isExpectedResponse()
 
 void wifiComWebPageDataUpdate()
 {
-    sprintf( htmlCodeBody, "%s Temperature: %.2f °C %s", 
+    sprintf( htmlCodeBody, "%s Temperature: %.2f &ordm;C %s", 
              BEGIN_USER_LINE, temperatureSensorReadCelsius(), END_USER_LINE );
     
     sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Alarm: %s %s", 
@@ -498,16 +499,16 @@ void wifiComWebPageDataUpdate()
              stateToString( overTemperatureDetectorStateRead() ), END_USER_LINE );
     
     sprintf( htmlCodeBody + strlen(htmlCodeBody), 
-             "%s Incorrect code led: %s %s", BEGIN_USER_LINE, 
+             "%s Motion detected: %s %s", BEGIN_USER_LINE, 
+             stateToString( motionSensorRead() ), END_USER_LINE );
+
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
+             "%s Incorrect code LED: %s %s", BEGIN_USER_LINE, 
              stateToString( incorrectCodeStateRead() ), END_USER_LINE );
     
     sprintf( htmlCodeBody + strlen(htmlCodeBody), 
-             "%s System blocked led: %s %s", BEGIN_USER_LINE, 
+             "%s System blocked LED: %s %s", BEGIN_USER_LINE, 
              stateToString( systemBlockedStateRead() ), END_USER_LINE );
-    
-    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
-             "%s Motion: %s %s", BEGIN_USER_LINE, 
-             stateToString( motionSensorRead() ), END_USER_LINE );
 }
 
 char * stateToString( bool state )
