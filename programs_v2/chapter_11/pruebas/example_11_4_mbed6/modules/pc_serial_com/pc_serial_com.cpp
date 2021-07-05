@@ -49,11 +49,11 @@ static pcSerialComMode_t pcSerialComMode = PC_SERIAL_COMMANDS;
 static bool codeComplete = false;
 static int numberOfCodeChars = 0;
 static int numberOfCharsInFileName = 0;
-static int numberOfCharsInAPCredentials = 0;
+static int numberOfCharsInApCredentials = 0;
 
 static char fileName[40];
-static char APSsid[40];
-static char APPassword[40];
+static char ApSsid[40];
+static char ApPassword[40];
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -444,16 +444,16 @@ static void commandSetWifiComApSsid()
     pcSerialComStringWrite("Access Point and press the Enter key\r\n");
     pcSerialComStringWrite("> ");
     pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_SSID;
-    numberOfCharsInAPCredentials = 0;
+    numberOfCharsInApCredentials = 0;
 }
 
 static void commandSetWifiComApPassword()
 {
-    pcSerialComStringWrite("\r\nPlease provide the  APPassword of the Wi-Fi "); 
+    pcSerialComStringWrite("\r\nPlease provide the Password of the Wi-Fi "); 
     pcSerialComStringWrite("Access Point and press the Enter key\r\n");
     pcSerialComStringWrite("> ");
     pcSerialComMode = PC_SERIAL_GET_WIFI_AP_CREDENTIALS_PASSWORD;
-    numberOfCharsInAPCredentials = 0;
+    numberOfCharsInApCredentials = 0;
 }
 
 static void commandGetWifiComAssignedIp()
@@ -481,13 +481,13 @@ static void pcSerialComGetWiFiComApSsid( char receivedChar )
 {
     if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        APSsid[numberOfCharsInAPCredentials] = NULL;
-        wifiComSetWiFiComApSsid(APSsid);
+        ApSsid[numberOfCharsInApCredentials] = NULL;
+        wifiComSetWiFiComApSsid(ApSsid);
         pcSerialComStringWrite( "\r\nWi-Fi Access Point SSID configured\r\n\r\n" );
     } else {
-        APSsid[numberOfCharsInAPCredentials] = receivedChar;
+        ApSsid[numberOfCharsInApCredentials] = receivedChar;
         pcSerialComCharWrite( receivedChar );
-        numberOfCharsInAPCredentials++;
+        numberOfCharsInApCredentials++;
     }
 }
 
@@ -495,13 +495,13 @@ static void pcSerialComGetWiFiComApPassword( char receivedChar )
 {
     if ( receivedChar == '\r' ) {
         pcSerialComMode = PC_SERIAL_COMMANDS;
-        APPassword[numberOfCharsInAPCredentials] = NULL;
-        wifiComSetWiFiComApPassword(APPassword);
+        ApPassword[numberOfCharsInApCredentials] = NULL;
+        wifiComSetWiFiComApPassword(ApPassword);
         pcSerialComStringWrite( "\r\nWi-Fi Access Point password configured\r\n\r\n" );
     } else {
-        APPassword[numberOfCharsInAPCredentials] = receivedChar;
+        ApPassword[numberOfCharsInApCredentials] = receivedChar;
         pcSerialComStringWrite( "*" );
-        numberOfCharsInAPCredentials++;
+        numberOfCharsInApCredentials++;
     }
 }
 

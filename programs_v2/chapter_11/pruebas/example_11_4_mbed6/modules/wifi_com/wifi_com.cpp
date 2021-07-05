@@ -108,14 +108,14 @@ char * stateToString( bool state );
 
 //=====[Implementations of public functions]===================================
 
-void wifiComSetWiFiComApSsid( char * APSsid )
+void wifiComSetWiFiComApSsid( char * ApSsid )
 {
-	strcpy(wifiComApSsid, APSsid);
+	strcpy(wifiComApSsid, ApSsid);
 }
 
-void wifiComSetWiFiComApPassword( char * APPassword )
+void wifiComSetWiFiComApPassword( char * ApPassword )
 {
-    strcpy(wifiComApPassword, APPassword);
+    strcpy(wifiComApPassword, ApPassword);
 }
 
 char * wifiComGetIpAddress()
