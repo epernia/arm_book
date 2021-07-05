@@ -17,7 +17,6 @@
 #include "audio.h"
 #include "sd_card.h"
 #include "ble_com.h"
-
 #include "non_blocking_delay.h"
 #include "wifi_com.h"
 

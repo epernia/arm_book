@@ -40,8 +40,8 @@ typedef enum {
    WIFI_STATE_WAIT_CIPSTATUS_OK,
    WIFI_STATE_SEND_CIPSEND,
    WIFI_STATE_WAIT_CIPSEND,
-   WIFI_STATE_SEND_HTTP,
-   WIFI_STATE_WAIT_HTTP,
+   WIFI_STATE_SEND_HTML,
+   WIFI_STATE_WAIT_HTML,
    WIFI_STATE_SEND_CIPCLOSE,
    WIFI_STATE_WAIT_CIPCLOSE,
    WIFI_STATE_IDLE,
@@ -78,7 +78,7 @@ static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;
 
-static const char httpWebPage [] =
+static const char htmlCode [] =
    "<!doctype html> <html> <body> Hello! </body> </html>"
    ;
 
@@ -118,7 +118,7 @@ void wifiComInit()
 
 void wifiComUpdate()
 {
-   int lengthOfHttpLines;
+   int lengthOfHtmlCode;
    static char receivedCharWifiCom;
    static int IpStringPositionIndex;
    char strToSend[50];
@@ -145,8 +145,9 @@ void wifiComUpdate()
             wifiComState = WIFI_STATE_SEND_CWMODE;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         pcSerialComStringWrite("AT command not responded correctly\r\n\r\n");
-         wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("AT command not responded ");
+            pcSerialComStringWrite("correctly\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
       break;
 
@@ -165,8 +166,9 @@ void wifiComUpdate()
             wifiComState = WIFI_STATE_SEND_CWJAP_IS_SET;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         pcSerialComStringWrite("AT+CWMODE=1 command not responded correctly\r\n\r\n");
-         wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("AT+CWMODE=1 command not ");
+            pcSerialComStringWrite("responded correctly\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
       break;
 
@@ -210,9 +212,11 @@ void wifiComUpdate()
             wifiComState = WIFI_STATE_WAIT_CWJAP_SET_2;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         	pcSerialComStringWrite("Error in state: WIFI_STATE_WAIT_CWJAP_SET_1\r\n\r\n");
-         	pcSerialComStringWrite("Check Wi-Fi AP credentials and restart\r\n\r\n");
-         	wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("Error in state: ");
+            pcSerialComStringWrite("WIFI_STATE_WAIT_CWJAP_SET_1\r\n");
+            pcSerialComStringWrite("Check Wi-Fi AP credentials ");
+            pcSerialComStringWrite("and restart\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
          break;
 
@@ -221,9 +225,11 @@ void wifiComUpdate()
             wifiComState = WIFI_STATE_SEND_CIFSR;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-        	pcSerialComStringWrite("Error in state: WIFI_STATE_WAIT_CWJAP_SET_2\r\n\r\n");
-         	pcSerialComStringWrite("Check Wi-Fi AP credentials and restart\r\n\r\n");
-         	wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("Error in state: ");
+            pcSerialComStringWrite("WIFI_STATE_WAIT_CWJAP_SET_2\r\n");
+            pcSerialComStringWrite("Check Wi-Fi AP credentials ");
+            pcSerialComStringWrite("and restart\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
       break;
 
@@ -242,8 +248,9 @@ void wifiComUpdate()
             IpStringPositionIndex = 0;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         	pcSerialComStringWrite("AT+CIFSR command not responded correctly\r\n\r\n");
-         	wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("AT+CIFSR command not responded ");
+            pcSerialComStringWrite("correctly\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
       break;
 
@@ -275,8 +282,9 @@ void wifiComUpdate()
             wifiComState = WIFI_STATE_SEND_CIPSERVER;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         pcSerialComStringWrite("AT+CIPMUX=1 command not responded correctly\r\n\r\n");
-         wifiComState = WIFI_STATE_ERROR;
+            pcSerialComStringWrite("AT+CIPMUX=1 command not ");
+            pcSerialComStringWrite("responded correctly\r\n");
+            wifiComState = WIFI_STATE_ERROR;
          }
       break;
 
@@ -295,7 +303,8 @@ void wifiComUpdate()
             wifiComState = WIFI_STATE_SEND_CIPSTATUS;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
-         pcSerialComStringWrite("AT+CIPSERVER=1,80 command not responded correctly\r\n\r\n");
+         pcSerialComStringWrite("AT+CIPSERVER=1,80 command not ");
+         pcSerialComStringWrite("responded correctly\r\n");
          wifiComState = WIFI_STATE_ERROR;
          }
       break;
@@ -350,8 +359,9 @@ void wifiComUpdate()
       break;
 
       case WIFI_STATE_SEND_CIPSEND:
-         lengthOfHttpLines = (strlen(httpWebPage));
-         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", currentConnectionId, lengthOfHttpLines );
+         lengthOfHtmlCode = (strlen(htmlCode));
+         sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", 
+                  currentConnectionId, lengthOfHtmlCode );
          wifiComStringWrite( strToSend );
          wifiComState = WIFI_STATE_WAIT_CIPSEND;
          wifiComExpectedResponse = responseOk;
@@ -360,7 +370,7 @@ void wifiComUpdate()
       case WIFI_STATE_WAIT_CIPSEND:
          if (isExpectedResponse()) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
-            wifiComState = WIFI_STATE_SEND_HTTP;
+            wifiComState = WIFI_STATE_SEND_HTML;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
@@ -368,13 +378,13 @@ void wifiComUpdate()
          }
       break;
 
-      case WIFI_STATE_SEND_HTTP:
-        wifiComStringWrite( httpWebPage );
-        wifiComState = WIFI_STATE_WAIT_HTTP;
+      case WIFI_STATE_SEND_HTML:
+        wifiComStringWrite( htmlCode );
+        wifiComState = WIFI_STATE_WAIT_HTML;
         wifiComExpectedResponse = responseSendOk;
       break;
 
-      case WIFI_STATE_WAIT_HTTP:
+      case WIFI_STATE_WAIT_HTML:
          if (isExpectedResponse()) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_SEND_CIPCLOSE;

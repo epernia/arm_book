@@ -35,13 +35,6 @@ void systemEvent::stateUpdate( bool state )
     this->lastStateUpdate( state );
 }
 
-//=====[Implementations of private methods]====================================
-
-void systemEvent::lastStateUpdate(bool state)
-{
-    lastState = state;
-}
-
 bool systemEvent::lastStateRead( )
 {
     return lastState;
@@ -50,4 +43,11 @@ bool systemEvent::lastStateRead( )
 char* systemEvent::getLabel( )
 {
     return label;
+}
+
+//=====[Implementations of private methods]====================================
+
+void systemEvent::lastStateUpdate(bool state)
+{
+    lastState = state;
 }

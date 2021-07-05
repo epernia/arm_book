@@ -18,8 +18,6 @@
 #define DELAY_10_SECONDS        10000
 #define DELAY_5_SECONDS         5000
 
-#define MAX_HTTP_WEB_LENGTH     1500
-
 #define BEGIN_USER_LINE   "<p style=\"text-align: center;\"><b>"
 #define END_USER_LINE     "</b></p>"
 
@@ -50,8 +48,8 @@ typedef enum {
    WIFI_STATE_WAIT_CIPSTATUS_OK,
    WIFI_STATE_SEND_CIPSEND,
    WIFI_STATE_WAIT_CIPSEND,
-   WIFI_STATE_SEND_HTTP,
-   WIFI_STATE_WAIT_HTTP,
+   WIFI_STATE_SEND_HTML,
+   WIFI_STATE_WAIT_HTML,
    WIFI_STATE_SEND_CIPCLOSE,
    WIFI_STATE_WAIT_CIPCLOSE,
    WIFI_STATE_IDLE,
@@ -89,16 +87,16 @@ static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;
 
-static const char httpWebPageHeader [] =
+static const char htmlCodeHeader [] =
    "<!doctype html>"
    "<html> <head> <title>Smart Home System</title> </head>"
    "<body> <h1 style=\"text-align: center;\">"
    "<font color=\"#0000ff\">Smart Home System</font></h1>"
    ;
 
-static const char httpWebPageEnd [] = "</body> </html>";
+static const char htmlCodeFooter [] = "</body> </html>";
 
-static char httpWebPageBody[450];
+static char htmlCodeBody[450];
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -138,7 +136,7 @@ void wifiComInit()
 
 void wifiComUpdate()
 {
-   int lengthOfHttpLines;
+   int lengthOfHtmlCode;
    static char receivedCharWifiCom;
    static int IpStringPositionIndex;
    char strToSend[50];
@@ -380,11 +378,11 @@ void wifiComUpdate()
       break;
 
       case WIFI_STATE_SEND_CIPSEND:
-         lengthOfHttpLines = ( strlen(httpWebPageHeader) 
-                               + strlen(httpWebPageBody) 
-                               + strlen(httpWebPageEnd) );
+         lengthOfHtmlCode = ( strlen(htmlCodeHeader) 
+                               + strlen(htmlCodeBody) 
+                               + strlen(htmlCodeFooter) );
          sprintf( strToSend, "AT+CIPSEND=%c,%d\r\n", 
-                  currentConnectionId, lengthOfHttpLines );
+                  currentConnectionId, lengthOfHtmlCode );
          wifiComStringWrite( strToSend );
          wifiComState = WIFI_STATE_WAIT_CIPSEND;
          wifiComExpectedResponse = responseOk;
@@ -393,7 +391,7 @@ void wifiComUpdate()
       case WIFI_STATE_WAIT_CIPSEND:
          if (isExpectedResponse()) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
-            wifiComState = WIFI_STATE_SEND_HTTP;
+            wifiComState = WIFI_STATE_SEND_HTML;
          }
          if (nonBlockingDelayRead(&wifiComDelay)) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
@@ -401,15 +399,15 @@ void wifiComUpdate()
          }
       break;
 
-      case WIFI_STATE_SEND_HTTP:
-        wifiComStringWrite( httpWebPageHeader );
-        wifiComStringWrite( httpWebPageBody );
-        wifiComStringWrite( httpWebPageEnd );
-        wifiComState = WIFI_STATE_WAIT_HTTP;
+      case WIFI_STATE_SEND_HTML:
+        wifiComStringWrite( htmlCodeHeader );
+        wifiComStringWrite( htmlCodeBody );
+        wifiComStringWrite( htmlCodeFooter );
+        wifiComState = WIFI_STATE_WAIT_HTML;
         wifiComExpectedResponse = responseSendOk;
       break;
 
-      case WIFI_STATE_WAIT_HTTP:
+      case WIFI_STATE_WAIT_HTML:
          if (isExpectedResponse()) {
             nonBlockingDelayWrite(&wifiComDelay, DELAY_5_SECONDS);
             wifiComState = WIFI_STATE_SEND_CIPCLOSE;
@@ -485,29 +483,29 @@ static bool isExpectedResponse()
 
 void wifiComWebPageDataUpdate()
 {
-    sprintf( httpWebPageBody, "%s Temperature: %.2f °C %s", 
+    sprintf( htmlCodeBody, "%s Temperature: %.2f °C %s", 
              BEGIN_USER_LINE, temperatureSensorReadCelsius(), END_USER_LINE );
     
-    sprintf( httpWebPageBody + strlen(httpWebPageBody), "%s Alarm: %s %s", 
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Alarm: %s %s", 
              BEGIN_USER_LINE, stateToString( sirenStateRead() ), END_USER_LINE );
     
-    sprintf( httpWebPageBody + strlen(httpWebPageBody), "%s Gas detected: %s %s", 
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Gas detected: %s %s", 
              BEGIN_USER_LINE, stateToString( gasDetectorStateRead() ), 
              END_USER_LINE );
     
-    sprintf( httpWebPageBody + strlen(httpWebPageBody), 
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s Over temperature detected: %s %s", BEGIN_USER_LINE, 
              stateToString( overTemperatureDetectorStateRead() ), END_USER_LINE );
     
-    sprintf( httpWebPageBody + strlen(httpWebPageBody), 
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s Incorrect code led: %s %s", BEGIN_USER_LINE, 
              stateToString( incorrectCodeStateRead() ), END_USER_LINE );
     
-    sprintf( httpWebPageBody + strlen(httpWebPageBody), 
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s System blocked led: %s %s", BEGIN_USER_LINE, 
              stateToString( systemBlockedStateRead() ), END_USER_LINE );
     
-    sprintf( httpWebPageBody + strlen(httpWebPageBody), 
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s Motion: %s %s", BEGIN_USER_LINE, 
              stateToString( motionSensorRead() ), END_USER_LINE );
 }

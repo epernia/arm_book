@@ -17,6 +17,8 @@
 
 //=====[Declaration of private defines]========================================
 
+#define EVENT_LOG_NAME_SHORT_MAX_LENGTH    22
+
 //=====[Declaration of private data types]=====================================
 
 typedef struct storedEvent {
@@ -45,6 +47,8 @@ static storedEvent_t arrayOfStoredEvents[EVENT_LOG_MAX_STORAGE];
 static bool eventAndStateStrSent;
 
 //=====[Declarations (prototypes) of private functions]========================
+
+void eventLabelReduce(char *eventLabelShort, const char *eventLabelLong);
 
 //=====[Implementations of public functions]===================================
 
@@ -156,4 +160,90 @@ bool eventLogSaveToSdCard()
     return true;
 }
 
+void eventLogReport()
+{
+    char eventLogReportStr[EVENT_LOG_NAME_SHORT_MAX_LENGTH];
+    char eventLogLabelShortStr[3];
+    eventLogReportStr[0] = 0;
+    
+    eventLabelReduce( eventLogLabelShortStr, alarmEvent.getLabel());
+    strncat( eventLogReportStr, eventLogLabelShortStr, 
+             strlen(eventLogLabelShortStr) );
+    if ( alarmEvent.lastStateRead() ) {
+        strncat( eventLogReportStr, "N", strlen("N") );
+    } else {
+        strncat( eventLogReportStr, "F", strlen("F") );
+    }
+    strncat( eventLogReportStr, ",", strlen(",") );
+pcSerialComStringWrite(eventLogReportStr);
+    eventLabelReduce( eventLogLabelShortStr, gasEvent.getLabel());
+    strncat( eventLogReportStr, eventLogLabelShortStr, 
+             strlen(eventLogLabelShortStr) );
+    if ( gasEvent.lastStateRead() ) {
+        strncat( eventLogReportStr, "N", strlen("N") );
+    } else {
+        strncat( eventLogReportStr, "F", strlen("F") );
+    }
+    strncat( eventLogReportStr, ",", strlen(",") );
+pcSerialComStringWrite(eventLogReportStr);
+    eventLabelReduce( eventLogLabelShortStr, overTempEvent.getLabel());
+    strncat( eventLogReportStr, eventLogLabelShortStr, 
+             strlen(eventLogLabelShortStr) );
+    if ( overTempEvent.lastStateRead() ) {
+        strncat( eventLogReportStr, "N", strlen("N") );
+    } else {
+        strncat( eventLogReportStr, "F", strlen("F") );
+    }
+    strncat( eventLogReportStr, ",", strlen(",") );
+pcSerialComStringWrite(eventLogReportStr);
+    eventLabelReduce( eventLogLabelShortStr, ledICEvent.getLabel());
+    strncat( eventLogReportStr, eventLogLabelShortStr, 
+             strlen(eventLogLabelShortStr) );
+    if ( ledICEvent.lastStateRead() ) {
+        strncat( eventLogReportStr, "N", strlen("N") );
+    } else {
+        strncat( eventLogReportStr, "F", strlen("F") );
+    }
+    strncat( eventLogReportStr, ",", strlen(",") );
+pcSerialComStringWrite(eventLogReportStr);
+    eventLabelReduce( eventLogLabelShortStr, ledSBEvent.getLabel());
+    strncat( eventLogReportStr, eventLogLabelShortStr, 
+             strlen(eventLogLabelShortStr) );
+    if ( ledSBEvent.lastStateRead() ) {
+        strncat( eventLogReportStr, "N", strlen("N") );
+    } else {
+        strncat( eventLogReportStr, "F", strlen("F") );
+    }
+    strncat( eventLogReportStr, ",", strlen(",") );
+pcSerialComStringWrite(eventLogReportStr);
+    eventLabelReduce( eventLogLabelShortStr, motionEvent.getLabel());
+    strncat( eventLogReportStr, eventLogLabelShortStr, 
+             strlen(eventLogLabelShortStr) );
+    if ( motionEvent.lastStateRead() ) {
+        strncat( eventLogReportStr, "N", strlen("N") );
+    } else {
+        strncat( eventLogReportStr, "F", strlen("F") );
+    }
+    
+    bleComStringWrite(eventLogReportStr);
+    bleComStringWrite("\r\n");
+}
+
 //=====[Implementations of private functions]==================================
+
+void eventLabelReduce(char *eventLabelShort, const char *eventLabelLong)
+{
+    if (strcmp(eventLabelLong, "ALARM") == 0) {
+        strcpy(eventLabelShort,"A");
+    } else if (strcmp(eventLabelLong, "GAS_DET") == 0) {
+        strcpy(eventLabelShort,"G");
+    } else if(strcmp(eventLabelLong, "OVER_TEMP") == 0) {
+        strcpy(eventLabelShort,"T");
+    } else if(strcmp(eventLabelLong, "LED_IC") == 0) {
+        strcpy(eventLabelShort,"I");
+    } else if(strcmp(eventLabelLong, "LED_SB") == 0) {
+        strcpy(eventLabelShort,"S");
+    } else if(strcmp(eventLabelLong, "MOTION") == 0) {
+        strcpy(eventLabelShort,"M");
+    }
+}

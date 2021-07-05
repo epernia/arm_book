@@ -410,8 +410,6 @@ static void pcSerialComGetFileName( char receivedChar )
     }
 }
 
-
-
 static void pcSerialComShowSdCardFile( char* fileName ) 
 {
     systemBuffer[0] = NULL;
