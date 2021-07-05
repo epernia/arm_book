@@ -9,9 +9,9 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
+void wifiComRestart();
 void wifiComInit();
 void wifiComUpdate();
-void wifiComRestart();
 
 //=====[#include guards - end]=================================================
 
