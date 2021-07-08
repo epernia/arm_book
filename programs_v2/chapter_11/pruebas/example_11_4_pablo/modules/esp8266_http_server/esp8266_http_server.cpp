@@ -163,11 +163,11 @@ static char WifiIp   [20];
 
 // Punteros a la pagina web a mostrar
 static char * PointerOfHttpBody;
-static const char * PointerOfHttpHeader;
-static const char * PointerOfHttpEnd;
+static const char* PointerOfHttpHeader;
+static const char* PointerOfHttpEnd;
 
 // Variables utilizadas en la maquina de estados.
-static const char * Esp8266ResponseToWait;
+static const char* Esp8266ResponseToWait;
 static uint8_t Esp8266Status = ESP_INIT;
 static uint32_t Esp8266DebugBaudRate = 0;
 

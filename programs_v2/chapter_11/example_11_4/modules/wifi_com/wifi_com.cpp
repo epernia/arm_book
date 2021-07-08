@@ -82,7 +82,7 @@ static char wifiComApPassword[30] = "";
 static char wifiComIpAddress[20];
 static char stateString[4];
 
-static const char * wifiComExpectedResponse;
+static const char* wifiComExpectedResponse;
 static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;
@@ -486,21 +486,21 @@ void wifiComWebPageDataUpdate()
 {
     sprintf( htmlCodeBody, "%s Temperature: %.2f &ordm;C %s", 
              BEGIN_USER_LINE, temperatureSensorReadCelsius(), END_USER_LINE );
-    
-    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Alarm: %s %s", 
-             BEGIN_USER_LINE, stateToString( sirenStateRead() ), END_USER_LINE );
-    
-    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Gas detected: %s %s", 
-             BEGIN_USER_LINE, stateToString( gasDetectorStateRead() ), 
-             END_USER_LINE );
-    
+
     sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s Over temperature detected: %s %s", BEGIN_USER_LINE, 
              stateToString( overTemperatureDetectorStateRead() ), END_USER_LINE );
     
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Gas detected: %s %s", 
+             BEGIN_USER_LINE, stateToString( gasDetectorStateRead() ), 
+             END_USER_LINE );
+
     sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s Motion detected: %s %s", BEGIN_USER_LINE, 
              stateToString( motionSensorRead() ), END_USER_LINE );
+    
+    sprintf( htmlCodeBody + strlen(htmlCodeBody), "%s Alarm: %s %s", 
+             BEGIN_USER_LINE, stateToString( sirenStateRead() ), END_USER_LINE );
 
     sprintf( htmlCodeBody + strlen(htmlCodeBody), 
              "%s Incorrect code LED: %s %s", BEGIN_USER_LINE, 

@@ -48,7 +48,7 @@ static bool eventAndStateStrSent;
 
 //=====[Declarations (prototypes) of private functions]========================
 
-void eventLabelReduce(char *eventLabelShort, const char *eventLabelLong);
+void eventLabelReduce(char *eventLabelShort, const char* eventLabelLong);
 
 //=====[Implementations of public functions]===================================
 
@@ -231,7 +231,7 @@ pcSerialComStringWrite(eventLogReportStr);
 
 //=====[Implementations of private functions]==================================
 
-void eventLabelReduce(char *eventLabelShort, const char *eventLabelLong)
+void eventLabelReduce(char *eventLabelShort, const char* eventLabelLong)
 {
     if (strcmp(eventLabelLong, "ALARM") == 0) {
         strcpy(eventLabelShort,"A");

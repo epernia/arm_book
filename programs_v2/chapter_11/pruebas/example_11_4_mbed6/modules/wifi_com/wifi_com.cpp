@@ -82,7 +82,7 @@ static char wifiComApPassword[30] = "";
 static char wifiComIpAddress[20];
 static char stateString[4];
 
-static const char * wifiComExpectedResponse;
+static const char* wifiComExpectedResponse;
 static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;

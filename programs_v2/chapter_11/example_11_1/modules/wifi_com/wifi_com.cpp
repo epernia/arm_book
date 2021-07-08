@@ -34,7 +34,7 @@ Serial uartWifi( PE_8, PE_7 );
 
 static const char responseOk[] = "OK";
 
-static const char * wifiComExpectedResponse;
+static const char* wifiComExpectedResponse;
 static wifiComState_t wifiComState;
 
 static nonBlockingDelay_t wifiComDelay;

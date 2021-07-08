@@ -75,7 +75,7 @@ bool sdCardWriteFile( const char* fileName, const char* writeBuffer )
     }
 }
 
-bool sdCardReadFile( const char * fileName, char * readBuffer )
+bool sdCardReadFile( const char* fileName, char * readBuffer )
 {
     char fileNameSD[80];
     int i;
